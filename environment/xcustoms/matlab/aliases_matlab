@@ -1,0 +1,44 @@
+# -*- mode: sh -*- #
+
+
+# ----------------------------------------------
+# Procedure "MakeCDAlias"
+# ----------------------------------------------
+#
+# Arguments: $1 = ALIAS_NAME
+#            $2 = PATH
+#
+MakeCDAlias()
+{
+    ALIAS_NAME=$1
+    PATH=$2
+
+    if [ -d "$PATH" ]; then
+        echo "alias ${ALIAS_NAME}='cd \"$PATH\"'"
+    else
+        echo "alias ${ALIAS_NAME}='echo \"Directory $PATH does not exist.\"'"
+    fi
+}
+
+
+##
+# Aliases file for user matlab
+##
+
+## Directory changes (Procedure 'MakeCDAlias' should be defined in aliases_default)
+eval `MakeCDAlias cdb   $MATLAB_BASE_DIR`
+eval `MakeCDAlias cdf1   $MATLAB_BASE_DIR/felix_TB11`
+eval `MakeCDAlias cdf2   $MATLAB_BASE_DIR/felix_TB12`
+eval `MakeCDAlias cdm   $MATLAB_DEVELOPMENT_BRANCH`
+eval `MakeCDAlias cdi   $MATLAB_BASE_DIR/is_oos_switchoff_research`
+eval `MakeCDAlias cdh   $MATLAB_BASE_DIR/hot_start_research`
+
+
+## Command aliases
+alias mergeinfo='svn log -rHEAD:{"`date -d "100 days ago" +%Y-%m-%d`"} --stop-on-copy | grep -B 2 MatlabInfo | grep -v "^$" | grep -v -e "--" | replacestr "lines\n" "lines " | replacestr "line\n" "line "'
+alias sud='svnu'
+alias mb='matlab -nosplash'
+alias 9='/opt/linux/x86_64/matlab/7.9/bin/matlab -nosplash'
+alias mb.9='/opt/linux/x86_64/matlab/7.9/bin/matlab -nosplash'
+alias wm='cd /mnt/bu_sag/matlab/WeeklyMerges/'
+alias fif='fif -s %'

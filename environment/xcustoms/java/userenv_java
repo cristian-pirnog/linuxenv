@@ -1,0 +1,22 @@
+# -*- mode: sh -*- #
+
+export SVN_USER=crpi
+export PRODUCTION_BRANCH="tb15"
+
+set.build.branch stable-7
+
+export PATH=${JAVA_HOME}/bin:$MYSQL_HOME/bin:${PATH}
+
+# For ant
+#export PATH=${ANT_HOME}/bin:${BUILD_HOME}/bin:$PATH
+
+# For Eclipse IDE
+export PATH=${ECLIPSE_HOME}:${PATH}
+
+# For Intellij IDEA
+IDEA_PATH=/opt/linux/x86_64/idea/idea-IU-93.94/bin
+export PATH=${IDEA_PATH}:${PATH}
+
+export PATH=$HOME/bin:`echo $PATH | replacestr "$HOME/bin:" ":"`
+
+

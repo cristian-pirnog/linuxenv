@@ -1,0 +1,731 @@
+# -*- mode: sh -*- #
+
+shopt -s expand_aliases
+. ~/.aliases
+
+#----------------------------------------------
+# General functions
+#----------------------------------------------
+log()
+{
+    LOG_FILE=".user/svn.log"; 
+    if [ -f $LOG_FILE ]; then 
+        cat $LOG_FILE
+    else 
+        echo "Could not find log file $LOG_FILE"
+    fi
+}
+
+
+#----------------------------------------------
+debug()
+{
+    if [[ $# -eq 0 ]]; then
+        echo "Usage: debug branchSuffix"
+	return 1
+    fi
+
+    myCoreFile=core
+    if [[ ! -f ${myCoreFile} ]]; then
+	echo "Could not find core file. Exiting."
+	return 1
+    fi
+
+    gdb ~/bin/StPvmEngine.${1}.debug ${myCoreFile}
+}
+
+
+#----------------------------------------------
+vif()
+{
+    vi $(f $*)
+}
+
+
+#----------------------------------------------
+lower()
+{
+    echo $* | tr [:upper:] [:lower:]
+}
+
+#----------------------------------------------
+allSourceFiles()
+{
+    local myHeaders=".h .hpp"
+    local mySources=".C .cpp"
+    
+    local option=$1    
+    
+    case ${option} in
+        "?")
+            echo "Usage: `basename allSourceFiles` [?|-h|-s|pattern]"
+            return 0
+            ;;
+        "-h")
+            myExtensions="${myHeaders}"
+            ;;
+        "-s")
+            myExtensions="${mySources}"
+            ;;
+	
+	'')
+	    myExtensions="${myHeaders} ${mySources}"
+	    ;;
+        
+        *)
+            myExtensions=${@}
+            ;;
+    esac 
+    
+    for e in ${myExtensions}; do
+	find . -name '*'$e
+    done
+}
+
+#----------------------------------------------
+currentBuildMode()
+{
+    echo ""
+    if [ -f ~/.buildMode ]; then
+     ! echo "Current build mode: DEBUG"
+    else
+       echo "Current build mode: `echo ${SCAMMODE} | tr [:lower:] [:upper:]`"
+    fi
+    echo ""
+}
+
+
+#----------------------------------------------
+setDebug()
+{
+    if [ $# -ne 1 ]; then
+        echo "Usage:  setDebug <on | off>"
+        currentBuildMode
+        return 1
+    fi
+
+    case `echo $1 | tr [:upper:] [:lower:]` in
+        on)
+            echo -e "export SCAMMODE=debug\nexport STMODE=debug" > ~/.buildMode
+	    test -f ~/.makerules_custom && replace -s '#-# CXXFLAGS+=-DDEBUG' 'CXXFLAGS+=-DDEBUG' -- ~/.makerules_custom
+        ;;
+        off)
+            rm -f ~/.buildMode
+	    test -f ~/.makerules_custom && replace -s 'CXXFLAGS+=-DDEBUG' '#-# CXXFLAGS+=-DDEBUG' -- ~/.makerules_custom
+        ;;
+        *)
+            echo -e "Unknown option '$1'\n"
+            echo "Usage:  setDebug <on | off>"
+            return 1
+        ;;
+    esac
+
+    currentBuildMode
+
+    return 0
+}
+
+
+#----------------------------------------------
+isGitRepo()
+{
+    myDir=$(pwd)
+    while [[ ${myDir} != "/" ]]; do
+	if [[ -d ${myDir}/.git ]]; then
+	    echo 1
+	    return
+	fi
+	myDir=$(dirname ${myDir})
+    done
+    echo 0
+}
+
+
+#----------------------------------------------
+st()
+{
+    if [[ $(isGitRepo) -eq 1 ]]; then
+	git status $@
+    else
+	echo "Unknown repository type (supported: git, CVS)"
+    fi
+}
+
+
+#----------------------------------------------
+lna() # List files not added to the repository
+{
+    st | grep '?' | awk '{print $NF}'
+}
+
+
+#----------------------------------------------
+cvsdif()
+{
+    emacs_OPTIONS="-geometry 232x70"
+
+    # Check for conflicts
+    CONFLICTS=`st -q | grep '^C'`
+    if [ ${#CONFLICTS} -ne 0 ]
+    then
+       echo -e "\nConflicts detected. First resolve them before proceeding."
+       return 0 
+    fi
+
+    # If the directory .user exist ==> write the result to .user/svn.diff
+    if [ -d .user ]; then
+        cvs -q diff > .user/svn.diff
+
+        # Back-up the 'svn.log' file (if it exist)...
+        if [ -f .user/svn.log ]
+        then
+            cp .user/svn.log .user/svn.log.org
+        fi
+
+        CHANGED_FILES=`st -q | grep -v '^?' | grep -v '^U' | grep -v '^P'`
+
+        echo "$CHANGED_FILES"
+
+        # ... then write the skeleton in the new one
+        echo "Changes:" > .user/svn.log
+
+        IFS=$'\n'
+        index=1
+        for FILE_STRING in $CHANGED_FILES
+          do
+
+          # Split the string into TYPE & FILE
+          TYPE=`echo "$FILE_STRING" | awk '{print $1}'`
+          FILE=`echo "$FILE_STRING" | awk '{print $NF}'`
+
+          # Check whether it should put the whole path
+          if [ -f ".user/.fullpath" ]
+              then 
+              FILE_NAME=$FILE
+          else
+              FILE_NAME=`basename "$FILE"`
+          fi
+
+          POINT="."
+          if [ "$TYPE" = "A" ]
+          then
+              PREFIX_TEXT="Added file "
+              FILE_NAME=$FILE
+          elif [ "$TYPE" = "R" ]
+          then
+              PREFIX_TEXT="Deleted file "
+              FILE_NAME=$FILE
+          else
+              PREFIX_TEXT=""
+              POINT=": "
+          fi
+
+          echo -e "\t$index. $PREFIX_TEXT$FILE_NAME$POINT" >> .user/svn.log
+          let "index+=1"
+        done
+        unset IFS
+
+        # and then open it in emacs (the alias 'm' should be defined in .aliases)
+        m $emacs_OPTIONS -f split-window-horizontally .user/svn.log .user/svn.diff 
+    # otherwise, print it on the screen
+    else
+        cvs -q diff 
+    fi
+}
+
+#----------------------------------------------
+gitdif()
+{
+    emacs_OPTIONS="-geometry 232x70"
+
+    # Check for conflicts
+    CONFLICTS=`st --porcelain | grep '^C'`
+    if [ ${#CONFLICTS} -ne 0 ]
+    then
+       echo -e "\nConflicts detected. First resolve them before proceeding."
+       return 0 
+    fi
+
+    # If the directory .user exist ==> write the result to .user/svn.diff
+    if [ -d .user ]; then
+	git diff --cached $@ > .user/git.diff
+
+        # Back-up the 'git.log' file (if it exist)...
+        if [ -f .user/git.log ]
+        then
+            cp .user/git.log .user/git.log.org
+        fi
+
+        CHANGED_FILES=`st --porcelain | grep -v '^?' | grep -v '^U' | grep -v '^P'`
+
+        echo "$CHANGED_FILES"
+
+        # ... then write the skeleton in the new one
+        echo -e "Summary: \nDetails:\n" > .user/git.log
+
+        IFS=$'\n'
+        index=1
+        for FILE_STRING in $CHANGED_FILES
+          do
+
+          # Split the string into TYPE & FILE
+          TYPE=`echo "$FILE_STRING" | awk '{print $1}'`
+          FILE=`echo "$FILE_STRING" | awk '{print $NF}'`
+
+          # Check whether it should put the whole path
+          if [ -f ".user/.fullpath" ]
+              then 
+              FILE_NAME=$FILE
+          else
+              FILE_NAME=`basename "$FILE"`
+          fi
+
+          POINT="."
+          if [ "$TYPE" = "A" ]
+          then
+              PREFIX_TEXT="Added file "
+              FILE_NAME=$FILE
+          elif [ "$TYPE" = "D" ]
+          then
+              PREFIX_TEXT="Deleted file "
+              FILE_NAME=$FILE
+          else
+              PREFIX_TEXT=""
+              POINT=": "
+          fi
+
+          echo -e "\t$index. $PREFIX_TEXT$FILE_NAME$POINT" >> .user/git.log
+          let "index+=1"
+        done
+        unset IFS
+
+        # and then open it in emacs (the alias 'm' should be defined in .aliases)
+        m $emacs_OPTIONS -f split-window-horizontally .user/git.log .user/git.diff 
+    # otherwise, print it on the screen
+    else
+	git diff --cached $@
+    fi
+}
+
+#----------------------------------------------
+dif()
+{
+    if [ ! -d .user ]; then
+        echo "Directory \"`pwd`/.user\" doesn't exist. Would you like to create it? [y/n]"
+        read myAnswer
+
+        case $myAnswer in
+        y|Y|yes|Yes|YES)
+            mkdir .user
+        esac
+    fi
+
+    if [[ -d CVS ]]; then
+	cvsdif $@
+    elif [[ $(isGitRepo) -eq 1 ]]; then
+	gitdif $@
+    else
+	echo "Unknown repository type (supported: git, CVS)"
+    fi
+}
+
+
+#----------------------------------------------
+cvscmt()
+{
+    if [[ ! -f .notrace ]]; then
+        toggleTrace off -all
+    fi
+
+    LOG_FILE='.user/svn.log'
+    CHANGED_FILES=`st -q | grep -v '?'`
+    
+    if [ -f $LOG_FILE ]
+    then
+        echo " "
+        NON_REPO_FILES=`st -q | grep '?'`
+        if [ ${#NON_REPO_FILES} -ne 0 ]
+            then
+            echo -e "------------------------------------------" 
+            echo -e "Files not added to the repository\n"
+            echo -e "${NON_REPO_FILES}" | awk '{print "   "$0}'
+            echo -e "\n------------------------------------------"
+        fi
+        echo "Files changed"
+        echo " "
+        st | awk '{print "   "$0}'
+
+        echo " "
+        echo "=================== Begin of log file (" $LOG_FILE ") ========================="
+        cat $LOG_FILE
+
+        echo "==================== End of log file (" $LOG_FILE ") =========================="
+        echo
+
+        echo "Would you like to use the above log message? [y/n] "
+        read answer
+        case `lower $answer` in
+            y) 
+                cvs -q ci -F $LOG_FILE
+                ;;
+            *) 
+                echo "Exiting!"; return 0
+                ;;
+        esac
+    else
+        echo "Could not find log file: $LOG_FILE. Will run 'cvs commit' instead?"
+        cvs ci
+    fi
+
+}
+
+
+
+#----------------------------------------------
+gitcmt()
+{
+    LOG_FILE='.user/git.log'
+    
+    if [ -f $LOG_FILE ]
+    then
+        echo " "
+        NON_REPO_FILES=`st --porcelain | grep '?'`
+        if [ ${#NON_REPO_FILES} -ne 0 ]
+            then
+            echo -e "------------------------------------------" 
+            echo -e "Files not added to the repository\n"
+            echo -e "${NON_REPO_FILES}" | awk '{print "   "$0}'
+            echo -e "\n------------------------------------------"
+        fi
+        echo "Files changed"
+        echo " "
+        st  --untracked-files=no
+
+        echo " "
+        echo "=================== Begin of log file (" $LOG_FILE ") ========================="
+        cat $LOG_FILE
+
+        echo "==================== End of log file (" $LOG_FILE ") =========================="
+        echo
+
+        # Format the code
+        if [ -f .astyle ]; then
+            astyle --recursive '*.C' '*.h' 
+        else
+            echo "NOT Formatting the code with ASTYLE (no .astyle file found)"
+        fi
+
+        echo "Would you like to use the above log message? [y/n] "
+        read answer
+        case `lower $answer` in
+            y) 
+                git commit -F $LOG_FILE
+                ;;
+            *) 
+                echo "Exiting!"; return 0
+                ;;
+        esac
+    else
+        echo "Could not find log file: $LOG_FILE. Will run 'git commit' instead?"
+        echo git commit
+    fi
+
+}
+
+
+#----------------------------------------------
+cmt()
+{
+    if [[ -d CVS ]]; then
+	cvscmt
+    elif [[ $(isGitRepo) == 1 ]]; then
+	gitcmt
+    else
+	echo "Unknown repository type (supported: git, CVS)"
+    fi
+}
+
+
+# ============================================
+rv()
+{
+    if [ $# -eq 0 ]; then
+	echo "Are you sure you want to revert the whole tree? [y/n] "
+	read answer
+	case `lower $answer` in
+	    y)
+		echo "OK! Have it your way!"
+		;;
+	    *)
+		echo "Exiting"
+		return 0
+		;;
+	esac
+    fi
+
+    myDiff=`cvs -q diff $* | grep -v '^?'`
+    if [ ! -z "${myDiff}" ]; then
+        echo "${myDiff}" | patch -s -R -p0
+    else
+        echo "Nothing to revert"
+    fi
+}
+
+#----------------------------------------------
+ric()
+{
+    if [[ $# -lt 2 ]]; then
+	echo "Usage: ric from to [filePattern]"
+	return 1
+    fi
+    
+    from=$1
+    to=$2
+    shift 2
+    
+    myFiles=`allSourceFiles $*`
+
+    IFS=$'\n'
+    replace "$from" "$to" -- ${myFiles}
+    unset IFS
+}
+
+#------------------------------------------
+deSCize()
+{
+    for tag in $*; do
+	tagCopy=${tag}
+	prefix=''
+	if [[ ${tagCopy:0:1} == '_' ]]; then
+            prefix='_'
+            tagCopy=${tagCopy:1}
+	fi
+	
+	firstLetter=${tagCopy:1:1}
+	mainBody=${tagCopy:2}
+	
+	# For members
+	firstLetter=$(lower ${firstLetter})
+	
+	ric "${tag}" "${prefix}${firstLetter}${mainBody}"
+    done
+}
+
+#------------------------------------------
+deGet()
+{
+    for tag in $*; do
+	
+	# Check that it starts with get
+	if [[ ${tag:0:3} != 'get' ]]; then
+	    echo "tag $tag does not start with 'get'"
+	    continue
+	fi
+	
+	tagBody=${tag:4}
+	firstLetter=$(lower ${tag:3:1})
+	ric "${tag}()" "${firstLetter}${tagBody}()"
+    done
+}
+
+
+#----------------------------------------------
+lna()
+{
+    st | grep ? | awk '{print $NF}'
+}
+
+
+# The environment overrides
+if [ -f $HOME/.userenv_overrides ]; then
+    . $HOME/.userenv_overrides
+fi
+
+#----------------------------------------------
+# TrueCrypt functions
+#----------------------------------------------
+mapLoopDevice()
+{
+    local fileName="${1}"
+
+    # Check that the file is not already mapped
+    local deviceName=$(losetup -j "${fileName}" | cut -d ' ' -f 1)
+    if [[ -n ${deviceName} ]]; then
+	echo "File ${fileName} already mapped as " $(mount | grep ${deviceName} | cut -d ' ' -f 3)
+	return 1
+    fi
+    
+    deviceName=$(losetup -f)
+    sudo losetup ${deviceName} "${fileName}"
+    echo ${deviceName}
+}
+
+#----------------------------------------------
+getNextMapping()
+{
+    local mappingName=""
+    # Get the next available trucryptX name in /dev/mapper
+    for i in $(seq -w 1 10); do
+	mappingName="truecrypt${i}"
+	if [[ -n $(ls /dev/mapper | grep ${mappingName}) ]]; then
+	    if [[ ${i} == 10 ]]; then
+		# All 10 device mapping points are used. Will exit without mapping
+		return 1
+	    fi
+	else
+	    break
+	fi
+    done
+    
+    echo ${mappingName}
+}
+
+#----------------------------------------------
+tc()
+{
+    if [[ $# -lt 1 ]]; then
+	echo "Usage: tc [usb|deviceName]"
+	return 1
+    fi
+
+    deviceName=$(lower $1)
+    mountPoint=${2}
+
+    if [[ ${deviceName} == "usb" ]]; then
+	echo "Fetching the last usb device mounted"
+	deviceName="/dev/"$(dmesg  | grep ': sd' | tail -1 | awk '{print $NF}')
+    fi
+
+    echo "About to mount device ${deviceName}. Continue? [y/n]"
+    read answer
+    if [[ $(lower ${answer}) != "y" ]]; then
+	return 1
+    fi
+
+    # If the device is actually a file on the disk, map it to a loop device
+    if [[ -z $(echo ${deviceName} | grep '/dev/sd') ]]; then
+	echo "Looks like you're trying to mount a TC file. Continue? [y\n]"
+	read answer
+	if [[ $(lower ${answer}) != "y" ]]; then
+	    return 1
+	fi
+
+	fileName="${deviceName}"	
+	deviceName=$(mapLoopDevice "${fileName}")
+	if [[ $? -eq 1 ]]; then
+	    echo ${deviceName}
+	    return 1
+	fi
+    fi
+
+    # TODO: Check if the device was already mapped
+    mappingName=$(getNextMapping)
+    if [[ -z ${mappingName} ]]; then
+	echo "Could not get device mapping. Exiting."
+	return 1
+    fi
+
+    # Get the next available mapping point
+    if [[ -z ${mountPoint} ]]; then
+	baseMountDir="$HOME/truecrypt"
+	for i in $(seq -w 1 10); do
+	    mountPoint=${baseMountDir}/tc${i}
+	    if [[ -n $(mount | grep ${mountPoint}) ]]; then
+		echo "Mount point ${mountPoint} is already used"
+		if [[ ${i} == 10 ]]; then
+		    echo "All 10 mount points are used. Will exit without mapping."
+		    return 1
+		fi
+	    else
+		break
+	    fi
+	done
+    fi
+
+    mkdir -p ${mountPoint}
+    sudo tcplay --map=${mappingName} --device=${deviceName}
+    sudo mount -o uid=$(id -u),gid=$(id -g) /dev/mapper/${mappingName} ${mountPoint}
+
+    echo "TC Device ${deviceName} mapped as ${mountPoint}"
+}
+
+#----------------------------------------------
+untc()
+{
+    if [[ $# -lt 1 ]]; then
+	echo "Usage: untc mountPoint"
+	return 1
+    fi
+
+    mountPoint=${1}
+
+    devName=$(mount | grep ${mountPoint} | cut -d ' ' -f 1)
+    if [[ -z ${devName} ]]; then
+	echo "Mount point ${mountPoint} is not in the mount table. Aborting"
+	return 1
+    fi
+    mountPoint=$(mount | grep ${mountPoint} | cut -d ' ' -f 3)
+
+    sudo umount ${devName}
+    sudo dmsetup remove ${devName}
+    if [[ -n $(ls ${mountPoint}) ]]; then
+	echo "Mount point ${mountPoint} not empty. Will not remove"
+	return 1
+    else
+	rm -rf ${mountPoint}
+    fi
+}
+
+
+#----------------------------------------------
+tcnew()
+{
+    if [[ $# -lt 2 ]]; then
+	echo "Usage: tcnew fileName fileSize"
+	return 1
+    fi
+
+    fileName="${1}"
+    fileSize=${2}
+
+    # Check if the file exists
+    if [[ -f ${fileName} ]]; then
+	echo "File exists: ${fileName}"
+	return 1
+    fi
+
+    # Create the file
+    dd if=/dev/zero of="${fileName}" bs=1 count=0 seek=${fileSize}
+    # Map it to a loop device
+    deviceName=$(mapLoopDevice "${fileName}")
+    if [[ $? -eq 1 ]]; then
+	echo ${deviceName}
+	return 1
+    fi
+    
+    # Create the volume
+    echo "About to create the TrueCrypt volume"
+    sudo tcplay -c -d ${deviceName} -a whirlpool -b AES-256-XTS
+    
+    if [[ $? -ne 0 ]]; then
+	echo "Could not create the TrueCrypt volume. Exiting"
+
+	# Delete the mapping
+	sudo losetup -d ${deviceName}
+
+	return 1
+    fi
+
+    echo deviceName=${deviceName}
+    return 1
+
+    # Delete the mapping
+    sudo losetup -d ${deviceName}
+
+    # 
+    sudo tcplay --map=${mappingName} --device=${deviceName}
+    mkfs.ext4 /dev/mapper
+
+    # Mount the volume
+    tc ${fileName}
+}

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+EMACS=m
+EMACSCLIENT='emacsclient --no-wait'
+
+MyUID=`id -u`
+if [ -S "/tmp/emacs${MyUID}/server" ]; then
+  if [ $# -gt 0 ]; then
+    $EMACSCLIENT "$@"
+  else
+    $EMACSCLIENT .
+  fi
+else
+  $EMACS -f server-start "$@" &
+fi

@@ -1,0 +1,25 @@
+aliases_crpi $HOME/.aliases_custom
+bookmarks.html $HOME/.mozilla/firefox/*.default/bookmarks.html
+CRON $HOME/CRON
+metacity $HOME/.gconf/apps/metacity
+userenv_crpi $HOME/.userenv_custom
+software_custom $HOME/.software_custom
+synergy.conf $HOME/.synergy.conf
+#
+# Files from bin directory
+#
+bin/backupRepo $HOME/bin/backupRepo
+bin/from_unixtime_ms $HOME/bin/from_unixtime_ms
+bin/myXterm $HOME/bin/myXterm
+bin/twoTerms $HOME/bin/twoTerms
+bin/coolSsh $HOME/bin/coolSsh
+bin/mountNAS $HOME/bin/mountNAS
+#
+# Files from 'useful' directory
+#
+useful/firefox/searchplugins $HOME/.mozilla/firefox/*.default/searchplugins
+#
+# Files used by SSH
+#
+.ssh/config $HOME/.ssh/config
+.ssh/known_hosts $HOME/.ssh/known_hosts

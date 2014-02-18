@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Checks for SVN conflicts in the current directory
+
+# No Whitespace == Line Feed:Carriage Return
+No_WSP=$'\x0A'$'\x0D'
+IFS=$No_WSP
+
+CONFLICTS=`svn status | grep '^C' | replacestr ' +' ';'`
+
+# If conflicts detected, open them in XEmacs
+if [ ! -n "$CONFLICTS" ]; then
+    echo "No conflicts detected in directory `pwd`"
+    exit 0
+fi
+
+SVN_RESOLVED_STATEMENTS=''
+echo ""
+echo "For copy-paste:"
+IFS=:$'\x20'$'\x09'$'\x0A'$'\x0D'
+for myString in $CONFLICTS
+do
+  myFile=`echo $myString | sed 's/;/ /' | awk '{print $2}'`
+  myFiles=$myFiles" "$myFile
+  STATEMENT="svn resolved '"$myFile"'"
+  SVN_RESOLVED_STATEMENTS=$SVN_RESOLVED_STATEMENTS":"$STATEMENT
+  echo $STATEMENT
+done
+echo ""
+
+m $myFiles -f delete-other-windows 
+
+
+echo "Would you like to set SVN RESOLVED for all files with conflict? [y/n]"
+
+IFS=":"
+read answer
+case $answer in
+    y)
+      for myStatement in $SVN_RESOLVED_STATEMENTS; 
+      do
+        echo $myStatement | bash
+      done
+      ;;
+    *)
+      echo "Not setting SVN RESOLVED for conflicting files."
+      ;;
+esac

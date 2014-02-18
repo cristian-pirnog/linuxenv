@@ -1,0 +1,117 @@
+#!/bin/bash
+
+source $HOME/bin/commons.sh
+
+
+# Check that the revisionNumber argument is given
+if [ $# -lt 1 ]; then
+   echo "Usage: : `basename $0` isOffline"
+   exit 1
+fi
+
+## First input argument specifies if script runs offline
+BATCH_MODE=$1
+
+echo " "
+echo "--------------------------------------------"
+echo " "
+echo " YOU ARE USING THE DATABASE: "
+echo " " 
+echo "       $DATABASE_COMMAND"
+echo " "
+echo " "
+echo "--------------------------------------------"
+echo " "
+
+
+TARGET_MERGES_DIRECTORY='/mnt/bu_sag/matlab/WeeklyMerges'
+
+# Read the name of the origin branch
+if [ $BATCH_MODE == 0 ]; then
+    echo "Enter the name of the origin branch (default $STABLE_BRANCH):"
+    read ORIGIN_BRANCH
+fi
+
+if [ -z $ORIGIN_BRANCH ]; then
+    ORIGIN_BRANCH=$STABLE_BRANCH
+fi
+
+# Read the directories to update
+ACTIVE_RESEARCH_BRANCHES_URL=`GetResearchBranchesToMerge $ORIGIN_BRANCH`
+LATEST_SVN_REVISION=`GetLatestSVNRevision`
+
+# Check that LATEST_SVN_REVISION is a number
+if [ ! -z `echo $LATEST_SVN_REVISION | grep '[a-zA-Z]'` ]; then
+    echo "The LATEST_SVN_REVISION must be a number."
+    exit 1
+fi
+
+## Add the newer production branches to the list
+NEWER_PRODUCTION_BRANCHES_URL=`GetNewerResearchBranchesUrl $ORIGIN_BRANCH`
+if [ ! -z "$NEWER_PRODUCTION_BRANCHES_URL" ]; then
+    echo ""
+    echo "The following branches are newer than $ORIGIN_BRANCH and will be also updated:"
+    echo "$NEWER_PRODUCTION_BRANCHES_URL"
+    echo "MAIN branch will not be updated"
+
+    ACTIVE_RESEARCH_BRANCHES_URL="$ACTIVE_RESEARCH_BRANCHES_URL
+$NEWER_PRODUCTION_BRANCHES_URL"
+else
+    echo ""
+    echo "No production branches found that are newer than the current production branch"
+    echo "Will also add the MAIN branch."
+    echo ""
+
+    ACTIVE_RESEARCH_BRANCHES_URL="$ACTIVE_RESEARCH_BRANCHES_URL 
+`GetMainBranchUrl`"
+fi
+
+
+echo "Branches to merge:"
+echo "$ACTIVE_RESEARCH_BRANCHES_URL"
+
+if [ $BATCH_MODE == 0 ]; then
+    echo "Press ENTER to continue..."
+    read ANSWER
+fi
+
+echo "Checking that the svn client can work with the checkout"
+for myBranchUrl in $ACTIVE_RESEARCH_BRANCHES_URL
+  do
+  myBranchName="$TARGET_MERGES_DIRECTORY"/`basename $myBranchUrl`
+  echo "Checking branch: " $myBranchName
+  
+  if [ ! -d $myBranchName ]; then
+      echo "Chekc-out ($myBranchName) does not exist. That's OK"
+  else
+      svn update --non-interactive -q $myBranchName
+      if [ ! $? -eq 0 ]; then
+          echo "Error!!! Check-out is not compatible with SVN client. Removing branch."
+	  rm -rf $myBranchName
+          #exit 1
+      fi
+  fi
+done
+
+
+for myBranchUrl in $ACTIVE_RESEARCH_BRANCHES_URL
+  do
+  myBranchName=`basename $myBranchUrl`
+  myTargetDirectory="$TARGET_MERGES_DIRECTORY"/"$myBranchName"
+  myBranchUrl=`echo $myBranchUrl | replacestr 'svn\+ssh://' "svn+ssh://$RESPONSIBLE_FOR_WEEKLY_MERGE@" | replacestr "$RESPONSIBLE_FOR_WEEKLY_MERGE@$RESPONSIBLE_FOR_WEEKLY_MERGE@" "$RESPONSIBLE_FOR_WEEKLY_MERGE@"`
+
+  echo ""
+  echo "----------------------------------------"
+  echo "PROCESSING BRANCH \"$myBranchUrl\""
+  echo "----------------------------------------"
+  echo ""
+
+
+  ## Check-out the research branch
+  myCheckoutCommand="svn checkout -q $myBranchUrl $myTargetDirectory"
+  echo $myCheckoutCommand
+  echo $myCheckoutCommand | bash
+
+  ## And do the merge
+  mergeFromStableBranch $LATEST_SVN_REVISION $myTargetDirectory $ORIGIN_BRANCH
+done

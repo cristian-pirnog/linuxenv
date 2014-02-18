@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#========================================================================
+printUsage()
+{
+cat << %%USAGE%%
+    Usage: `basename $0` [sshOptions] user@host
+
+    Description:
+        Tool that does distributeSshKeys & ssh in one go
+
+    Options:
+        sshOptions: Any options that one wants to send to 'ssh' 
+                    (e.g. -X. -Y, etc).
+
+	user@host : Obvious.
+
+%%USAGE%%
+}
+
+#========================================================================
+
+
+if [ $# -eq 0 ]; then
+    printUsage
+    exit 1
+fi
+
+## Retrieve the last argument
+MyAllArguments=$@
+for a in $MyAllArguments
+do
+    USER_AT_HOST=$a
+done
+
+## Run distributeSshKeys
+/home/env/bin/distributeSshKeys "$USER_AT_HOST"
+
+if [ $? -ne 0 ]; then
+    echo "distributeSshKeys has failed. Will try ssh-ing anyway."
+fi
+
+# Run SSH
+ssh $MyAllArguments
+
+echo "Done!"

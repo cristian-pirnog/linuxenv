@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<gconf>
+        <entry name="maximize" mtime="1127464864" type="string">
+                <stringvalue>disabled</stringvalue>
+        </entry>
+        <entry name="begin_resize" mtime="1127464834" type="string">
+                <stringvalue>disabled</stringvalue>
+        </entry>
+        <entry name="begin_move" mtime="1127464831" type="string">
+                <stringvalue>disabled</stringvalue>
+        </entry>
+        <entry name="minimize" mtime="1127464822" type="string">
+                <stringvalue>disabled</stringvalue>
+        </entry>
+        <entry name="unmaximize" mtime="1104824820" type="string">
+                <stringvalue>disabled</stringvalue>
+        </entry>
+        <entry name="close" mtime="1104824535" type="string">
+                <stringvalue>disabled</stringvalue>
+        </entry>
+</gconf>

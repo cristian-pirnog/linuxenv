@@ -1,0 +1,214 @@
+#!/bin/bash
+
+source $HOME/bin/commons.sh
+
+# Check that the revisionNumber argument is given
+if [ $# -lt 3 ]; then
+   echo "Usage: `basename $0` revisionNumber checkoutDir stableBranch"
+   echo " "
+   echo "where revisionNumber is the latest revision number of the stable branch"
+   exit 1
+fi
+
+# Parse input arguments
+TO_REVISION=$1
+CHECKOUT_DIRECTORY=$2
+ORIGIN_BRANCH=$3
+
+##-----------------------------------------------------------------------
+SOURCE_BRANCH_URL="svn+ssh://$RESPONSIBLE_FOR_WEEKLY_MERGE@repository_sag/home/repository/svn/matlab/matlab/production/$ORIGIN_BRANCH"
+##-----------------------------------------------------------------------
+
+echo "-----------------------------------------"
+echo "Stable branch is: $ORIGIN_BRANCH"
+echo "-----------------------------------------"
+
+
+#-------------------------------------------------------
+# Change directory to the CHECKOUT_DIRECTORY
+#-------------------------------------------------------
+cd $CHECKOUT_DIRECTORY
+
+
+## #-------------------------------------------------------
+## # Check whether the branch should be skipped from merging
+## #-------------------------------------------------------
+## if [ -f ".skipFromMerging" ]; then
+##     echo " "
+##     echo "Branch `basename \`pwd\`` is marked as skipFromMerging. Skipping it!"
+##     echo " "
+##     exit 1
+## fi
+
+
+##-----------------------------------------------------------------------
+SVN_BRANCH_NAME=`GetBranchName`
+RESPONSIBLE_FOR_BRANCH=`GetResponsibleForBranch $SVN_BRANCH_NAME`
+
+# Define e-mail addresses of recipients
+RESPONSIBLE_FOR_BRANCH_EMAIL="$RESPONSIBLE_FOR_BRANCH@imc.nl"
+RESPONSIBLE_FOR_WEEKLY_MERGE_EMAIL="$RESPONSIBLE_FOR_WEEKLY_MERGE@imc.nl"
+
+
+EMAIL_POSTFIX=" \n-----------------------------------------\n
+Location: `pwd`\n
+Target branch `svn info | grep URL`\n
+Source branch URL: $SOURCE_BRANCH_URL\n
+-----------------------------------------\n\n
+If you have questions/trouble, feel free to come by and ask me.\n
+\n
+Cheers,\n
+$RESPONSIBLE_FOR_WEEKLY_MERGE\n 
+"
+##-----------------------------------------------------------------------
+
+
+#-------------------------------------------------------
+# Check that the local checkout doesn't have changes (files not added to the
+# repository are excluded)
+#-------------------------------------------------------
+REPOSITORY_STATUS=`svn status | grep -v '^?'`
+if [ -n  "$REPOSITORY_STATUS" ]; then
+    echo "*$REPOSITORY_STATUS*"
+
+    svn revert -R .
+    svn status | grep '^?' | replacestr '?' ' ' | xargs rm -rf
+fi
+
+## Check if the checkout belongs to the RESPONSIBLE_FOR_WEEKLY_MERGE
+BRANCH_URL=`GetBranchURL | grep -v svn+ssh://repository_sag`
+if [ ! -z $BRANCH_URL ]; then
+    # If it doesn't, then switch it to the RESPONSIBLE_FOR_WEEKLY_MERGE
+    PREVIOUS_OWNER=`svn info | grep '^URL:' | replacestr 'URL: ' '' | awk --field-separator @ '{print $1}' | replacestr 'svn\+ssh://' ''`
+    NEW_BRANCH_URL=`echo $BRANCH_URL | replacestr "$PREVIOUS_OWNER@" "$RESPONSIBLE_FOR_WEEKLY_MERGE@"`
+    echo "doing the svn switch"
+    echo "svn switch --relocate $BRANCH_URL $NEW_BRANCH_URL"
+    svn switch --relocate $BRANCH_URL $NEW_BRANCH_URL
+fi
+
+## Update the local checkout (needs to be done before SVN MERGE is called)
+svn update --non-interactive
+
+#-------------------------------------------------------
+# Get the branch name and the FROM_REVISION
+#-------------------------------------------------------
+FROM_REVISION=`GetLatestMergeRevision $ORIGIN_BRANCH $SVN_BRANCH_NAME`
+
+
+if [ $FROM_REVISION = "NULL" ]; then
+    echo "FROM_REVISION is NULL."
+    echo "Checking if any merge was done from other branches"
+    FROM_REVISION=`GetLatestMergeRevisionEver $SVN_BRANCH_NAME`
+    if [ $FROM_REVISION = "NULL" ]; then
+        echo "FROM_REVISION = $FROM_REVISION"
+        echo "Retrieving the revision when branch \"$SVN_BRANCH_NAME\" was created"
+        SVN_BRANCH_URL=`GetBranchURL`
+        FROM_REVISION=`GetBranchCreatedRevision $SVN_BRANCH_URL`
+    else
+        echo "Retrieving the revision when stable branch \"$ORIGIN_BRANCH\" was created"
+        TMP=`StripUserNameFromSvnURL $SOURCE_BRANCH_URL`
+        FROM_REVISION=`GetBranchCreatedRevision $TMP`
+    fi
+    echo "FROM_REVISION = $FROM_REVISION"
+fi
+
+
+
+#-------------------------------------------------------
+# Check that TO_REVISION > FROM_REVISION
+#-------------------------------------------------------
+if [ $TO_REVISION -le $FROM_REVISION ]; then
+    echo "TO_REVISION ($TO_REVISION) should be greater then FROM_REVISION ($FROM_REVISION)"
+    exit 1
+fi
+
+#-------------------------------------------------------
+# Perform the merge
+#-------------------------------------------------------
+MERGE_COMMAND="merge --non-interactive -r$FROM_REVISION:$TO_REVISION $SOURCE_BRANCH_URL"
+
+echo $MERGE_COMMAND
+echo $MERGE_COMMAND | xargs svn
+
+# Check that the merge command has succeeded
+if [ $? -ne 0 ]; then
+    SendEMail "Weekly merge: svn merge command has failed" "Branch name: $SVN_BRANCH_NAME" "$RESPONSIBLE_FOR_WEEKLY_MERGE"
+    exit 1
+fi
+
+
+echo "RevisionRange = $FROM_REVISION-$TO_REVISION"
+export MERGING_REVISION_RANGE="$FROM_REVISION-$TO_REVISION"
+
+mkdir -p .user
+echo "svn_merge" > .user/svn.log
+
+echo "MatlabInfo:merge; origin:$ORIGIN_BRANCH; target: $SVN_BRANCH_NAME; range:$MERGING_REVISION_RANGE; description: Weekly merge from stable branch to research branch; timestamp: $TIME_STAMP;" > .user/svn.log
+
+echo "Log message written to file .user/svn.log:"
+echo "-------------------------------------------------------"
+cat .user/svn.log
+echo "-------------------------------------------------------"
+
+
+#-------------------------------------------------------
+# Check if there are conflicts
+#-------------------------------------------------------
+CheckForConflicts
+HAS_CONFLICTS=$?
+
+if [ $HAS_CONFLICTS -ne 0 ]; then
+    EMAIL_BODY="Hello $RESPONSIBLE_FOR_BRANCH,\n
+\n
+Conflicts were detected during the merge from branch \"$ORIGIN_BRANCH\" to branch \"$SVN_BRANCH_NAME\".\n
+As responsible for the target branch, you must solve the conflict and then announce the responsible for\n
+the weekly merges (currently: $RESPONSIBLE_FOR_WEEKLY_MERGE).\n
+\n
+$EMAIL_POSTFIX
+"
+    SendEMail "$SVN_BRANCH_NAME: Conflicts detected" "$EMAIL_BODY" "$RESPONSIBLE_FOR_BRANCH_EMAIL" "$RESPONSIBLE_FOR_WEEKLY_MERGE_EMAIL" "$RESPONSIBLE_FOR_WEEKLY_MERGE_EMAIL"
+    exit 0
+fi
+
+
+#-------------------------------------------------------
+# Check if there are syntax errors
+#-------------------------------------------------------
+checkSyntax -nodisplay -nosplash
+wait $!
+
+
+if [ -f 'syntaxErrors.mat' ]; then
+    echo "Syntax errors detected"
+    EMAIL_BODY="Hello $RESPONSIBLE_FOR_BRANCH,\n
+\n
+Syntax errors were detected during the merge from branch \"$ORIGIN_BRANCH\" to branch \"$SVN_BRANCH_NAME\".\n
+As responsible for the target branch, you must fix these errors, check the fix (by running the function CheckSyntax)\n
+and then announce $RESPONSIBLE_FOR_WEEKLY_MERGE to commit changes.\n
+\n
+$EMAIL_POSTFIX
+"
+    SendEMail "$SVN_BRANCH_NAME: SyntaxErrors detected" "$EMAIL_BODY" "$RESPONSIBLE_FOR_BRANCH_EMAIL" "$RESPONSIBLE_FOR_WEEKLY_MERGE_EMAIL" "$RESPONSIBLE_FOR_WEEKLY_MERGE_EMAIL"
+    exit 0
+fi
+
+svn commit -F .user/svn.log
+
+echo " "
+echo "Inserting merge information into the (LOCAL) database: $MATLAB_DATABASE"
+InsertSvnMerge "$ORIGIN_BRANCH" "$SVN_BRANCH_NAME" "$MERGING_REVISION_RANGE" "$RESPONSIBLE_FOR_WEEKLY_MERGE"
+
+
+#-------------------------------------------------------
+# Announce the responsible that the merge went smooth
+#-------------------------------------------------------
+EMAIL_BODY="Hello $RESPONSIBLE_FOR_BRANCH,\n
+\n
+The weekly merge went smooth for your branch.\n
+\n
+$EMAIL_POSTFIX"
+
+
+echo "RESPONSIBLE_FOR_BRANCH_EMAIL       = $RESPONSIBLE_FOR_BRANCH_EMAIL" 
+echo "RESPONSIBLE_FOR_WEEKLY_MERGE_EMAIL = $RESPONSIBLE_FOR_WEEKLY_MERGE_EMAIL"
+SendEMail "$SVN_BRANCH_NAME: Weekly merge completed" "$EMAIL_BODY" "$RESPONSIBLE_FOR_BRANCH_EMAIL" "$RESPONSIBLE_FOR_WEEKLY_MERGE_EMAIL" "$RESPONSIBLE_FOR_WEEKLY_MERGE_EMAIL"

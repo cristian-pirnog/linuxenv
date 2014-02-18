@@ -1,0 +1,84 @@
+#!/bin/bash
+
+#
+# Extends the Matlab-mode dictionary file of DABBREVREV with the functions from the
+#   research code.
+#
+
+
+# $LastChangedBy$
+# $LastChangedDate$
+# $LastChangedRevision$
+
+
+source ~/bin/commons.sh
+
+# ----------------------------------------------
+# Procedure "ListMatlabFiles"
+# ----------------------------------------------
+#
+# Arguments: $1 = DIRECTORY_NAME
+#
+ListMatlabFiles()
+{
+
+DIRECTORY_NAME=$1
+    
+DIR_BASENAME=`basename $DIRECTORY_NAME`
+
+echo $DIRECTORY_NAME
+
+# The list of all '.m' files in the path
+tree -i $DIRECTORY_NAME | grep '\.m$' | grep -v '^#' | grep -v "~$" | sed 's/\.m$//g' > $MATLAB_CUSTOM_DIR/matlab_$DIR_BASENAME.dab
+
+}
+
+
+
+
+# ----------------------------------------------
+#  Main Procedure
+# ----------------------------------------------
+
+# Check that the DABBREV directory exists
+DABBREV_DIR="$HOME/.dabbrev"
+if [ ! -d  $DABBREV_DIR ]; then
+    echo ".dabbrev directory does not exist"
+    exit 0
+fi
+
+
+# Check that the MATLAB_CUSTOM_DIR  directory exists and try to create if it doesn't
+MATLAB_CUSTOM_DIR="$DABBREV_DIR/matlab_custom"
+if [ ! -d  $MATLAB_CUSTOM_DIR ]; then
+    mkdir $MATLAB_CUSTOM_DIR
+    if [ ! $? ]; then
+        echo "Could not create directory $MATLAB_CUSTOM_DIR. Exiting."
+        exit 1
+    fi
+fi
+
+# Remove all files from MATLAB_CUSTOM_DIR
+rm -f $MATLAB_CUSTOM_DIR/*
+
+MATLAB_BRANCHES="$MATLAB_BASE_DIR/`GetLatestProductionBranch` $MATLAB_DEVELOPMENT_BRANCH"
+
+for BRANCH in $MATLAB_BRANCHES; do
+  ListMatlabFiles $BRANCH
+done
+
+# First all the custom functions...
+ALL_FILES=`ls $MATLAB_CUSTOM_DIR`
+for FILE in $ALL_FILES; do
+  cat $MATLAB_CUSTOM_DIR/$FILE >> $MATLAB_CUSTOM_DIR/all-matlab.dab
+done
+
+
+# ... then add the standard matlab commands
+if [ -f $DABBREV_DIR/matlab-mode-base.dab ]; then
+    cat $DABBREV_DIR/matlab-mode-base.dab >> $MATLAB_CUSTOM_DIR/all-matlab.dab
+fi
+
+
+# Finally: SORT, UNIQUE and save the result to the main matlab-mode dir
+sort -u $MATLAB_CUSTOM_DIR/all-matlab.dab > $DABBREV_DIR/matlab-mode.dab

@@ -1,0 +1,17 @@
+CRON $HOME/CRON
+aliases_matlab $HOME/.aliases_custom
+userenv_matlab $HOME/.userenv_custom
+bin/checkSyntax $HOME/bin/checkSyntax
+bin/commitMerge $HOME/bin/commitMerge
+bin/commons.sh $HOME/bin/commons.sh
+bin/database.sh $HOME/bin/database.sh
+bin/deleteMatlabBranch $HOME/bin/deleteMatlabBranch
+bin/javaOpts $HOME/bin/javaOpts
+bin/keepMergeRight $HOME/bin/keepMergeRight
+bin/matlab $HOME/bin/matlab
+bin/sendMergeEMail $HOME/bin/sendMergeEMail
+bin/mergeAllFromStableBranch $HOME/bin/mergeAllFromStableBranch
+bin/mergeFromStableBranch $HOME/bin/mergeFromStableBranch
+bin/splitBugFixBranch $HOME/bin/splitBugFixBranch
+bin/splitProductionBranch $HOME/bin/splitProductionBranch
+bin/splitResearchBranch $HOME/bin/splitResearchBranch

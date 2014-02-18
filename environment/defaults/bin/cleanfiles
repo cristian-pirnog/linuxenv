@@ -1,0 +1,5 @@
+#!/bin/bash -f
+
+
+#find . -type f -exec chmod -x {} \;
+find . -name '*~' -exec rm {} \;

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<gconf>
+        <entry name="auto_raise" mtime="1156931073" type="bool" value="false">
+        </entry>
+        <entry name="theme" mtime="1191316342" type="string">
+                <stringvalue>Bluecurve</stringvalue>
+        </entry>
+        <entry name="auto_raise_delay" mtime="1156924563" type="int" value="200">
+        </entry>
+        <entry name="focus_mode" mtime="1156931072" type="string">
+                <stringvalue>sloppy</stringvalue>
+        </entry>
+        <entry name="num_workspaces" mtime="1142426339" type="int" value="12">
+        </entry>
+</gconf>

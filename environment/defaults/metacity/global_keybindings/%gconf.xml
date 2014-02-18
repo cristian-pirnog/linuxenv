@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<gconf>
+        <entry name="run_command_2" mtime="1192429521" type="string">
+                <stringvalue>&lt;Alt&gt;a</stringvalue>
+        </entry>
+        <entry name="switch_to_workspace_down" mtime="1190986932" type="string">
+                <stringvalue>&lt;Alt&gt;k</stringvalue>
+        </entry>
+        <entry name="switch_to_workspace_up" mtime="1190986929" type="string">
+                <stringvalue>&lt;Alt&gt;i</stringvalue>
+        </entry>
+        <entry name="switch_to_workspace_right" mtime="1190986916" type="string">
+                <stringvalue>&lt;Alt&gt;semicolon</stringvalue>
+        </entry>
+        <entry name="switch_to_workspace_left" mtime="1190986910" type="string">
+                <stringvalue>&lt;Alt&gt;j</stringvalue>
+        </entry>
+</gconf>

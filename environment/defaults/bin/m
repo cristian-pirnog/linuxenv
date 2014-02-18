@@ -1,0 +1,16 @@
+#!/bin/bash
+
+
+#while getopts g: option $*
+#    do
+#        case $option in
+#        g)
+#            OFFSET="$OPTARG"
+#            ;;
+#        *)
+#            OTHER_OPTS="$OTHER_OPTS $option $OPTARG"
+#            ;;
+#        esac
+#done
+
+emacs -geometry 117x39 ${*} #"$OFFSET" $OTHER_OPTS

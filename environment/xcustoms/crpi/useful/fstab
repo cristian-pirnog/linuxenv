@@ -1,0 +1,7 @@
+### MDArchive mount
+orthus:/var/ftp/pub/mdarchive  /var/ftp/pub/mdarchive  nfs  rsize=8192,wsize=8192,timeo=14,intr
+dha:/home/mdcache       /mnt/mdcache      nfs  rsize=8192,wsize=8192,timeo=14,intr
+
+### Deltazug
+//deltazug/bu_sag       /mnt/bu_sag             cifs username=sag,password=Mindp0wer,uid=10597,gid=10000,noperm
+//deltazug/nb_data      /mnt/nb_data            cifs username=sag,password=Mindp0wer,uid=10597,gid=10000,noperm

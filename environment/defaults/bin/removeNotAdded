@@ -1,0 +1,3 @@
+#!/bin/bash
+
+listNotAdded $* | grep -v ".user" | xargs rm -rf

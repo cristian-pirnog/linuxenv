@@ -1,0 +1,4 @@
+# -*- mode: sh -*- #
+
+# The software packages that should be sourced for this user
+#INSTALLED_SOFTWARE_PACKAGES="SoftwareTools.mysql.client.5.0.45.linux.x86_64 SoftwareTools.groovy.1.5.6.noarch SoftwareTools.matlab.7.10.linux.x86_64 SoftwareTools.R.2.10.0.linux.x86_64"

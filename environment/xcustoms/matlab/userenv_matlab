@@ -1,0 +1,52 @@
+# -*- mode: sh -*- #
+
+# For JDK (needed for integrating Java code into Matlab)
+
+ARCH=`arch | replacestr i686 i386`
+
+if [ `hostname` == 'crpinotebook.nl.imc.local' ]; then
+   myMatlabVersion="7.4"
+else
+   myMatlabVersion="7.5"
+   export MLM_LICENSE_FILE=27000@joyeuse,27000@hauteclere,27000@lightsaber
+fi
+
+# Source the env for the software packages
+for i in SoftwareTools.mysql.5.0.41.linux.$ARCH SoftwareTools.netcdf.3.6.2.linux.$ARCH SoftwareTools.matlab.$myMatlabVersion.linux.$ARCH \
+         SoftwareTools.mysql.client.5.0.45.linux.$ARCH SoftwareTools.R.2.10.0.linux.$ARCH SoftwareTools.torque.cli.2.3.5.linux.$ARCH
+do
+    myEnvFile=`/home/env/tools/bin/$i.operator env`
+    if [ -f $myEnvFile ]
+    then
+        source $myEnvFile
+    fi
+done
+
+export SVN_USER=crpi
+export FIND_IN_FILE_EXCLUDES="\.user"
+
+# The MySQL and Matlab root installation
+export PATH=${PATH}:$MYSQL_HOME/bin:$MATLAB_HOME/bin
+
+# The paths to the matlab stable and development branches
+export PROJECT_STABLE_BRANCH='felix_TB11'
+export PROJECT_MAIN_BRANCH='main'
+
+export MATLAB_BASE_DIR="$HOME/code"
+export MATLAB_STABLE_BRANCH="$MATLAB_BASE_DIR/$PROJECT_STABLE_BRANCH"
+export MATLAB_DEVELOPMENT_BRANCH="$MATLAB_BASE_DIR/$PROJECT_MAIN_BRANCH"
+
+
+#------------------------------------------
+lastLog()
+{
+    LOG_FILE=".user/log/matlab/last.log"
+
+    if [ ! -f $LOG_FILE ]
+    then
+        echo "Could not find log file: $LOG_FILE"
+        return
+    fi
+
+    more $LOG_FILE
+}

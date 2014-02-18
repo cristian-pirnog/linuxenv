@@ -1,0 +1,30 @@
+# -*- mode: sh -*- #
+
+MAILTO=crpi@imc.nl
+
+# Every monday, update the extended Matlab DABBREV dictionary for XEmacs
+# 30 12 * * 1 bash --login -c "~/bin/mergeAllFromStableBranch 1"
+
+# Every saturday, update the extended Matlab DABBREV dictionary for XEmacs
+# 30 09 * * 0 bash --login -c "~/CRON/3rdFridayOfMonthMeeting" > /dev/null 2>&1
+
+# Every saturday, update the extended Matlab DABBREV dictionary for XEmacs
+0 12 * * 0 bash --login -c "~/CRON/extendMatlabDictionary" > /dev/null 2>&1
+
+# Every weekday, export the mishit coefficients to my testdatabase
+0 7 * * 1-5 bash --login -c "~/CRON/exportToOptimizerDB_tb10"
+
+# Every weekday, export the mishit coefficients to my testdatabase
+# 0 8 * * 1-5 bash --login -c "~/CRON/exportToOptimizerDB_tb11"
+
+# Every weekday, export the mishit coefficients to my testdatabase
+# 0 4 * * 2-6 bash --login -c "~/CRON/listCommitsToStableBranch.sh" > /dev/null 2>&1
+
+# From Tuesday to Saturday, export the mishit coefficients to the optimizer database
+# 0 8 * * 2-6 bash --login -c "~/CRON/updateVolatilityDatabase" > /dev/null 2>&1
+
+# Every weekday, update the checkout of the stable branch
+0 11 * * 1-5 bash --login -c "~/CRON/updateCheckout \"$MATLAB_STABLE_BRANCH\"" > /dev/null 2>&1
+
+# Every weekday, update the checkout of the stable branch
+05 11 * * 1-5 bash --login -c "~/CRON/updateCheckout \"$MATLAB_DEVELOPMENT_BRANCH\"" > /dev/null 2>&1

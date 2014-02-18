@@ -1,0 +1,39 @@
+# -*- mode: sh -*- #
+
+##
+# Aliases file for user 'crpi'
+##
+
+# ----------------------------------------------
+# Procedure "MakeCDAlias"
+# ----------------------------------------------
+#
+# Arguments: $1 = ALIAS_NAME
+#            $2 = PATH
+#
+MakeCDAlias()
+{
+    ALIAS_NAME=$1
+    PATH=$2
+
+    if [ -d "$PATH" ]; then
+        echo "alias ${ALIAS_NAME}='cd \"$PATH\"'"
+    else
+        echo "alias ${ALIAS_NAME}='echo \"Directory $PATH does not exist.\"'"
+    fi
+}
+
+alias cds='cd /home/crpi/tc/Business/'
+alias cdo='cd ${HOME}/code/DragonOptimizer/src'
+alias cds='cd ${HOME}/code/DragonStrategy/src'
+
+# Some standard aliases
+alias fut='from_unixtime_ms'
+
+alias wakeupnas='wakeonlan 00:11:32:1E:80:9E'
+
+# Git aliases
+alias gadd='git add --all'
+alias gcmt='git commit -a -m "More changes"'
+alias pull='git pull'
+alias push='git push'

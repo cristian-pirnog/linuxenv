@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="name_4" mtime="1250749135" type="string">
+		<stringvalue>Workspace 4</stringvalue>
+	</entry>
+	<entry name="name_6" mtime="1250749135" type="string">
+		<stringvalue>Workspace 6</stringvalue>
+	</entry>
+	<entry name="name_12" mtime="1250749135" type="string">
+		<stringvalue>Workspace 12</stringvalue>
+	</entry>
+	<entry name="name_11" mtime="1147174352" type="string">
+		<stringvalue>Workspace 11</stringvalue>
+	</entry>
+	<entry name="name_10" mtime="1147174361" type="string">
+		<stringvalue>Workspace 10</stringvalue>
+	</entry>
+	<entry name="name_9" mtime="1250749135" type="string">
+		<stringvalue>Workspace 9</stringvalue>
+	</entry>
+	<entry name="name_8" mtime="1250749135" type="string">
+		<stringvalue>Workspace 8</stringvalue>
+	</entry>
+	<entry name="name_7" mtime="1250749135" type="string">
+		<stringvalue>Workspace 7</stringvalue>
+	</entry>
+	<entry name="name_3" mtime="1250749135" type="string">
+		<stringvalue>Workspace 3</stringvalue>
+	</entry>
+	<entry name="name_2" mtime="1250749135" type="string">
+		<stringvalue>Workspace 2</stringvalue>
+	</entry>
+	<entry name="name_1" mtime="1250749135" type="string">
+		<stringvalue>Workspace 1</stringvalue>
+	</entry>
+</gconf>

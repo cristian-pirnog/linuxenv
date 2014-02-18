@@ -1,0 +1,8 @@
+# -*- mode: sh -*- #
+
+# The software packages that should be sourced for this user
+INSTALLED_SOFTWARE_PACKAGES="SoftwareTools.jdk.1.6.0_16.sun.linux.x86_64
+         SoftwareTools.eclipse.3.3.linux.x86_64
+         SoftwareTools.mysql.5.0.83.linux.x86_64
+         SoftwareTools.ant.1.7.1.noarch.i386"
+

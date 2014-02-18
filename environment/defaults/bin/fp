@@ -1,0 +1,14 @@
+#! /bin/bash -f
+
+##
+# fp = FindProcess: utility that searches for a process having the name that matches the first
+#                   input argument
+##
+
+
+if [ $# -lt 1 ]; then
+    echo "Usage: fp ProcessName"
+fi
+
+ps x | grep "$1" | grep -v grep | grep -v fp
+

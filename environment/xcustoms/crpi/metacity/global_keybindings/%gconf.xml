@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="run_command_terminal" mtime="1304707576" type="string">
+		<stringvalue>&lt;Alt&gt;a</stringvalue>
+	</entry>
+	<entry name="cycle_group" mtime="1252508730" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="run_command_8" mtime="1193055341" type="string">
+		<stringvalue>&lt;Alt&gt;q</stringvalue>
+	</entry>
+	<entry name="run_command_12" mtime="1302893377" type="string">
+		<stringvalue>&lt;Shift&gt;&lt;Alt&gt;l</stringvalue>
+	</entry>
+	<entry name="run_command_11" mtime="1302893377" type="string">
+		<stringvalue>&lt;Shift&gt;&lt;Alt&gt;h</stringvalue>
+	</entry>
+	<entry name="run_command_10" mtime="1302893377" type="string">
+		<stringvalue>&lt;Shift&gt;&lt;Alt&gt;s</stringvalue>
+	</entry>
+	<entry name="run_command_1" mtime="1251787442" type="string">
+		<stringvalue>&lt;Alt&gt;o</stringvalue>
+	</entry>
+	<entry name="run_command_7" mtime="1242632636" type="string">
+		<stringvalue>&lt;Alt&gt;e</stringvalue>
+	</entry>
+	<entry name="run_command_6" mtime="1143468848" type="string">
+		<stringvalue>&lt;Alt&gt;m</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_12" mtime="1127464875" type="string">
+		<stringvalue>&lt;Alt&gt;F12</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_11" mtime="1127464872" type="string">
+		<stringvalue>&lt;Alt&gt;F11</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_10" mtime="1292422772" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_9" mtime="1127464854" type="string">
+		<stringvalue>&lt;Alt&gt;F9</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_8" mtime="1127464852" type="string">
+		<stringvalue>&lt;Alt&gt;F8</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_7" mtime="1127464849" type="string">
+		<stringvalue>&lt;Alt&gt;F7</stringvalue>
+	</entry>
+	<entry name="run_command_5" mtime="1118159193" type="string">
+		<stringvalue>&lt;Alt&gt;f</stringvalue>
+	</entry>
+	<entry name="run_command_4" mtime="1106584406" type="string">
+		<stringvalue>&lt;Alt&gt;z</stringvalue>
+	</entry>
+	<entry name="run_command_3" mtime="1251815180" type="string">
+		<stringvalue>&lt;Alt&gt;r</stringvalue>
+	</entry>
+	<entry name="run_command_2" mtime="1104845675" type="string">
+		<stringvalue>&lt;Alt&gt;a</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_6" mtime="1292422772" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_5" mtime="1104824827" type="string">
+		<stringvalue>&lt;Alt&gt;F5</stringvalue>
+	</entry>
+	<entry name="panel_main_menu" mtime="1104824497" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="panel_run_dialog" mtime="1104824488" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_down" mtime="1109773454" type="string">
+		<stringvalue>&lt;Alt&gt;k</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_up" mtime="1109773422" type="string">
+		<stringvalue>&lt;Alt&gt;i</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_right" mtime="1109835537" type="string">
+		<stringvalue>&lt;Alt&gt;semicolon</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_left" mtime="1109773410" type="string">
+		<stringvalue>&lt;Alt&gt;j</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_4" mtime="1104824539" type="string">
+		<stringvalue>&lt;Alt&gt;F4</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_3" mtime="1104824517" type="string">
+		<stringvalue>&lt;Alt&gt;F3</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_2" mtime="1252508750" type="string">
+		<stringvalue>&lt;Alt&gt;F2</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_1" mtime="1104824514" type="string">
+		<stringvalue>&lt;Alt&gt;F1</stringvalue>
+	</entry>
+</gconf>

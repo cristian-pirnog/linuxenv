@@ -1,0 +1,39 @@
+#!/bin/bash
+
+echo "This will kill the running synergy server and start a new one."
+echo "Are you sure you want to continue? [y/n]"
+read answer
+case $answer in
+   y|Y)
+	;;
+   *)
+	exit 0;;
+esac
+
+killall -9 synergys
+
+myProcesses=`ps aux | grep synergys | grep -v grep | grep -v "$0"`
+
+if [ ! -z "$myProcesses" ]; then
+   echo "Could not kill all synergys processes. The following were left:"
+   echo ""
+   echo -e $myProcesses
+   echo ""
+   echo "Would you like to continue? [y/n] "
+   read answer
+   case $answer in
+	y|Y)
+	  # Do nothing
+	  ;;
+	*)
+	  exit 1;;
+  esac
+fi
+
+echo "Starting a new synergy server"
+synergys
+echo "Done"
+
+echo "Press any key..."
+read answer
+

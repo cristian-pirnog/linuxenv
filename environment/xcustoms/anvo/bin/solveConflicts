@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Checks for SVN conflicts in the current directory
+
+# No Whitespace == Line Feed:Carriage Return
+No_WSP=$'\x0A'$'\x0D'
+IFS=$No_WSP
+
+CONFLICTS=`svn status | grep -w '^C '`
+
+# If conflicts detected, open them in XEmacs
+if [ ! -z $CONFLICTS ]; then
+    m -f delete-other-windows `echo $CONFLICTS | awk '{print $2}'` &
+else
+    echo "No conflicts detected in directory `pwd`"
+fi

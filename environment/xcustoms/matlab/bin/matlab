@@ -1,0 +1,22 @@
+#!/bin/bash 
+
+##
+# Add option for writing to log file
+##
+# Default option: no logging
+LOG_OPTION=''
+
+# If we find a .user/log/matlab directory, then use logging
+if [ -d ".user/log/matlab" ]; then
+    LOG_DIR=".user/log/matlab/"
+    LOG_FILE="matlab_`date +%Y.%m.%d-%H:%M:%S`.log"
+    LOG_OPTION="-logfile $LOG_DIR/$LOG_FILE"
+    ln -sf $LOG_FILE $LOG_DIR/last.log
+fi
+
+
+##
+# Start matlab
+##
+$MATLAB_HOME/bin/matlab $LOG_OPTION $* 
+

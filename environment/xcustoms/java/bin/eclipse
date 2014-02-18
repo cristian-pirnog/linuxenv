@@ -1,0 +1,4 @@
+#!/bin/bash
+
+MOZILLA_FIVE_HOME=""
+eclipse.run  -vm $JAVA_HOME/bin/java -vmargs -Xms1024M -Xmx2048M -XX:PermSize=64M -XX:MaxPermSize=500M $* #-Dlinux.experimental=true $*

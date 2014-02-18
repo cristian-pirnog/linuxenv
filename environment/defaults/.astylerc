@@ -1,0 +1,32 @@
+# Bracket style options
+--style=ansi
+
+# Indentation options
+##--indent=spaces=2
+##--indent-cases
+##--indent-col1-comments
+##--max-instatement-indent=40
+
+# Padding options
+##--add-one-line-brackets
+##--pad-header
+##--unpad-paren
+# --fill-empty-lines
+
+# Formatting options
+##--add-one-line-brackets
+
+# Tabs
+##--convert-tabs
+
+# Aling options
+##--align-pointer=type
+#--align-reference=type
+
+# Don't keep back-up
+##--suffix=none
+
+# Quiet
+--quiet
+
+## --lineend=linux

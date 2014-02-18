@@ -1,0 +1,26 @@
+#!/bin/bash
+
+##
+# Here you can overwrite the MATLAB_STABLE_BRANCH variable
+##
+# MATLAB_STABLE_BRANCH="$HOME/code/fromsvn/matlab/main"
+
+cd $MATLAB_STABLE_BRANCH
+svn update
+
+SCRIPT_NAME=`basename $0`
+
+LOG_DIR=".user/log/$SCRIPT_NAME"
+LOG_FILE="$SCRIPT_NAME.`date +%d.%m.%Y.log`"
+
+# Check if log directory exists
+if [ ! -d $LOG_DIR ]; then
+    mkdir -p $LOG_DIR
+fi
+
+
+# Note: when passing a function call using '-r', there must be no spaces between the arguments of the function (only commas), otherwise
+# this will produce an error message from the Matlab function 'eval', which is used internally to run the function. Something like:
+# eval: line 1: syntax error near unexpected token `)'
+matlab -nodisplay -r "try,Send3rdFridayMeetingEMail();quit;catch,sendmail('crpi@imc.nl',['$SCRIPT_NAME',char(32),'job',char(32),failed'],['See',char(32),'title']);end" -logfile $LOG_DIR/$LOG_FILE
+

@@ -1,0 +1,22 @@
+# -*- mode: sh -*- #
+
+
+export PATH=$PATH:/usr/local/bin:/home/$USER/bin
+
+export HISTIGNORE="&:l:[bf]g:exit"
+
+shopt -sq autocd cdspell cmdhist dirspell dotglob histappend no_empty_cmd_completion 
+
+
+# Optional settings
+# ==============================================
+# Default editor: vi
+export EDITOR=vi
+
+# If Emacs exist, set it as EDITOR
+which emacs > /dev/null  2>&1
+if [ $? -ne 1 ]; then
+    export EDITOR='emacs -nw'
+fi
+
+source ~/.userfunctions

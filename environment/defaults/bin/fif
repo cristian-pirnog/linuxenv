@@ -1,0 +1,113 @@
+#! /bin/bash
+
+
+#========================================================================
+printUsage()
+{
+cat << %%USAGE%%
+    "Usage: `basename $0` [-d directory] [-i] [-x pattern] [-s character] <searchword>
+
+    Description:
+        Tool for Checking existence of the searchword in a path
+
+    Options:
+        -d      directory to search in
+
+        -i      perform case Insensitive search
+
+    	-s      skip lines that have the character before the searchword. 
+                 Useful for ignored out-commented lines.
+
+        -x      exclude from search any directories/files that contain the 
+                pattern. For multiple patterns to exclude, you must provide
+                one -x option for each pattern.
+
+                If this option is not provided, the default pattern will be 
+                '\.git'. Otherwise, if pattern doesn't contain the default 
+                pattern, this will be added to it.
+
+        -h      display this help message"
+
+%%USAGE%%
+}
+
+#========================================================================
+
+NEW_LINE='
+'
+
+theDirectory="."
+theDoCase=""
+theFind="find"
+thePattern='\.git'${NEW_LINE}'.\user'
+mySkipComments=0
+while  getopts hd:i:x:s: option $*
+do
+        case $option in
+        h)
+                printUsage
+                exit 0;
+                ;;
+        d)
+                theDirectory="$OPTARG"
+                ;;
+        i)      
+                theDoCase="-i"
+                OPTIND=`expr $OPTIND - 1`
+                ;;
+        x)
+                thePattern=${thePattern}${NEW_LINE}${OPTARG}
+		;;
+	s)
+	        mySkipComments=1
+		theComment=${OPTARG}
+        esac
+done
+
+shift   `expr $OPTIND - 1`
+
+theSearchWord="$1"
+
+if [[ -z ${theSearchWord} ]]; then
+    echo "Please enter a searchWord.
+`printUsage`"
+    exit 1
+fi
+
+myOldDir=`pwd`
+cd $theDirectory
+myDir=`pwd`
+cd "$myOldDir"
+
+for aMount in `mount | grep nfs | grep : | grep -v :/ | awk '{print $3}'`
+do
+	if [ `echo $myDir | grep $aMount` ]
+	then
+		theFind="manualFind"
+	fi
+done
+
+
+IFS=${NEW_LINE}
+for f in `$theFind $theDirectory -type f | grep -v "$thePattern"`
+do
+    myTemp=`file $f | awk '{printf $3};' | grep text`
+    if [ myTemp ]
+    then
+        myTemp=`cat -n $f | grep $theDoCase $theSearchWord`
+	
+	if [ $mySkipComments == "1" ]
+	then
+	    myTemp=`echo $myTemp | grep -v "$theComment.*$theSearchWord"`
+	fi
+
+        if [ "$myTemp" != "" ]
+        then
+            echo "-----------------------------------------------------------"
+            echo "$f"
+            echo "-----------------------------------------------------------"
+            echo "" 
+            echo "$myTemp"
+        fi
+    fi
+done

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="command_8" mtime="1251787169" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="command_12" mtime="1251787154" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="command_11" mtime="1251787150" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="command_10" mtime="1251787147" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="command_1" mtime="1251787798" type="string">
+		<stringvalue>outlook</stringvalue>
+	</entry>
+	<entry name="command_7" mtime="1252504272" type="string">
+		<stringvalue>emacs -g 122x36</stringvalue>
+	</entry>
+	<entry name="command_6" mtime="1253113158" type="string">
+		<stringvalue>xterm -geometry 320x86+1400+0 -e coolSsh -Y matlab@localhost</stringvalue>
+	</entry>
+	<entry name="command_5" mtime="1206003692" type="string">
+		<stringvalue>xterm -geometry 320x86</stringvalue>
+	</entry>
+	<entry name="command_4" mtime="1104932041" type="string">
+		<stringvalue>/home/crpi/bin/twoTerms</stringvalue>
+	</entry>
+	<entry name="command_3" mtime="1253113140" type="string">
+		<stringvalue>xterm -geometry 104x41 -e coolSsh -Y root@localhost</stringvalue>
+	</entry>
+	<entry name="command_2" mtime="1206004058" type="string">
+		<stringvalue>xterm -geometry 104x41</stringvalue>
+	</entry>
+</gconf>

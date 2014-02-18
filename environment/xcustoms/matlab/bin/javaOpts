@@ -1,0 +1,55 @@
+#!/bin/bash
+
+
+#---------------------------------
+# Procedure printUsage
+#---------------------------------
+printUsage()
+{
+    echo -e "Usage:\n\t`basename $0` [-d]"
+echo "Options:
+
+      -d     Use the java.opts file for debugging.
+      "
+}
+
+
+JAVA_OPTS='java.opts'
+STANDARD_OPTS='support/java/conf/java.opts.tmpl'
+DEBUG_OPTS='support/java/conf/java.debug.opts.tmpl'
+
+TOTAL_MEMORY=`free -m | grep '^Mem' | awk '{print $2}'`
+MEMORY=`expr $TOTAL_MEMORY / 2`
+MAX_PERM_SIZE="100"
+
+if [ ! -f $STANDARD_OPTS ]; then
+    echo "Could not find the java options file. You're probably not in the right directory."
+    exit 0
+fi
+
+# Default options file: STANDARD_OPTS
+OPTIONS_FILE=$STANDARD_OPTS
+
+# Parse input options
+while  getopts hd option $*
+do
+        case $option in
+        d)
+          echo "Setting debugging environment"
+          OPTIONS_FILE="$STANDARD_OPTS $DEBUG_OPTS"
+          ;;
+        h)
+          printUsage
+          exit 0
+          ;;
+        esac
+done
+
+
+# Copy the options file, removing out-commented and empty lines
+cat $OPTIONS_FILE | grep -v '#' | grep -v '^$' > $JAVA_OPTS
+
+# Replace some tokens
+replacestr "__MAX_JVM_MEMORY__" $MEMORY $JAVA_OPTS
+replacestr "__MAX_PERM_SIZE__" $MAX_PERM_SIZE $JAVA_OPTS
+

@@ -1,0 +1,81 @@
+#!/bin/tcsh -f
+
+# Script for directly archiving/extracting files using tar,gz and bz2
+# For extracting from archives, it can handle the following extensions:
+# - .tar.gz, .tgz and [.tar].bz2
+#
+#Usage: archive fileName
+#
+#
+#Author: Cristian Pirnog
+#        Computer Vision Group (ETZ F71)
+#        
+#        28-08-2002
+
+
+# DISCLAIMER:
+#
+# This is intended for my own use. Anyone who uses it
+#does it on its own risk.
+#
+
+
+if ($#argv < 1) then
+    echo "Usage archive fileName"
+    exit 0
+else
+    if ($#argv == 1) then
+	set FILENAME = "$argv[1]"
+    else
+	echo "Usage archive fileName"
+	exit 0
+    endif
+endif
+
+
+
+# Check for the exitence of the input file
+if ( !( -r "$FILENAME" )) then
+    echo "The file $FILENAME doesn't exist"
+    exit 0
+endif
+
+# Default ACTION is EXTRACT
+set ACTION = 1   # EXTRACT
+
+# Default TAR_FILENAME is the complete file-path 
+# with ".tar" extention
+set TAR_FILENAME = "$FILENAME:r.tar"
+set TAR_GZ_FILENAME = "$FILENAME:r.tar.gz"
+
+# If is a directory
+if ( -d "$FILENAME" ) then
+    # Compress the directory
+    set ACTION = 0
+    # Make sure the ending "/" from directory name is not included
+    set TAR_FILENAME = "$FILENAME:h.tar"
+    set TAR_GZ_FILENAME = "$FILENAME:h.tar.gz"
+else if( "$FILENAME:e" == "zip") then
+    # EXTRACT ZIP
+    unzip "$FILENAME"
+# If is a gzip (".gz") file
+else if( "$FILENAME:e" == "gz") then
+    # EXTRACT GZIP 
+    tar -xvzf "$FILENAME"
+else if( "$FILENAME:e" == "tgz" ) then
+    # EXTRACT GZIP 
+    tar -xvzf "$FILENAME"
+else if( "$FILENAME:e" == "bz2" ) then
+    # EXTRACT BZ2 
+    bunzip2 "$FILENAME"
+else
+    # Compress the file
+    set ACTION = 0
+endif
+
+# IF the action is COMPRESS...
+if ( $ACTION == 0 ) then
+    echo "Compressing the file "$FILENAME""
+
+    tar czf "$TAR_GZ_FILENAME" "$FILENAME"
+endif

@@ -1,0 +1,60 @@
+# -*- mode: sh -*- #
+
+export DOCUMENTATION_DIR='/home/crpi/doc/documentation'
+export CONSTANTIJN_PATH='/mnt/constantijn/mdconst_matlab/nc3rfile_3.1/bestpair/'
+
+# The e-mail addresses of the TT members
+export TT_MEMBERS='anvo@imc.nl,dabo@imc.nl,crpi@imc.nl,giko@imc.nl,jepo@imc.nl,thaj@imc.nl'
+
+
+# Source the env for the software packages
+for i in SoftwareTools.mysql.client.5.0.37.linux.i386 SoftwareTools.netcdf.3.6.2.linux.i386 SoftwareTools.jdk.1.5.0.20051103.ibm.linux.i386
+do
+    myEnvFile=`/home/env/tools/bin/$i.operator env`
+    if [ -f $myEnvFile ]
+    then
+        source $myEnvFile
+    fi
+done
+export PATH=${JAVA_HOME}/bin:$MYSQL_HOME/bin:${PATH}
+
+
+# You need at least one entry in your classpath
+if [ ${#CLASSPATH} -eq 0 ]
+then
+    export CLASSPATH=.
+    # Otherwise the following will leave ':' at the end of the classpath which is illegal
+fi
+
+# For finreport
+if [ -f  /opt/noarch/finreport/1.2.0/tool.env ]; then
+	source /opt/noarch/finreport/1.2.0/tool.env
+fi
+
+
+
+
+# ==============================================
+getProductionMachines()
+{
+
+PRODUCTION_MACHINES="emma victoria angelica valerie serena annika heather gretel"
+
+if [ $# -eq 0 ]
+then
+    echo $PRODUCTION_MACHINES
+else
+    MACHINE_INDEX=$1
+    ((MACHINE_INDEX--))
+    ((INDEX=0))
+    for NAME in $PRODUCTION_MACHINES
+    do
+      if [ $INDEX -eq $MACHINE_INDEX ]
+      then
+          echo $NAME
+      fi
+      ((INDEX++))
+    done
+fi
+
+}

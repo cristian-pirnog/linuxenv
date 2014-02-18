@@ -1,0 +1,21 @@
+#!/bin/bash
+
+source ~/.bashrc
+
+# Set this variable for running X-based applications
+DISPLAY=:0
+
+# Enable alias expansion
+shopt -s expand_aliases
+
+# Set the active project
+sam matlab tb10 
+
+# Update the active project
+sud
+
+# Go to the source directory of the active project
+cds
+
+# Build the project with unit testing enabled
+sant -o -u #-c

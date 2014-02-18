@@ -1,0 +1,35 @@
+#!/bin/bash
+
+NAS_MOUNT="/mnt/dsbackup"
+BACKUP_DIR="${NAS_MOUNT}/work/repo/"
+BACKUP_TIMESTAMP_FILE='git.last.bkp'
+TODAY=$(date +%Y%m%d)
+
+if [[ ${USER} == 'repo' ]]; then
+    echo "$(date +'%Y.%m.%d %H:%M:%S'); starting back-up job" | column -s ';' -t
+
+    cd $HOME
+
+    # Check the date of the last backup
+    if [[ -f ${BACKUP_TIMESTAMP_FILE} ]] && [[ $(cat ${BACKUP_TIMESTAMP_FILE}) -eq ${TODAY} ]]; then
+        echo "Repository already backed-up today. Exiting"
+        exit 0
+    fi
+
+
+    archive git
+    
+    # Check that the NAS is mounted
+    if [[ -z $(mount | grep ${NAS_MOUNT}) ]]; then
+        echo "The NAS does not seem to be mounted. Will not copy the back-up file."
+        exit 1
+    fi
+    
+    mv git.tar.gz $BACKUP_DIR
+    echo "$(date +'%Y.%m.%d %H:%M:%S'); repo backed-up on $BACKUP_DIR" | column -s ';' -t
+
+    # Update the date of the last back-up
+    echo ${TODAY} > ${BACKUP_TIMESTAMP_FILE}
+fi
+
+

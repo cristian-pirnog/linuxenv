@@ -1,0 +1,29 @@
+# -*- mode: sh -*- #
+
+#Standard aliases
+alias asf='allSourceFiles'
+alias h='history'
+alias f='find . -name '
+alias tree='tree -C'
+alias cd='cd -P' #Use the physical directory structure for symlinks
+alias b='cd -'
+alias u='cd ../'
+alias lc='/usr/bin/wc -l'
+alias revert='svn revert'
+alias diff='colordiff'
+alias rm='rm -I --preserve-root'
+alias install='sudo apt-get install'
+alias vi=vim
+
+## Directory changes
+alias cdc='cd ${HOME}/.${USER}_config'
+
+# Use custom colors for 'ls' instead of the default ones
+if [[ -f ~/.dircolors ]]; then eval `dircolors ~/.dircolors`; fi
+
+#Aliases for 'ls' and variations
+alias ls='/bin/ls --color=auto'
+alias l='/bin/ls --color=auto -dA */'
+alias la='/bin/ls --color=auto -lFh'
+alias ll='/bin/ls --color=auto -AFlh'
+alias lll='ll'

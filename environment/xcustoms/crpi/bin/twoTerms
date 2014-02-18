@@ -1,0 +1,14 @@
+#! /bin/bash -f
+
+# Start two terminals one next to each other
+# The terminals cover the whole screen
+#xterm -bg black -fg white -ms red -geometry 104x71+0+0 | \
+#xterm -bg black -fg white -ms white -geometry 104x71+640+0
+
+#GEOMETRY='-geometry 104x76'
+
+xterm -geometry 105x86+0+0 & \
+xterm -geometry 104x86+640+0 & \
+xterm -geometry 105x86+1280+0 
+
+

@@ -1,0 +1,11 @@
+archive $HOME/bin/archive
+cleanfiles $HOME/bin/cleanfiles
+e $HOME/bin/e
+fp $HOME/bin/fp
+listTerminalColors $HOME/bin/listTerminalColors
+m $HOME/bin/m
+myXterm $HOME/bin/myXterm
+solveConflicts $HOME/bin/solveConflicts
+fif $HOME/bin/fif
+listNotAdded $HOME/bin/listNotAdded
+removeNotAdded $HOME/bin/removeNotAdded

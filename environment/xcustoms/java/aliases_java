@@ -1,0 +1,46 @@
+# -*- mode: sh -*- #
+
+##
+# Aliases file for user 'java'
+##
+
+
+# Change directory aliases
+alias cdopt="cd $HOME/code/optimizer/trunk/sources"
+
+# Compilation aliases
+alias vmake='vant -Ddb.skip=true -Djunit.skip=true -Dversion-major-prefix=CI-'
+
+# Other aliases
+#alias safeupdate='safeupdate2'
+alias sud='updateKerberosTicket && safeupdate2'
+
+# Set-active-module aliases
+## Algocore module
+alias sama='sam algocore $PRODUCTION_BRANCH; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+alias sama6='sam algocore tb16; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+alias samat='sam algocore trunk; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+alias samap='sam algocore tb15pacman; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+
+## Matlab module
+alias sammt='sam sag.matlab trunk; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+alias samm2='sam sag.matlab tb12; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+
+## Trade module
+alias samt='sam trade $PRODUCTION_BRANCH; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+alias samtt='sam trade trunk; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+alias samtp='sam trade tb15pacman; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+
+## OES module
+alias samo='sam oes $PRODUCTION_BRANCH; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+alias samot='sam oes trunk; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+alias samop='sam oes tb15pacman; cd $SOURCE_DIR; echo -e "\nDirectory changed to: `pwd`\n"'
+
+## SVN aliasess
+alias mergeinfo='updateKerberosTicket && svn log --stop-on-copy -r"HEAD:{`date +%Y-%m-%d -d "100 days ago"`}" | grep -B 2 "Synchronization Info"'
+alias mergeinfo_mb='svn log --stop-on-copy -r"HEAD:{`date +%Y-%m-%d -d "100 days ago"`}" | grep -B 2 "MatlabInfo"'
+
+
+# Miscellaneous aliases
+alias clearTomcatCache='rm -rf ~/workspace/.metadata/.plugins/com.genuitec.eclipse.easie.tomcat.myeclipse/tomcat/work/'
+alias myPath='patch -p0 < '

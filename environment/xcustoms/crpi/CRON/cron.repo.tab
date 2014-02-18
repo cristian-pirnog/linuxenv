@@ -1,0 +1,14 @@
+# -*- mode: sh -*- #
+
+MAILTO=pirnog@gmail.com
+
+# Set this variable for running X-based applications
+DISPLAY=:0
+
+##
+# Daily jobs
+##
+
+# Every day, make a back-up of the git repositories
+0 * * * 1-7 bash --login -c "$HOME/bin/backupRepo" > /dev/null 2>&1
+

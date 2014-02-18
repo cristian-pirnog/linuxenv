@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="move_to_workspace_down" mtime="1290545018" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Alt&gt;Down</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_up" mtime="1290545012" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Alt&gt;Up</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_right" mtime="1290544287" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Alt&gt;Right</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_left" mtime="1290544284" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Alt&gt;Left</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_7" mtime="1198760100" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_6" mtime="1193221158" type="string">
+		<stringvalue>&lt;Alt&gt;0xaf</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_5" mtime="1193221157" type="string">
+		<stringvalue>&lt;Alt&gt;0xbf</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_4" mtime="1193221155" type="string">
+		<stringvalue>&lt;Alt&gt;0x89</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_3" mtime="1193221153" type="string">
+		<stringvalue>&lt;Alt&gt;0x8a</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_2" mtime="1193221206" type="string">
+		<stringvalue>&lt;Alt&gt;0x87</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_1" mtime="1193221199" type="string">
+		<stringvalue>&lt;Alt&gt;0xf5</stringvalue>
+	</entry>
+	<entry name="maximize" mtime="1127464864" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="begin_resize" mtime="1127464834" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="begin_move" mtime="1127464831" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="minimize" mtime="1127464822" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="unmaximize" mtime="1104824820" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="close" mtime="1104824535" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+</gconf>

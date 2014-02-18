@@ -1,0 +1,90 @@
+#!/bin/bash
+
+source $HOME/bin/commons.sh
+
+# Check that the branch URL is given
+if [ $# -lt 1 ]; then
+   echo "Usage: `basename $0` branchURL"
+   exit 1
+fi
+
+BRANCH_URL=`StripUserNameFromSvnURL $1`
+BRANCH_NAME=`basename $BRANCH_URL`
+BRANCH_TYPE=`GetBranchType $BRANCH_URL`
+
+echo $BRANCH_URL
+
+## Check that we can retrieve the type of the branch
+echo "BRANCH_TYPE = $BRANCH_TYPE"
+if [ -z $BRANCH_TYPE ]; then
+    echo "Error! Could not determine the BRANCH_TYPE."
+    echo "Usually this is because the url_ field (in svnBranches_ table) of this branch contains the SVN_USER"
+    exit 1
+fi
+
+## Check that the branch is not a production branch
+if [ $BRANCH_TYPE = "PRODUCTION" ]; then
+    echo " "
+    echo "Cannot delete a production branch. Would you like to set the STATUS instead?[y/n]."
+    echo " "
+    read ANSWER
+
+    if [ $ANSWER != 'y' ]; then
+        echo "Operation cancelled by user"
+        exit 0
+    fi
+
+    echo "Enter the status of the deleted branch (e.g. COMPLETED, CLOSED, DISCONTINUED)"
+    read BRANCH_STATUS
+    
+    echo "UPDATE svnBranches_ SET status_ = '$BRANCH_STATUS', keepSyncrhonized_ = FALSE WHERE url_ = \"$BRANCH_URL\" AND type_ = 'PRODUCTION' AND deleted_ IS NULL;" | $DATABASE_COMMAND
+    
+    exit 0
+fi
+
+
+## Check that the branch exists in the repository
+BRANCH_URL_DIR=`dirname "$BRANCH_URL"`
+FOUND_BRANCH=`svn ls "$BRANCH_URL_DIR" | grep "$BRANCH_NAME"`
+
+if [ -z "$FOUND_BRANCH" ]; then
+    echo " "
+    echo "Branch not found in the repository. Exiting"
+    echo " "
+    exit 1
+fi
+
+
+echo "About to delete branch $BRANCH_URL. Are you sure (Yes/No)?"
+read ANSWER
+if [ $ANSWER != 'Yes' ]; then
+    echo "Operation cancelled by user"
+    exit 0
+fi
+
+## Delete branch in the repository
+BRANCH_URL_WITH_USER_NAME=`echo $BRANCH_URL | replacestr 'repository_sag' "$RESPONSIBLE_FOR_WEEKLY_MERGE"@repository_sag`
+echo "Deleting branch $BRANCH_NAME ($BRANCH_URL_WITH_USER_NAME)"
+MESSAGE="MatlabInfo:delete; target:$BRANCH_NAME; description: Deleted branch; timestamp: $TIME_STAMP"
+svn delete -m "$MESSAGE" $BRANCH_URL_WITH_USER_NAME
+
+echo "Enter the status of the deleted branch (e.g. COMPLETED, CLOSED, DISCONTINUED)"
+read BRANCH_STATUS
+
+# Get the user name of the responsible for the branch (must be done before setting deleted_ in the DB)
+RESPONSIBLE_FOR_BRANCH=`GetResponsibleForBranch $BRANCH_NAME`
+
+## Entering information in the database
+REVISION_NUMBER=`GetLatestSVNRevision`
+echo " "
+echo "Inserting delete information into the database: $DATABASE_COMMAND"
+echo "UPDATE svnBranches_ SET deleted_ = $REVISION_NUMBER, status_ = '$BRANCH_STATUS', keepSyncrhonized_ = FALSE WHERE url_ = \"$BRANCH_URL\" AND type_ <> 'PRODUCTION' AND deleted_ IS NULL;" | $DATABASE_COMMAND
+
+## Send an e-mail informing that the branch was deleted
+EMAIL_BODY="Hi $RESPONSIBLE_FOR_BRANCH\n
+\n
+The branch '$BRANCH_NAME' was deleted. If you don't agree with this, contact $RESPONSIBLE_FOR_WEEKLY_MERGE.\n
+\n
+Cheers"
+
+SendEMail "$BRANCH_NAME: Branch was deleted successfully" "$EMAIL_BODY" "$RESPONSIBLE_FOR_BRANCH@imc.nl" "$RESPONSIBLE_FOR_WEEKLY_MERGE@imc.nl" "crpi@imc.nl"

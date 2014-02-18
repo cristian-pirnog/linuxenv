@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<gconf>
+        <entry name="name_4" mtime="1171636193" type="string">
+                <stringvalue>Java</stringvalue>
+        </entry>
+        <entry name="name_6" mtime="1165504795" type="string">
+                <stringvalue>Windows</stringvalue>
+        </entry>
+        <entry name="name_12" mtime="1147174340" type="string">
+                <stringvalue>Multimedia</stringvalue>
+        </entry>
+        <entry name="name_11" mtime="1147174352" type="string">
+                <stringvalue>Workspace 11</stringvalue>
+        </entry>
+        <entry name="name_10" mtime="1147174361" type="string">
+                <stringvalue>Workspace 10</stringvalue>
+        </entry>
+        <entry name="name_9" mtime="1153724008" type="string">
+                <stringvalue>Mail &amp; Internet</stringvalue>
+        </entry>
+        <entry name="name_8" mtime="1127461034" type="string">
+                <stringvalue>Matlab-Development:editor</stringvalue>
+        </entry>
+        <entry name="name_7" mtime="1127461022" type="string">
+                <stringvalue>Matlab-Development:console</stringvalue>
+        </entry>
+        <entry name="name_3" mtime="1171636197" type="string">
+                <stringvalue>Python</stringvalue>
+        </entry>
+        <entry name="name_2" mtime="1171636165" type="string">
+                <stringvalue>Matlab-Development</stringvalue>
+        </entry>
+        <entry name="name_1" mtime="1171636151" type="string">
+                <stringvalue>Matlab-Stable</stringvalue>
+        </entry>
+</gconf>
