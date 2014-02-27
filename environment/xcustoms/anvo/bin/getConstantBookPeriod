@@ -1,7 +1,0 @@
-#!/bin/bash
-
-
-# Set the database
-DATABASE="md`date +%Y`"
-
-echo "select distinct from_unixtime(constantbookperiod_.begin_/1000, \"%Y.%m.%d\") as StartDate, from_unixtime(constantbookperiod_.end_/1000, \"%Y.%m.%d\") as EndDate, count(constantbookperiod_.fund_) as FundsCount from constantbookperiod_ group by StartDate, EndDate order by StartDate desc;" | mysql -h mdarchive -u guest -pguest $DATABASE

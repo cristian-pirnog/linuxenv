@@ -6,6 +6,28 @@ shopt -s expand_aliases
 #----------------------------------------------
 # General functions
 #----------------------------------------------
+getAnswer()
+{
+    # Pop the question
+    local question="${1}"
+    if [[ -z ${question} ]]; then
+	question="\nWould you like to continue?"
+    fi
+    question=${question}" [y\\\n]"
+    echo -e ${question}
+
+    # Get the answer
+    local answer
+    read answer
+    case $answer in
+        y|Y|yes|Yes|YES)
+	    return 0
+	    ;;
+    esac
+    return 1
+}
+
+
 log()
 {
     LOG_FILE=".user/svn.log"; 
@@ -14,24 +36,6 @@ log()
     else 
         echo "Could not find log file $LOG_FILE"
     fi
-}
-
-
-#----------------------------------------------
-debug()
-{
-    if [[ $# -eq 0 ]]; then
-        echo "Usage: debug branchSuffix"
-	return 1
-    fi
-
-    myCoreFile=core
-    if [[ ! -f ${myCoreFile} ]]; then
-	echo "Could not find core file. Exiting."
-	return 1
-    fi
-
-    gdb ~/bin/StPvmEngine.${1}.debug ${myCoreFile}
 }
 
 
@@ -147,20 +151,13 @@ st()
     if [[ $(isGitRepo) -eq 1 ]]; then
 	git status $@
     else
-	echo "Unknown repository type (supported: git, CVS)"
+	stall $@
     fi
 }
 
 
 #----------------------------------------------
-lna() # List files not added to the repository
-{
-    st | grep '?' | awk '{print $NF}'
-}
-
-
-#----------------------------------------------
-cvsdif()
+svndif()
 {
     emacs_OPTIONS="-geometry 232x70"
 
@@ -174,7 +171,7 @@ cvsdif()
 
     # If the directory .user exist ==> write the result to .user/svn.diff
     if [ -d .user ]; then
-        cvs -q diff > .user/svn.diff
+        svn -q diff > .user/svn.diff
 
         # Back-up the 'svn.log' file (if it exist)...
         if [ -f .user/svn.log ]
@@ -229,21 +226,27 @@ cvsdif()
         m $emacs_OPTIONS -f split-window-horizontally .user/svn.log .user/svn.diff 
     # otherwise, print it on the screen
     else
-        cvs -q diff 
+        svn -q diff 
     fi
 }
 
 #----------------------------------------------
 gitdif()
 {
-    emacs_OPTIONS="-geometry 232x70"
+    emacs_OPTIONS="-geometry 186x50"
 
-    # Check for conflicts
+    # Check for conflict
     CONFLICTS=`st --porcelain | grep '^C'`
     if [ ${#CONFLICTS} -ne 0 ]
     then
-       echo -e "\nConflicts detected. First resolve them before proceeding."
-       return 0 
+	echo -e "\nConflicts detected. First resolve them before proceeding."
+	return 0 
+    fi
+
+    if [[ -n $(st | grep 'not staged') ]]; then
+	echo -e "\nThere are changes not staged for commit\n"
+	st | grep -A 10 'not staged'
+	! getAnswer && return 1
     fi
 
     # If the directory .user exist ==> write the result to .user/svn.diff
@@ -261,7 +264,7 @@ gitdif()
         echo "$CHANGED_FILES"
 
         # ... then write the skeleton in the new one
-        echo -e "Summary: \nDetails:\n" > .user/git.log
+        echo -e "Summary: \nDetails:" > .user/git.log
 
         IFS=$'\n'
         index=1
@@ -272,12 +275,11 @@ gitdif()
           TYPE=`echo "$FILE_STRING" | awk '{print $1}'`
           FILE=`echo "$FILE_STRING" | awk '{print $NF}'`
 
-          # Check whether it should put the whole path
-          if [ -f ".user/.fullpath" ]
-              then 
-              FILE_NAME=$FILE
-          else
+          # Check whether it should put the whole path (defaults to YES)
+          if [[ -f ".user/.shortpath" ]]; then 
               FILE_NAME=`basename "$FILE"`
+          else
+              FILE_NAME=$FILE
           fi
 
           POINT="."
@@ -300,7 +302,7 @@ gitdif()
         unset IFS
 
         # and then open it in emacs (the alias 'm' should be defined in .aliases)
-        m $emacs_OPTIONS -f split-window-horizontally .user/git.log .user/git.diff 
+        emacs $emacs_OPTIONS -f split-window-horizontally .user/git.diff .user/git.log
     # otherwise, print it on the screen
     else
 	git diff --cached $@
@@ -311,27 +313,21 @@ gitdif()
 dif()
 {
     if [ ! -d .user ]; then
-        echo "Directory \"`pwd`/.user\" doesn't exist. Would you like to create it? [y/n]"
-        read myAnswer
-
-        case $myAnswer in
-        y|Y|yes|Yes|YES)
-            mkdir .user
-        esac
+        getAnswer "Directory \"`pwd`/.user\" doesn't exist. Would you like to create it?" && mkdir .user
     fi
 
-    if [[ -d CVS ]]; then
-	cvsdif $@
+    if [[ -d svn ]]; then
+	svndif $@
     elif [[ $(isGitRepo) -eq 1 ]]; then
 	gitdif $@
     else
-	echo "Unknown repository type (supported: git, CVS)"
+	echo "Unknown repository type (supported: git, SVN)"
     fi
 }
 
 
 #----------------------------------------------
-cvscmt()
+svncmt()
 {
     if [[ ! -f .notrace ]]; then
         toggleTrace off -all
@@ -362,32 +358,27 @@ cvscmt()
         echo "==================== End of log file (" $LOG_FILE ") =========================="
         echo
 
-        echo "Would you like to use the above log message? [y/n] "
-        read answer
-        case `lower $answer` in
-            y) 
-                cvs -q ci -F $LOG_FILE
-                ;;
-            *) 
-                echo "Exiting!"; return 0
-                ;;
-        esac
+        getAnswer "Would you like to use the above log message?" && \
+	    svn -q ci -F $LOG_FILE
     else
-        echo "Could not find log file: $LOG_FILE. Will run 'cvs commit' instead?"
-        cvs ci
+        echo "Could not find log file: $LOG_FILE. Will run 'svn commit' instead?"
+        svn ci
     fi
 
 }
 
 
-
 #----------------------------------------------
-gitcmt()
+cmt()
 {
     LOG_FILE='.user/git.log'
     
-    if [ -f $LOG_FILE ]
-    then
+    if [[ -f .git/MERGE_HEAD ]]; then
+	echo "Looks like you're about to commit a merge"
+	rm ${LOG_FILE}
+    fi
+    
+    if [[ -f $LOG_FILE ]]; then
         echo " "
         NON_REPO_FILES=`st --porcelain | grep '?'`
         if [ ${#NON_REPO_FILES} -ne 0 ]
@@ -415,59 +406,111 @@ gitcmt()
             echo "NOT Formatting the code with ASTYLE (no .astyle file found)"
         fi
 
-        echo "Would you like to use the above log message? [y/n] "
-        read answer
-        case `lower $answer` in
-            y) 
-                git commit -F $LOG_FILE
-                ;;
-            *) 
-                echo "Exiting!"; return 0
-                ;;
-        esac
+        getAnswer "Would you like to use the above log message?" && \
+	    git commit -F $LOG_FILE
     else
         echo "Could not find log file: $LOG_FILE. Will run 'git commit' instead?"
-        echo git commit
+        git commit
     fi
-
+    
 }
-
-
-#----------------------------------------------
-cmt()
-{
-    if [[ -d CVS ]]; then
-	cvscmt
-    elif [[ $(isGitRepo) == 1 ]]; then
-	gitcmt
-    else
-	echo "Unknown repository type (supported: git, CVS)"
-    fi
-}
-
 
 # ============================================
 rv()
 {
     if [ $# -eq 0 ]; then
-	echo "Are you sure you want to revert the whole tree? [y/n] "
-	read answer
-	case `lower $answer` in
-	    y)
-		echo "OK! Have it your way!"
-		;;
-	    *)
-		echo "Exiting"
-		return 0
-		;;
-	esac
+	! getAnswer "Are you sure you want to revert the whole tree?" && \
+	    return 0
+	echo "OK! Have it your way!"
     fi
 
-    myDiff=`cvs -q diff $* | grep -v '^?'`
+    myDiff=`svn -q diff $* | grep -v '^?'`
     if [ ! -z "${myDiff}" ]; then
         echo "${myDiff}" | patch -s -R -p0
     else
         echo "Nothing to revert"
+    fi
+}
+
+
+#----------------------------------------------
+# Function for pulling changes for all repos.
+# No push-all alternative, since this would be tricky.
+pula()
+{
+    gitDirs=$(find . -maxdepth 5 -type d -name .git)
+
+    for d in ${gitDirs}; do
+	d=$(dirname $d)
+	echo "Pulling for ${d}"
+	cd ${d}
+	logFile=.git.pull.log
+	git pull > ${logFile} 2>&1
+	if [[ $? -ne 0 ]]; then
+	    echo "There were problems. See log file ${logFile}"
+	fi
+	cd ->/dev/null
+	echo ""
+    done
+}
+
+#----------------------------------------------
+stall()
+{
+    local gitDirs=$(find . -maxdepth 5 -type d -name .git)
+    clear
+    if [[ ${1} == '-s' ]]; then
+	local forNext=1
+    fi
+
+    test ! ${forNext} && echo ""
+    msg=""
+    for d in ${gitDirs}; do
+	d=$(dirname $d)
+	currMsg="\n${d}"
+	cd ${d}
+	local status=$(git status)
+
+	# Check for untracked files
+	local hasChanges=0
+	if [[ -n $(echo $status | grep "Untracked files") ]]; then
+	    currMsg=${currMsg}":has untracked files"
+	    hasChanges=1
+	elif [[ -n $(echo $status | grep "Changes not staged") ]]; then
+	    currMsg=${currMsg}":has changes"
+	    hasChanges=1
+	elif [[ -n $(echo $status | grep "Your branch is ahead") ]]; then
+	    currMsg=${currMsg}":is ahead of origin"
+	    hasChanges=1
+	fi
+
+	if [[ $forNext ]] && [[ ${hasChanges} == "1" ]]; then
+	    msg=${msg}${currMsg}
+	elif [[ ! $forNext ]]; then
+	    msg=${msg}${currMsg}
+	fi
+	cd ->/dev/null
+    done
+
+    if [[ ${forNext} ]]; then
+	echo -e ${msg}
+    else
+	echo -e ${msg} | column -t -s ":"
+	echo ""
+    fi
+}
+
+
+#----------------------------------------------
+next()
+{
+    local nextInfo=$(stall -s | head -2 | tail -1)
+    local nextDir=$(echo ${nextInfo} | cut -d ":"  -f 1)
+    local nextChanges=$(echo ${nextInfo} | cut -d ":" -f 2)
+    if [[ -n ${nextDir} ]]; then
+	cd ${nextDir}
+	echo -e "Repo: ${nextDir}\n"
+	st
     fi
 }
 
@@ -596,19 +639,13 @@ tc()
 	deviceName="/dev/"$(dmesg  | grep ': sd' | tail -1 | awk '{print $NF}')
     fi
 
-    echo "About to mount device ${deviceName}. Continue? [y/n]"
-    read answer
-    if [[ $(lower ${answer}) != "y" ]]; then
+    ! getAnswer "About to mount device ${deviceName}. Continue? " && \
 	return 1
-    fi
 
     # If the device is actually a file on the disk, map it to a loop device
     if [[ -z $(echo ${deviceName} | grep '/dev/sd') ]]; then
-	echo "Looks like you're trying to mount a TC file. Continue? [y\n]"
-	read answer
-	if [[ $(lower ${answer}) != "y" ]]; then
+	getAnswer "Looks like you're trying to mount a TC file. Continue?" && \
 	    return 1
-	fi
 
 	fileName="${deviceName}"	
 	deviceName=$(mapLoopDevice "${fileName}")

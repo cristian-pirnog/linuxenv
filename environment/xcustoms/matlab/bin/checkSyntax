@@ -1,5 +1,0 @@
-#!/bin/bash
-
-FILE_NAME="syntaxErrors.mat"
-matlab $* -r "delete('"$FILE_NAME"');CheckSyntax();if(exist('ERRORS_LIST','var')),save('"$FILE_NAME"','ERRORS_LIST');end;quit;"
-

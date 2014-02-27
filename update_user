@@ -55,24 +55,11 @@ if [ ${BASE_DIRECTORY} != "./" ]; then
    exit 1
 fi
 
-if [ -z $SVN_HOST ]; then
-    echo "The environment variable SVN_HOST is not defined. Will try the default host: repository_sag."
-    SVN_HOST=repository_sag    
-fi
-
-if [ -z $SVN_USER ]; then
-    echo "The environment variable SVN_USER is not defined. Will use the user name: $USER."
-    SVN_USER=$USER
-fi
-
 if [ -z $XCUSTOMS_USER ]; then
     echo "The environment variable XCUSTOMS_USER is not defined. Will use the user name: $USER."
     XCUSTOMS_USER=$USER
 fi
 
-
-
-SVN_REPOSITORY=svn+ssh://$SVN_USER@"$SVN_HOST"/home/repository/svn
 BACK_UP_DIR=$HOME/.backup_account
 CONFIG_DIR=$HOME/.$USER"_config"
 
@@ -98,7 +85,7 @@ if [ ! -d $HOME/bin ]; then
 fi
 
 echo "Updating from the GIT repository"
-# git pull
+git pull
 
 
 # Run the install script 

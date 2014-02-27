@@ -23,17 +23,21 @@ MakeCDAlias()
     fi
 }
 
-alias cds='cd /home/crpi/tc/Business/'
-alias cdo='cd ${HOME}/code/DragonOptimizer/src'
-alias cds='cd ${HOME}/code/DragonStrategy/src'
+alias kat='cd ${HOME}/code/katania'
+alias opt='cd ${HOME}/code/balerion/optimizer'
+alias str='cd ${HOME}/code/balerion/strategy'
+alias roc='cd ${HOME}/code/rocardian'
+alias ron='cd ${HOME}/code/ronin'
+
+#alias opt='if [[ -d optimizer ]]; then cd optimizer; else echo "No optimizer directory"; fi'
+alias src='if [[ -d src ]]; then cd src; else echo "No src directory"; fi'
+alias sup='if [[ -d support ]]; then cd support; else echo "No support directory"; fi'
 
 # Some standard aliases
 alias fut='from_unixtime_ms'
 
-alias wakeupnas='wakeonlan 00:11:32:1E:80:9E'
-
 # Git aliases
-alias gadd='git add --all'
-alias gcmt='git commit -a -m "More changes"'
+alias add='git add --all'
+# alias cmt='git commit -a'
 alias pull='git pull'
 alias push='git push'
