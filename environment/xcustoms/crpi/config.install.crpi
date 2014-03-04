@@ -18,8 +18,3 @@ bin/mountNAS $HOME/bin/mountNAS
 # Files from 'useful' directory
 #
 useful/firefox/searchplugins $HOME/.mozilla/firefox/*.default/searchplugins
-#
-# Files used by SSH
-#
-.ssh/config $HOME/.ssh/config
-.ssh/known_hosts $HOME/.ssh/known_hosts
