@@ -38,6 +38,6 @@ alias fut='from_unixtime_ms'
 
 # Git aliases
 alias add='git add --all'
-# alias cmt='git commit -a'
 alias pull='git pull'
 alias push='git push'
+alias reset='git reset HEAD'

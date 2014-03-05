@@ -30,7 +30,8 @@ UpdateFile()
     fi
 
     # Only if a BACK_UP_DIR specified
-    if [ ! -z $3 ]; then
+    if [[ -n $3 ]]; then
+	mkdir -p $3
     	rm -rf $3/`basename $2` > /dev/null 2>&1      # Remove the old back-up file
     	cp -rL $2 $3  > /dev/null 2>&1  # Copy the current file to back-up directory
     fi

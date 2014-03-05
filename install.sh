@@ -15,8 +15,8 @@ source "$HOME/.${USER}_config/base.sh"
 
 CWD=`pwd`
 # The directory 'environment' is treated differently
-ALL_DIRS=`find . -type d | grep -v .svn | grep -v '^\.$' | grep '^\./environment' | sort`
-ALL_DIRS=$ALL_DIRS" "`find . -type d | grep -v .svn | grep -v '^\.$' | grep -v '^\./environment'`
+ALL_DIRS=`find . -type d | grep -v '.git' | grep -v '^\.$' | grep '^\./environment' | sort`
+ALL_DIRS=$ALL_DIRS" "`find . -type d | grep -v '.git' | grep -v '^\.$' | grep -v '^\./environment'`
 
 myInstallScript="install.sh"
 myConfigFile="config.install"
