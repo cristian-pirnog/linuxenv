@@ -4,6 +4,7 @@ CRON $HOME/CRON
 metacity $HOME/.gconf/apps/metacity
 userenv_crpi $HOME/.userenv_custom
 software_custom $HOME/.software_custom
+.dircolors $HOME/.dircolors
 #
 # Files from bin directory
 #

@@ -8,7 +8,6 @@
 .bashrc $HOME/.bashrc
 .bashrc_default $HOME/.bashrc_default
 .bash_profile $HOME/.bash_profile
-.dircolors $HOME/.dircolors
 .inputrc $HOME/.inputrc
 metacity $HOME/.gconf/apps/metacity
 .userenv $HOME/.userenv
