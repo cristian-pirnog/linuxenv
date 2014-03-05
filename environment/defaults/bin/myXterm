@@ -1,3 +1,0 @@
-#! /bin/bash -f
-
-xterm -bg black -fg white -ms red #-geometry 104x71 #+0+0
