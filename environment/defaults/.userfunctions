@@ -502,9 +502,33 @@ stall()
 
 
 #----------------------------------------------
+# Options: -c --> go to the next branch that has changes
+#
 next()
 {
-    local nextInfo=$(stall -s | head -2 | tail -1)
+    ARGS=$(getopt -o c -n $(basename ${0}) -- "$@")
+    eval set -- "$ARGS";
+
+    local onlyChanges=0
+    while true; do
+        case ${1} in
+            -c)
+		onlyChanges=1
+		shift
+		;;
+            --)
+		shift
+		break
+		;;
+        esac
+    done
+
+    local nextInfo
+    if [[ ${onlyChanges} -eq 1 ]]; then
+	nextInfo=$(stall -s | grep -v 'ahead of origin' | head -2 | tail -1)
+    else
+	nextInfo=$(stall -s | head -2 | tail -1)
+    fi
     local nextDir=$(echo ${nextInfo} | cut -d ":"  -f 1)
     local nextChanges=$(echo ${nextInfo} | cut -d ":" -f 2)
     if [[ -n ${nextDir} ]]; then

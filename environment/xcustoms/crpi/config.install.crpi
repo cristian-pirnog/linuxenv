@@ -4,7 +4,6 @@ CRON $HOME/CRON
 metacity $HOME/.gconf/apps/metacity
 userenv_crpi $HOME/.userenv_custom
 software_custom $HOME/.software_custom
-synergy.conf $HOME/.synergy.conf
 #
 # Files from bin directory
 #

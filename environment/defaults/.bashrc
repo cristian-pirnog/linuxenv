@@ -24,9 +24,6 @@ else
     echo "File $HOME/.software_custom does not exist. No custom software will be available installed."
 fi
 
-# Source the env for the software packages that are defined in userenv_custom
-# load.tools.for.architecture $INSTALLED_SOFTWARE_PACKAGES
-
 # The custom environment
 if [ -f $HOME/.userenv_custom ]; then
     . $HOME/.userenv_custom
