@@ -63,7 +63,6 @@ if [ -z $XCUSTOMS_USER ]; then
     XCUSTOMS_USER=$USER
 fi
 
-BACK_UP_DIR=$HOME/.backup_account
 CONFIG_DIR=$HOME/.$USER"_config"
 
 echo "Warning!!! This will overwrite any existing customizations."
@@ -74,13 +73,6 @@ case $answer in
     y| Y | yes | Yes | YES) ;;
     *) echo "Aborting at user request" & exit 0
 esac
-
-# Make a back-up
-if [ ! -d $BACK_UP_DIR ]
-    then
-    echo Creating back-up directory $BACK_UP_DIR
-    mkdir $BACK_UP_DIR || (echo "Could not create back-up directory" && exit 0)
-fi
 
 # Create the 'bin' directory
 if [ ! -d $HOME/bin ]; then
