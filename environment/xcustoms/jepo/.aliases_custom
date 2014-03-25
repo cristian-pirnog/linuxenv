@@ -1,0 +1,7 @@
+alias ..="cd .."
+alias cdc="cd /home/jepo/code"
+alias cdd="cd /home/jepo/Documents"
+alias cdf="cd /mnt/config"
+alias cdw="cd /home/jepo/work"
+alias cdl="cd /home/jepo/Downloads"
+alias cdo="cd /mnt/optimization_results/intraday"
