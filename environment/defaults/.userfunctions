@@ -28,17 +28,6 @@ getAnswer()
 }
 
 
-log()
-{
-    LOG_FILE=".user/svn.log"; 
-    if [ -f $LOG_FILE ]; then 
-        cat $LOG_FILE
-    else 
-        echo "Could not find log file $LOG_FILE"
-    fi
-}
-
-
 #----------------------------------------------
 vif()
 {
@@ -87,50 +76,6 @@ allSourceFiles()
 }
 
 #----------------------------------------------
-currentBuildMode()
-{
-    echo ""
-    if [ -f ~/.buildMode ]; then
-     ! echo "Current build mode: DEBUG"
-    else
-       echo "Current build mode: `echo ${SCAMMODE} | tr [:lower:] [:upper:]`"
-    fi
-    echo ""
-}
-
-
-#----------------------------------------------
-setDebug()
-{
-    if [ $# -ne 1 ]; then
-        echo "Usage:  setDebug <on | off>"
-        currentBuildMode
-        return 1
-    fi
-
-    case `echo $1 | tr [:upper:] [:lower:]` in
-        on)
-            echo -e "export SCAMMODE=debug\nexport STMODE=debug" > ~/.buildMode
-	    test -f ~/.makerules_custom && replace -s '#-# CXXFLAGS+=-DDEBUG' 'CXXFLAGS+=-DDEBUG' -- ~/.makerules_custom
-        ;;
-        off)
-            rm -f ~/.buildMode
-	    test -f ~/.makerules_custom && replace -s 'CXXFLAGS+=-DDEBUG' '#-# CXXFLAGS+=-DDEBUG' -- ~/.makerules_custom
-        ;;
-        *)
-            echo -e "Unknown option '$1'\n"
-            echo "Usage:  setDebug <on | off>"
-            return 1
-        ;;
-    esac
-
-    currentBuildMode
-
-    return 0
-}
-
-
-#----------------------------------------------
 isGitRepo()
 {
     myDir=$(pwd)
@@ -143,6 +88,45 @@ isGitRepo()
     done
     echo 0
 }
+
+#----------------------------------------------
+buildall()
+{
+   if [[ $# -ne 1 ]]; then
+      echo "Usage: buildall [Release|Debug]"
+      return 1
+   fi
+
+   local myBuildType=${1}
+   local myDependencies="katania balerion/strategy balerion/optimizer rocardian/support rocardian/optimizer unit_tests/katania"
+ 
+   for d in ${myDependencies}; do 
+       cd $d/${myBuildType} && \
+       make all && \
+       cd ->/dev/null
+   done
+}
+
+#----------------------------------------------
+cleanall()
+{
+    if [[ $# -gt 0 ]]; then
+	types="$@"
+    else
+	types="Debug Release"
+    fi
+
+    for type in ${types}; do
+	echo "Cleaning ${type} builds"
+	for d in $(f ${type}); do 
+	    echo -e "\t$d"
+	    cd $d
+	    make clean >> /dev/null
+	    cd ->/dev/null
+	done
+    done
+}
+
 
 
 #----------------------------------------------
@@ -157,82 +141,12 @@ st()
 
 
 #----------------------------------------------
-svndif()
-{
-    emacs_OPTIONS="-geometry 232x70"
-
-    # Check for conflicts
-    CONFLICTS=`st -q | grep '^C'`
-    if [ ${#CONFLICTS} -ne 0 ]
-    then
-       echo -e "\nConflicts detected. First resolve them before proceeding."
-       return 0 
-    fi
-
-    # If the directory .user exist ==> write the result to .user/svn.diff
-    if [ -d .user ]; then
-        svn -q diff > .user/svn.diff
-
-        # Back-up the 'svn.log' file (if it exist)...
-        if [ -f .user/svn.log ]
-        then
-            cp .user/svn.log .user/svn.log.org
-        fi
-
-        CHANGED_FILES=`st -q | grep -v '^?' | grep -v '^U' | grep -v '^P'`
-
-        echo "$CHANGED_FILES"
-
-        # ... then write the skeleton in the new one
-        echo "Changes:" > .user/svn.log
-
-        IFS=$'\n'
-        index=1
-        for FILE_STRING in $CHANGED_FILES
-          do
-
-          # Split the string into TYPE & FILE
-          TYPE=`echo "$FILE_STRING" | awk '{print $1}'`
-          FILE=`echo "$FILE_STRING" | awk '{print $NF}'`
-
-          # Check whether it should put the whole path
-          if [ -f ".user/.fullpath" ]
-              then 
-              FILE_NAME=$FILE
-          else
-              FILE_NAME=`basename "$FILE"`
-          fi
-
-          POINT="."
-          if [ "$TYPE" = "A" ]
-          then
-              PREFIX_TEXT="Added file "
-              FILE_NAME=$FILE
-          elif [ "$TYPE" = "R" ]
-          then
-              PREFIX_TEXT="Deleted file "
-              FILE_NAME=$FILE
-          else
-              PREFIX_TEXT=""
-              POINT=": "
-          fi
-
-          echo -e "\t$index. $PREFIX_TEXT$FILE_NAME$POINT" >> .user/svn.log
-          let "index+=1"
-        done
-        unset IFS
-
-        # and then open it in emacs (the alias 'm' should be defined in .aliases)
-        m $emacs_OPTIONS -f split-window-horizontally .user/svn.log .user/svn.diff 
-    # otherwise, print it on the screen
-    else
-        svn -q diff 
-    fi
-}
-
-#----------------------------------------------
 gitdif()
 {
+    if [ ! -d .user ]; then
+        getAnswer "Directory \"`pwd`/.user\" doesn't exist. Would you like to create it?" && mkdir .user
+    fi
+
     emacs_OPTIONS="-geometry 186x50"
 
     # Check for conflict
@@ -243,15 +157,17 @@ gitdif()
 	return 0 
     fi
 
+    diffOptions="--cached"
     if [[ -n $(st | grep 'not staged') ]]; then
+	diffOptions=""
 	echo -e "\nThere are changes not staged for commit\n"
 	st | grep -A 10 'not staged'
-	! getAnswer && return 1
+#	! getAnswer && return 1
     fi
 
-    # If the directory .user exist ==> write the result to .user/svn.diff
+    # If the directory .user exist ==> write the result to .user/git.diff
     if [ -d .user ]; then
-	git diff --cached $@ > .user/git.diff
+	git diff ${diffOptions} $@ > .user/git.diff
 
         # Back-up the 'git.log' file (if it exist)...
         if [ -f .user/git.log ]
@@ -327,48 +243,6 @@ dif()
 
 
 #----------------------------------------------
-svncmt()
-{
-    if [[ ! -f .notrace ]]; then
-        toggleTrace off -all
-    fi
-
-    LOG_FILE='.user/svn.log'
-    CHANGED_FILES=`st -q | grep -v '?'`
-    
-    if [ -f $LOG_FILE ]
-    then
-        echo " "
-        NON_REPO_FILES=`st -q | grep '?'`
-        if [ ${#NON_REPO_FILES} -ne 0 ]
-            then
-            echo -e "------------------------------------------" 
-            echo -e "Files not added to the repository\n"
-            echo -e "${NON_REPO_FILES}" | awk '{print "   "$0}'
-            echo -e "\n------------------------------------------"
-        fi
-        echo "Files changed"
-        echo " "
-        st | awk '{print "   "$0}'
-
-        echo " "
-        echo "=================== Begin of log file (" $LOG_FILE ") ========================="
-        cat $LOG_FILE
-
-        echo "==================== End of log file (" $LOG_FILE ") =========================="
-        echo
-
-        getAnswer "Would you like to use the above log message?" && \
-	    svn -q ci -F $LOG_FILE
-    else
-        echo "Could not find log file: $LOG_FILE. Will run 'svn commit' instead?"
-        svn ci
-    fi
-
-}
-
-
-#----------------------------------------------
 cmt()
 {
     LOG_FILE='.user/git.log'
@@ -415,37 +289,56 @@ cmt()
     
 }
 
-# ============================================
-rv()
-{
-    if [ $# -eq 0 ]; then
-	! getAnswer "Are you sure you want to revert the whole tree?" && \
-	    return 0
-	echo "OK! Have it your way!"
-    fi
-
-    myDiff=`svn -q diff $* | grep -v '^?'`
-    if [ ! -z "${myDiff}" ]; then
-        echo "${myDiff}" | patch -s -R -p0
-    else
-        echo "Nothing to revert"
-    fi
-}
-
-
 #----------------------------------------------
 # Function for pulling changes for all repos.
-# No push-all alternative, since this would be tricky.
 pula()
 {
     gitDirs=$(find . -maxdepth 5 -type d -name .git)
 
+    alignSize=0
+    for d in ${gitDirs}; do
+	if [[ ${alignSize} -lt ${#d} ]]; then
+	    alignSize=${#d}
+	fi
+    done
+
+    local msg=""
     for d in ${gitDirs}; do
 	d=$(dirname $d)
-	echo "Pulling for ${d}"
+	n=$(( alignSize - ${#d} ))
 	cd ${d}
 	logFile=.git.pull.log
 	git pull > ${logFile} 2>&1
+	if [[ $? -ne 0 ]]; then
+	    msg="There were problems. See log file ${logFile}"
+	elif [[ -n $(grep "Already up-to-date" .git.pull.log) ]]; then
+	    msg="no changes"
+	else
+	    msg="updated"
+	fi
+	cd ->/dev/null
+	printf "%s%${n}s: %s\n" "Pulling for ${d}" "" "${msg}"
+    done
+}
+
+
+#----------------------------------------------
+# Function for pushing changes to all repos.
+pizda()
+{
+    # Changed directories will have a space and some text
+    local command=""
+    gitDirs=$(st | grep ' ' | cut -d ' ' -f 1)
+
+    echo -e "About to push changes to the following repos:\n"
+    st | grep ' ' | awk '{first=$1; $1=""; print first":("$0" )"}' | column -t -s ":"
+    ! getAnswer && return 0
+
+    for d in ${gitDirs}; do
+	echo "Pushing for ${d}"
+	cd ${d}
+	logFile=.git.push.log
+	git push > ${logFile} 2>&1
 	if [[ $? -ne 0 ]]; then
 	    echo "There were problems. See log file ${logFile}"
 	fi
@@ -453,6 +346,8 @@ pula()
 	echo ""
     done
 }
+
+
 
 #----------------------------------------------
 stall()
@@ -506,14 +401,14 @@ stall()
 #
 next()
 {
-    ARGS=$(getopt -o c -n $(basename ${0}) -- "$@")
+    ARGS=$(getopt -o f -n next -- "$@")
     eval set -- "$ARGS";
 
-    local onlyChanges=0
+    local onlyChanges=1
     while true; do
         case ${1} in
-            -c)
-		onlyChanges=1
+            -f)
+		onlyChanges=0
 		shift
 		;;
             --)

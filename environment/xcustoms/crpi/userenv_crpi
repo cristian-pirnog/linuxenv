@@ -23,3 +23,5 @@ export PROJECT_STABLE_BRANCH='Core/tags/tb15'
 export MATLAB_BASE_DIR="$HOME/code/matlab/modules"
 export MATLAB_PRODUCTION_BRANCH="$MATLAB_BASE_DIR/$PROJECT_STABLE_BRANCH"
 
+# Inhibits some crap WARNING from Emacs (Couldn't register with accessibility bus...)
+export NO_AT_BRIDGE=1

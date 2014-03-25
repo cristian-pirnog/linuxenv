@@ -23,6 +23,7 @@ MakeCDAlias()
     fi
 }
 
+alias cod='cd ${HOME}/code'
 alias kat='cd ${HOME}/code/katania'
 alias opt='cd ${HOME}/code/balerion/optimizer'
 alias str='cd ${HOME}/code/balerion/strategy'
@@ -41,3 +42,4 @@ alias add='git add --all'
 alias pull='git pull'
 alias push='git push'
 alias reset='git reset HEAD'
+alias adif='add; dif'
