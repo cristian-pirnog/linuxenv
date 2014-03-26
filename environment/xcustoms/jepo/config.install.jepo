@@ -1,0 +1,7 @@
+$aliases_jepo $HOME/.aliases_custom
+
+# Files from '.ssh' directory
+.ssh/config $HOME/.ssh/config
+.ssh/known_hosts $HOME/.ssh/known_hosts
+
+userenv_jepo $HOME/.userenv_custom
