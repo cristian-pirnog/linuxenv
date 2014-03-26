@@ -12,6 +12,4 @@
 metacity $HOME/.gconf/apps/metacity
 .userenv $HOME/.userenv
 .userfunctions $HOME/.userfunctions
-.ssh/config $HOME/.ssh/config
-.ssh/known_hosts $HOME/.ssh/known_hosts
 CodingTemplates $HOME/CodingTemplates
