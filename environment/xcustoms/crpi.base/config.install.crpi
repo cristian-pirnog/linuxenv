@@ -1,25 +1,15 @@
-aliases_crpi $HOME/.aliases_custom
-bookmarks.html $HOME/.mozilla/firefox/*.default/bookmarks.html
 CRON $HOME/CRON
 metacity $HOME/.gconf/apps/metacity
-userenv_crpi $HOME/.userenv_custom
 software_custom $HOME/.software_custom
 .dircolors $HOME/.dircolors
 .eclipse.dict $HOME/.eclipse.dict
 #
 # Files from bin directory
 #
-bin/backupRepo $HOME/bin/backupRepo
 bin/from_unixtime_ms $HOME/bin/from_unixtime_ms
 bin/myXterm $HOME/bin/myXterm
 bin/twoTerms $HOME/bin/twoTerms
 bin/coolSsh $HOME/bin/coolSsh
-bin/mountNAS $HOME/bin/mountNAS
-#
-# Files from '.ssh' directory
-#
-.ssh/config $HOME/.ssh/config
-.ssh/known_hosts $HOME/.ssh/known_hosts
 #
 # Files from 'useful' directory
 #
