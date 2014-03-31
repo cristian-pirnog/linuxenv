@@ -352,7 +352,7 @@ pizda()
 #----------------------------------------------
 stall()
 {
-    local gitDirs=$(find . -maxdepth 5 -type d -name .git)
+    local gitDirs=$(find . -maxdepth 5 -type d -name .git | sort)
     clear
     if [[ ${1} == '-s' ]]; then
 	local forNext=1
