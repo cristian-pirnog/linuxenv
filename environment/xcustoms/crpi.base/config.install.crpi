@@ -3,6 +3,7 @@ metacity $HOME/.gconf/apps/metacity
 software_custom $HOME/.software_custom
 .dircolors $HOME/.dircolors
 .eclipse.dict $HOME/.eclipse.dict
+synergy.conf $HOME/.synergy.conf
 #
 # Files from bin directory
 #
