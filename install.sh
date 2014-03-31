@@ -18,7 +18,7 @@ CWD=`pwd`
 ALL_DIRS=`find . -type d | grep -v '.git' | grep -v '^\.$' | grep '^\./environment' | sort`
 ALL_DIRS=$ALL_DIRS" "`find . -type d | grep -v '.git' | grep -v '^\.$' | grep -v '^\./environment'`
 
-myInstallScript="install.sh"
+INSTALL_SCRIPT="install.sh"
 myConfigFile="config.install"
 
 myOriginalDir=`pwd`
@@ -38,10 +38,10 @@ do
   fi
 
   # Run the custom install script (if it exists)
-  if [ -f $myDir/$myInstallScript ]; then
-      echo "     Found install script: $myDir/$myInstallScript"
+  if [ -f $myDir/$INSTALL_SCRIPT ]; then
+      echo "     Found install script: $myDir/$INSTALL_SCRIPT"
       cd $myDir
-      source $myInstallScript
+      source $INSTALL_SCRIPT
   fi
 done
 

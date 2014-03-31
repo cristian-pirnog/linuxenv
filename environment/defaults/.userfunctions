@@ -360,6 +360,7 @@ stall()
 
     test ! ${forNext} && echo ""
     msg=""
+    local lOldPdw=${OLDPWD}
     for d in ${gitDirs}; do
 	d=$(dirname $d)
 	currMsg="\n${d}"
@@ -374,6 +375,9 @@ stall()
 	elif [[ -n $(echo $status | grep "Changes not staged") ]]; then
 	    currMsg=${currMsg}":has changes"
 	    hasChanges=1
+	elif [[ -n $(echo $status | grep "Changes to be committed") ]]; then
+	    currMsg=${currMsg}":has changes staged for commiting"
+	    hasChanges=1
 	elif [[ -n $(echo $status | grep "Your branch is ahead") ]]; then
 	    currMsg=${currMsg}":is ahead of origin"
 	    hasChanges=1
@@ -386,6 +390,7 @@ stall()
 	fi
 	cd ->/dev/null
     done
+    OLDPWD=${lOldPdw}
 
     if [[ ${forNext} ]]; then
 	echo -e ${msg}
