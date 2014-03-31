@@ -380,7 +380,10 @@ stall()
 	    hasChanges=1
 	elif [[ -n $(echo $status | grep "Your branch is ahead") ]]; then
 	    currMsg=${currMsg}":is ahead of origin"
-	    hasChanges=1
+	    hasChanges=0
+	elif [[ -n $(echo $status | grep "have diverged,") ]]; then
+	    currMsg=${currMsg}":has diverged from origin"
+	    hasChanges=0
 	fi
 
 	if [[ $forNext ]] && [[ ${hasChanges} == "1" ]]; then
