@@ -36,6 +36,14 @@ alias sup='if [[ -d support ]]; then cd support; else echo "No support directory
 
 # Some standard aliases
 alias fut='from_unixtime_ms'
+case $(lsb_release -i | awk '{print $NF}') in
+    Fedora)
+	alias install='sudo yum install'
+	;;
+    Ubuntu)
+	alias install='sudo apt-get install'
+	;;
+esac
 
 # Git aliases
 alias add='git add --all'

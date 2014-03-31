@@ -314,7 +314,7 @@ pula()
 	elif [[ -n $(grep "Already up-to-date" .git.pull.log) ]]; then
 	    msg="no changes"
 	else
-	    msg="updated $(pwd)/.git.pull.log"
+	    msg="updated ($(pwd)/.git.pull.log)"
 	fi
 	cd ->/dev/null
 	printf "%s%${n}s: %s\n" "Pulling for ${d}" "" "${msg}"

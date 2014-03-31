@@ -12,7 +12,6 @@ alias lc='/usr/bin/wc -l'
 alias revert='svn revert'
 #alias diff='colordiff'
 alias rm='rm -I --preserve-root'
-alias install='sudo apt-get install'
 alias vi=vim
 
 ## Directory changes
