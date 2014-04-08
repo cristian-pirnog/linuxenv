@@ -2,20 +2,50 @@
 
 source ~/.userfunctions
 
+printUsage()
+{
+    cat << %%USAGE%%
+
+    Usage: $(basename $0) [-h] 
+                 <Debug|Release> [all|clean|fresh]
+
+    Description:
+       Builds the code using CMake configurations.
+
+    Options:
+       -h   :  print this help message and exit
+
+       <x|y>:  one of the arguments in the brackets must be provided
+
+       [x|y]:  optional argument; if none provided, defaults to the first
+	       value in the list (i.e. x).
+
+%%USAGE%%
+}
+
+
 # Check for a CMakeList.txt file
 if [[ ! -f "CMakeLists.txt" ]]; then
     echo "No file CMakeLists.txt found in the current directory ($(pwd)). Aborting."
     exit 1
 fi
 
+if [[ $# -lt 1 ]]; then
+    printUsage
+    exit 1
+fi
+
 buildType=${1}
 option=${2}
 
-case ${option} in
-    "-h")
-        echo "Usage: $(basename $0) [-h|clean|fresh]"
+# Print help, if requested
+if [[ ${buildType} == '-h' ]]; then
+	printUsage
         exit 0
-        ;;
+fi
+
+#
+case ${option} in
     "clean")
 	makeOption='clean'
         ;;
