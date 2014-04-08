@@ -1,0 +1,43 @@
+#!/bin/bash
+
+source ~/.userfunctions
+
+# Check for a CMakeList.txt file
+if [[ ! -f "CMakeLists.txt" ]]; then
+    echo "No file CMakeLists.txt found in the current directory ($(pwd)). Aborting."
+    exit 1
+fi
+
+buildType=${1}
+option=${2}
+
+case ${option} in
+    "-h")
+        echo "Usage: $(basename $0) [-h|clean|fresh]"
+        exit 0
+        ;;
+    "clean")
+	makeOption='clean'
+        ;;
+    "fresh")
+	mustContinue=$(getAnswer "About to remove directory ${buildType}. Continue?")
+	if [[ ${mustContinue} ]]; then
+	    rm -rf ${buildType}
+	else
+	    exit 0
+	fi
+	makeOption='all'
+        ;;
+esac 
+
+if [[ ! -d ${buildType} ]]; then
+    mkdir -p ${buildType} || exit 1
+fi
+
+cd ${buildType}
+
+printf "Running cmake...\n\n"
+cmake ..
+
+printf "\n\nRunning make $s...\n\n" ${makeOption}
+make ${makeOption}
