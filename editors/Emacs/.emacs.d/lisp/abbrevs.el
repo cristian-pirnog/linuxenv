@@ -134,6 +134,7 @@
 
 (define-abbrev-table 'global-abbrev-table '(
     ("sap" "same as point" nil 1)
+    ("sas" "same as summary." nil 1)
     ("svnBranch" "" global-insert-svn-branch-tag 1)
     ("svnMerge" "" global-insert-svn-merge-tag 1)
     ("svnDelete" "" global-insert-svn-delete-tag 1)

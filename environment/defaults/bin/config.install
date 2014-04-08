@@ -5,3 +5,4 @@ fp $HOME/bin/fp
 listTerminalColors $HOME/bin/listTerminalColors
 m $HOME/bin/m
 fif $HOME/bin/fif
+build $HOME/bin/build

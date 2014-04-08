@@ -54,22 +54,22 @@ UpdateFile()
 #
 InstallFromConfigFile()
 {
-    local DIR=$1
-    local CONFIG_FILE=$2
-    local BACK_UP_DIR="$HOME/.back-up"
+    local lDir=${1}
+    local lConfigFile=${2}
+    local lBackUpDir="$HOME/.back-up"
 
-    local ALL_CONFIGURATIONS=`cat $DIR/$CONFIG_FILE | grep -v '^#' | grep -v '^$'`
+    local lAllConfigurations=`cat $lDir/$lConfigFile | grep -v '^#' | grep -v '^$'`
 
-    echo "     ++ Installing from config file: $DIR/$CONFIG_FILE"
+    echo "     ++ Installing from config file: $lDir/$lConfigFile"
 
     # No Whitespace == Line Feed:Carriage Return
     No_WSP=$'\x0A'$'\x0D'
     IFS=$No_WSP
-    for myConfig in $ALL_CONFIGURATIONS
+    for myConfig in $lAllConfigurations
       do
       eval SOURCE_FILE=`echo $myConfig | awk '{print $1}'`
       eval TARGET_FILE=`echo $myConfig | awk '{print $2}'`
 
-      UpdateFile $DIR/$SOURCE_FILE $TARGET_FILE $BACK_UP_DIR
+      UpdateFile $lDir/$SOURCE_FILE $TARGET_FILE ${lBackUpDir}
     done
 }

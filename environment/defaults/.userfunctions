@@ -199,14 +199,18 @@ gitdif()
           fi
 
           POINT="."
-          if [ "$TYPE" = "A" ]
+          if [[ "$TYPE" = "A" ]]
           then
               PREFIX_TEXT="Added file "
               FILE_NAME=$FILE
-          elif [ "$TYPE" = "D" ]
+          elif [[ "$TYPE" = "D" ]]
           then
               PREFIX_TEXT="Deleted file "
               FILE_NAME=$FILE
+	  elif [[ "$TYPE" = "R" ]]
+          then
+              PREFIX_TEXT="Renamed file:"
+              FILE_NAME=$(echo ${FILE_STRING} | awk '{$1=""; print $0}')
           else
               PREFIX_TEXT=""
               POINT=": "
@@ -314,7 +318,7 @@ pula()
 	elif [[ -n $(grep "Already up-to-date" .git.pull.log) ]]; then
 	    msg="no changes"
 	else
-	    msg="updated $(pwd)/.git.pull.log"
+	    msg="updated ($(pwd)/.git.pull.log)"
 	fi
 	cd ->/dev/null
 	printf "%s%${n}s: %s\n" "Pulling for ${d}" "" "${msg}"
@@ -352,7 +356,7 @@ pizda()
 #----------------------------------------------
 stall()
 {
-    local gitDirs=$(find . -maxdepth 5 -type d -name .git)
+    local gitDirs=$(find . -maxdepth 5 -type d -name .git | sort)
     clear
     if [[ ${1} == '-s' ]]; then
 	local forNext=1
@@ -360,6 +364,7 @@ stall()
 
     test ! ${forNext} && echo ""
     msg=""
+    local lOldPdw=${OLDPWD}
     for d in ${gitDirs}; do
 	d=$(dirname $d)
 	currMsg="\n${d}"
@@ -374,9 +379,15 @@ stall()
 	elif [[ -n $(echo $status | grep "Changes not staged") ]]; then
 	    currMsg=${currMsg}":has changes"
 	    hasChanges=1
+	elif [[ -n $(echo $status | grep "Changes to be committed") ]]; then
+	    currMsg=${currMsg}":has changes staged for commiting"
+	    hasChanges=1
 	elif [[ -n $(echo $status | grep "Your branch is ahead") ]]; then
 	    currMsg=${currMsg}":is ahead of origin"
-	    hasChanges=1
+	    hasChanges=0
+	elif [[ -n $(echo $status | grep "have diverged,") ]]; then
+	    currMsg=${currMsg}":has diverged from origin"
+	    hasChanges=0
 	fi
 
 	if [[ $forNext ]] && [[ ${hasChanges} == "1" ]]; then
@@ -386,6 +397,7 @@ stall()
 	fi
 	cd ->/dev/null
     done
+    OLDPWD=${lOldPdw}
 
     if [[ ${forNext} ]]; then
 	echo -e ${msg}
