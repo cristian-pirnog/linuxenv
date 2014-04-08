@@ -2,18 +2,29 @@
 
 source ~/.userfunctions
 
+#----------------------------------------------
 printUsage()
 {
     cat << %%USAGE%%
 
     Usage: $(basename $0) [-h] 
-                 <Debug|Release> [all|clean|fresh]
+                 [-f] <Debug|Release> [all|clean|fresh]
 
     Description:
        Builds the code using CMake configurations.
 
     Options:
-       -h   :  print this help message and exit
+       -h
+       --help
+             {rint this help message and exit
+
+       -f
+       --force
+             Same as -s.             
+
+       -s
+       --script
+             Run in script-mode, i.e. don\'t ask for confirmation.
 
        <x|y>:  one of the arguments in the brackets must be provided
 
@@ -23,6 +34,10 @@ printUsage()
 %%USAGE%%
 }
 
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
 
 # Check for a CMakeList.txt file
 if [[ ! -f "CMakeLists.txt" ]]; then
@@ -35,30 +50,60 @@ if [[ $# -lt 1 ]]; then
     exit 1
 fi
 
-buildType=${1}
-option=${2}
+ARGS=$(getopt -o hfjs -l "help,force,script" -n "build" -- "$@")
 
-# Print help, if requested
-if [[ ${buildType} == '-h' ]]; then
-	printUsage
-        exit 0
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
 fi
 
+eval set -- "$ARGS"
+
 #
+scriptMode=0
+while true; do
+    case ${1} in
+	-h|--help)
+	    printUsage
+	    exit 0
+	    ;;
+	-f|--force|-s|--script)
+	    scriptMode=1
+	    shift
+	    ;;
+	-j)
+	    moreOptions="${moreOptions} -j"
+	    shift
+	    ;;
+	--)
+	    shift
+	    break
+	    ;;
+    esac
+done
+
+buildType=${1}
+shift 1
+option=${1}
+shift 1
+
 case ${option} in
     "clean")
-	makeOption='clean'
+	option='clean'
         ;;
     "fresh")
-	mustContinue=$(getAnswer "About to remove directory ${buildType}. Continue?")
-	if [[ ${mustContinue} ]]; then
-	    rm -rf ${buildType}
-	else
-	    exit 0
+	remove=1
+	if [[ ${scriptMode} -eq 0 ]]; then
+	    getAnswer "About to remove directory ${buildType}. Continue?" && remove=1
 	fi
-	makeOption='all'
+	test ${remove} -eq 1 && \
+	    rm -rf ${buildType} || \
+	    exit 0
+	option='all'
         ;;
-esac 
+esac
+
 
 if [[ ! -d ${buildType} ]]; then
     mkdir -p ${buildType} || exit 1
@@ -69,5 +114,6 @@ cd ${buildType}
 printf "Running cmake...\n\n"
 cmake ..
 
-printf "\n\nRunning make $s...\n\n" ${makeOption}
-make ${makeOption}
+
+printf "\n\nRunning make $s...\n\n" ${option}
+make ${option} ${moreOptions} $*
