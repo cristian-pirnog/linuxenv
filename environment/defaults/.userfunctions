@@ -199,14 +199,18 @@ gitdif()
           fi
 
           POINT="."
-          if [ "$TYPE" = "A" ]
+          if [[ "$TYPE" = "A" ]]
           then
               PREFIX_TEXT="Added file "
               FILE_NAME=$FILE
-          elif [ "$TYPE" = "D" ]
+          elif [[ "$TYPE" = "D" ]]
           then
               PREFIX_TEXT="Deleted file "
               FILE_NAME=$FILE
+	  elif [[ "$TYPE" = "R" ]]
+          then
+              PREFIX_TEXT="Renamed file:"
+              FILE_NAME=$(echo ${FILE_STRING} | awk '{$1=""; print $0}')
           else
               PREFIX_TEXT=""
               POINT=": "
