@@ -92,17 +92,17 @@ isGitRepo()
 #----------------------------------------------
 buildall()
 {
-   if [[ $# -ne 1 ]]; then
+   if [[ $# -lt 1 ]]; then
       echo "Usage: buildall [Release|Debug]"
       return 1
    fi
 
    local myBuildType=${1}
-   local myDependencies="katania balerion/strategy balerion/optimizer rocardian/support rocardian/optimizer unit_tests/katania"
+   shift 1
+   local myDependencies="katania balerion/strategy balerion/optimizer rocardian/support rocardian/optimizer" # unit_tests/katania"
  
    for d in ${myDependencies}; do 
-       cd $d/${myBuildType} && \
-       make all && \
+       cd $d && VERBOSE=1 build -s ${myBuildType} $* -j || return 1
        cd ->/dev/null
    done
 }
