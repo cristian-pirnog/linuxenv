@@ -50,7 +50,7 @@ if [[ $# -lt 1 ]]; then
     exit 1
 fi
 
-ARGS=$(getopt -o hfj::s -l "help,force,script" -n "build" -- "$@")
+ARGS=$(getopt -o hfj::s -l "help,force,script,static,shared" -n "build" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -61,6 +61,7 @@ fi
 eval set -- "$ARGS"
 
 #
+libraryType=SHARED
 scriptMode=0
 while true; do
     case ${1} in
@@ -78,6 +79,14 @@ while true; do
 		moreOptions="${moreOptions}${2}"
 		shift
 	    fi
+	    shift
+	    ;;
+	--static)
+	    libraryType=STATIC
+	    shift
+	    ;;
+	--shared)
+	    libraryType=SHARED
 	    shift
 	    ;;
 	--)
@@ -125,7 +134,7 @@ fi
 cd ${buildType}
 
 printf "Running cmake...\n\n"
-cmake ..
+cmake -DCMAKE_LIBRARY_TYPE=${libraryType} .. || exit 1
 
 
 printf "\n\nRunning make $s...\n\n" ${option}

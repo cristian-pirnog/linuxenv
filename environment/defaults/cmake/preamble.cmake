@@ -30,3 +30,7 @@ endif()
 # Compiler options
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -MMD -MP")
 
+# Install options
+set(CMAKE_LIBRARY_DIR "${HOME}/code/lib")
+set(CMAKE_HEADERS_DIR "${HOME}/code/include")
+
