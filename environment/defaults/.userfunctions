@@ -27,6 +27,7 @@ getAnswer()
     return 1
 }
 
+#----------------------------------------------
 getAlignSize()
 {
     local list="$*"
@@ -115,7 +116,7 @@ buildall()
    local myDependencies="katania balerion/strategy balerion/optimizer rocardian/support rocardian/optimizer" # unit_tests/katania"
  
    for d in ${myDependencies}; do 
-       cd $d && VERBOSE=1 build -s ${myBuildType} $* -j || return 1
+       cd $d && build -s -j ${myBuildType} $* || return 1
        cd ->/dev/null
    done
 }
@@ -347,15 +348,16 @@ pizda()
     ! getAnswer && return 0
 
     for d in ${gitDirs}; do
-	echo "Pushing for ${d}"
+	printf "Pushing for ${d}...\t\t"
 	cd ${d}
 	logFile=.git.push.log
 	git push > ${logFile} 2>&1
 	if [[ $? -ne 0 ]]; then
-	    echo "There were problems. See log file ${logFile}"
+	    printf "There were problems. See log file ${logFile}\n"
+    else
+        printf "Done\n"
 	fi
 	cd ->/dev/null
-	echo ""
     done
 }
 
