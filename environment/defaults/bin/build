@@ -50,7 +50,7 @@ if [[ $# -lt 1 ]]; then
     exit 1
 fi
 
-ARGS=$(getopt -o hfjs -l "help,force,script" -n "build" -- "$@")
+ARGS=$(getopt -o hfj::s -l "help,force,script" -n "build" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -74,11 +74,19 @@ while true; do
 	    ;;
 	-j)
 	    moreOptions="${moreOptions} -j"
+	    if [[ -n ${2} ]]; then
+		moreOptions="${moreOptions}${2}"
+		shift
+	    fi
 	    shift
 	    ;;
 	--)
 	    shift
 	    break
+	    ;;
+	"")
+	    # This is necessary for processing missing optional arguments 
+	    shift
 	    ;;
     esac
 done
@@ -89,10 +97,7 @@ option=${1}
 shift 1
 
 case ${option} in
-    "clean")
-	option='clean'
-        ;;
-    "fresh")
+    "clean"|"fresh")
 	remove=1
 	if [[ ${scriptMode} -eq 0 ]]; then
 	    getAnswer "About to remove directory ${buildType}. Continue?" && remove=1
@@ -100,8 +105,16 @@ case ${option} in
 	test ${remove} -eq 1 && \
 	    rm -rf ${buildType} || \
 	    exit 0
-	option='all'
+	
+	if [[ ${option} == "clean" ]]; then 
+	    exit 0
+	else
+	    option='all'
+	fi
         ;;
+    "")
+	option="all"
+	;;
 esac
 
 
