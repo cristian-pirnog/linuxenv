@@ -135,9 +135,11 @@ buildall()
    shift 1
 
    local myDependencies="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer" # ${client}/live" # unit_tests/katania"
- 
+
+   local threadCount=$(($(nproc) - 1))
+
    for d in ${myDependencies}; do
-       cd $d && build -s -j ${myBuildType} $* || return 1
+       cd $d && build -s -j${threadCount} ${myBuildType} $* || return 1
        cd ->/dev/null
    done
 }
