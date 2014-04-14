@@ -29,6 +29,7 @@ alias opt='cd ${HOME}/code/balerion/optimizer'
 alias str='cd ${HOME}/code/balerion/strategy'
 alias roc='cd ${HOME}/code/rocardian'
 alias ron='cd ${HOME}/code/ronin'
+alias n='next'
 
 # Some standard aliases
 alias fut='from_unixtime_ms'

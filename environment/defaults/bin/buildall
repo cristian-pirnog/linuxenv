@@ -5,7 +5,7 @@ source ~/.userfunctions
 usageMsg="Usage: $(basename ${0}) [roc|ron] <Release|Debug>"
 if [[ $# -lt 1 ]]; then
     echo ${usageMsg}
-    return 1
+    exit 1
 else
     case ${1} in
 	'roc')
@@ -21,7 +21,7 @@ else
 	    ;;
 	*)
 	    echo ${usageMsg}
-	    return 1
+	    exit 1
 	    ;;
     esac
 fi
@@ -33,11 +33,16 @@ shift 1
 #    cd ~/code
 #fi
 
-dependencies="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer drogon/src/C" # ${client}/live" # unit_tests/katania"
+dependencies="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer" # ${client}/live" # unit_tests/katania"
+
+## Add portfolio build, only if not specified in the environment otherwise
+if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
+    dependencies="${dependencies} drogon/src/C"
+fi
 
 threadCount=$(($(nproc) - 1))
 
 for d in ${dependencies}; do
-    cd $d && build -s -j${threadCount} ${buildType} $* || return 1
+    cd $d && build -s -j${threadCount} ${buildType} $* || exit 1
     cd ->/dev/null
 done
