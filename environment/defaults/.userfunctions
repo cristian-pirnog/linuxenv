@@ -328,20 +328,22 @@ pizda()
     # Changed directories will have a space and some text
     local command=""
     gitDirs=$(st | grep ' ' | cut -d ' ' -f 1)
+    local alignSize=$(getAlignSize ${gitDirs})
 
     echo -e "About to push changes to the following repos:\n"
     st | grep ' ' | awk '{first=$1; $1=""; print first":("$0" )"}' | column -t -s ":"
     ! getAnswer && return 0
 
     for d in ${gitDirs}; do
-	printf "Pushing for ${d}...\t\t"
+	n=$(( alignSize - ${#d} ))
+	printf "Pushing for %s%${n}s   : " "${d}" ""
 	cd ${d}
 	logFile=.git.push.log
 	git push > ${logFile} 2>&1
 	if [[ $? -ne 0 ]]; then
 	    printf "There were problems. See log file ${logFile}\n"
-    else
-        printf "Done\n"
+	else
+            printf "Done\n"
 	fi
 	cd ->/dev/null
     done
