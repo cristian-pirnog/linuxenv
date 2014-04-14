@@ -1,0 +1,43 @@
+#!/bin/bash
+
+source ~/.userfunctions
+	
+usageMsg="Usage: $(basename ${0}) [roc|ron] <Release|Debug>"
+if [[ $# -lt 1 ]]; then
+    echo ${usageMsg}
+    return 1
+else
+    case ${1} in
+	'roc')
+	    client=rocardian
+	    shift
+	    ;;
+	'ron')
+	    client=ronin
+	    shift
+	    ;;
+	'Release'|'Debug')
+	    client=rocardian
+	    ;;
+	*)
+	    echo ${usageMsg}
+	    return 1
+	    ;;
+    esac
+fi
+
+buildType=${1}
+shift 1
+
+#if [[ $(pwd) != "${HOME}/code" ]]; then
+#    cd ~/code
+#fi
+
+dependencies="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer drogon/src/C" # ${client}/live" # unit_tests/katania"
+
+threadCount=$(($(nproc) - 1))
+
+for d in ${dependencies}; do
+    cd $d && build -s -j${threadCount} ${buildType} $* || return 1
+    cd ->/dev/null
+done

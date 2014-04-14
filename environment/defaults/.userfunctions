@@ -104,47 +104,6 @@ isGitRepo()
 }
 
 #----------------------------------------------
-buildall()
-{
-   local usageMsg="Usage: buildall [roc|ron] <Release|Debug>"
-   if [[ $# -lt 1 ]]; then
-      echo ${usageMsg}
-      return 1
-   else
-       case ${1} in
-	   'roc')
-	       client=rocardian
-	       shift
-	       ;;
-	   'ron')
-	       client=ronin
-	       shift
-	       ;;
-	   'Release'|'Debug')
-	       client=rocardian
-	       ;;
-	   *)
-	       echo ${usageMsg}
-	       return 1
-	       ;;
-       esac
-   fi
-
-
-   local myBuildType=${1}
-   shift 1
-
-   local myDependencies="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer" # ${client}/live" # unit_tests/katania"
-
-   local threadCount=$(($(nproc) - 1))
-
-   for d in ${myDependencies}; do
-       cd $d && build -s -j${threadCount} ${myBuildType} $* || return 1
-       cd ->/dev/null
-   done
-}
-
-#----------------------------------------------
 cleanall()
 {
     if [[ $# -gt 0 ]]; then
@@ -184,7 +143,11 @@ gitdif()
         getAnswer "Directory \"`pwd`/.user\" doesn't exist. Would you like to create it?" && mkdir .user
     fi
 
-    emacs_OPTIONS="-geometry 186x50"
+    if [[ -z ${DISPLAY} ]]; then
+        emacs_OPTIONS="-nw"
+    else
+        emacs_OPTIONS="-geometry 186x50"
+    fi
 
     # Check for conflict
     CONFLICTS=`st --porcelain | grep '^C'`

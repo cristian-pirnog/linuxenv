@@ -13,4 +13,10 @@
 #        esac
 #done
 
-emacs -geometry 117x39 ${*} #"$OFFSET" $OTHER_OPTS
+if [[ -z ${DISPLAY} ]]; then
+    geometryOption='-nw'
+else
+    geometryOption='-geometry 117x39'
+fi
+
+emacs ${geometryOption} ${*} #"$OFFSET" $OTHER_OPTS

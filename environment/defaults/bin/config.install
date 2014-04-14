@@ -6,3 +6,4 @@ listTerminalColors $HOME/bin/listTerminalColors
 m $HOME/bin/m
 fif $HOME/bin/fif
 build $HOME/bin/build
+buildall /home/crpi/bin/buildall

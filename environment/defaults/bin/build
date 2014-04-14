@@ -34,16 +34,41 @@ printUsage()
 %%USAGE%%
 }
 
+#----------------------------------------------
+wafBuild()
+{
+    if [[ ${1} == clean ]]; then
+	waf configure clean 
+    fi
+    waf configure build install
+}
+
+
+#----------------------------------------------
+cmakeBuild()
+{
+    local lBuildType=${1}
+    local lLibraryType=${2}
+    local lOption=${3}
+    shift 3
+    
+    if [[ ! -d ${lBuildType} ]]; then
+	mkdir -p ${lBuildType} || exit 1
+    fi
+    
+    cd ${lBuildType}
+    
+    printf "Running cmake...\n\n"
+    cmake -DCMAKE_INSTALL_PREFIX=${HOME}/code -DCMAKE_LIBRARY_TYPE=${lLibraryType} .. || return 1
+    
+    printf "\n\nRunning make $s...\n\n" ${lOption}
+    make ${lOption} ${moreLOptions} $*
+}
+
 
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-
-# Check for a CMakeList.txt file
-if [[ ! -f "CMakeLists.txt" ]]; then
-    echo "No file CMakeLists.txt found in the current directory ($(pwd)). Aborting."
-    exit 1
-fi
 
 if [[ $# -lt 1 ]]; then
     printUsage
@@ -127,15 +152,15 @@ case ${option} in
 esac
 
 
-if [[ ! -d ${buildType} ]]; then
-    mkdir -p ${buildType} || exit 1
+# If there's a wscript file in the current dir, runn a waf build
+if [[ -f wscript ]]; then
+    wafBuild ${option}
+else
+    # Check for a CMakeList.txt file
+    if [[ ! -f "CMakeLists.txt" ]]; then
+	echo "No file CMakeLists.txt found in the current directory ($(pwd)). Aborting."
+	exit 1
+    fi
+
+    cmakeBuild ${buildType} ${libraryType} ${option} ${moreOptions} $*
 fi
-
-cd ${buildType}
-
-printf "Running cmake...\n\n"
-cmake -DCMAKE_LIBRARY_TYPE=${libraryType} .. || exit 1
-
-
-printf "\n\nRunning make $s...\n\n" ${option}
-make ${option} ${moreOptions} $*
