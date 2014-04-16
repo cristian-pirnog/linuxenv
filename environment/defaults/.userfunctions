@@ -90,6 +90,12 @@ allSourceFiles()
 }
 
 #----------------------------------------------
+listRepos()
+{
+    find . -maxdepth 5 -type d -name .git | sort | xargs dirname | replace './' ''
+}
+
+#----------------------------------------------
 isGitRepo()
 {
     myDir=$(pwd)
@@ -297,12 +303,11 @@ cmt()
 # Function for pulling changes for all repos.
 pula()
 {
-    gitDirs=$(find . -maxdepth 5 -type d -name .git)
+    gitDirs=$(listRepos)
     local alignSize=$(getAlignSize ${gitDirs})
 
     local msg=""
     for d in ${gitDirs}; do
-	d=$(dirname $d)
 	cd ${d}
 	logFile=.git.pull.log
 	git pull > ${logFile} 2>&1
@@ -354,7 +359,7 @@ pizda()
 #----------------------------------------------
 stall()
 {
-    local gitDirs=$(find . -maxdepth 5 -type d -name .git | sort)
+    local gitDirs=$(listRepos)
     local alignSize=$(getAlignSize ${gitDirs})
 
     clear
@@ -365,7 +370,6 @@ stall()
     echo "" # Need this for function next
     local lOldPdw=${OLDPWD}
     for d in ${gitDirs}; do
-	d=$(dirname $d)
 	currMsg=""
 	cd ${d}
 	local status=$(git status)

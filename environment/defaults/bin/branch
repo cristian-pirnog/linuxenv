@@ -1,0 +1,139 @@
+#!/bin/bash
+
+source ~/.userfunctions
+
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) [-h]
+            $(basename ${0}) [-xprj1,prj2,...] -c branchName
+            $(basename ${0}) [-xprj1,prj2,...] -d branchName
+            $(basename ${0}) [-xprj1,prj2,...] -l
+
+    Description:
+       Creates/deletes a branch for all checked-out products.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       -xprj1,prj2,...
+       --exclude prj1,prj2,...
+             The listed projects will be excluded.
+
+       -c branchName
+       --create branchName
+             Create branches branchName (one for each project). 
+
+       -d branchName
+       --delete branchName
+             Delete branches branchName (one for each project).
+
+       -l
+       --list
+             List all branches for each project.
+
+       <x|y>:
+             One of the arguments in the brackets must be provided
+
+%%USAGE%%
+}
+
+#----------------------------------------------
+listBranches()
+{
+    for p in $(listRepos); do
+	cd ${p}
+	echo "Project ${p}"
+	git branch --list
+	echo ""
+	cd ->/dev/null
+    done
+}
+
+#----------------------------------------------
+createBranch()
+{
+    local lBranch=${1}
+
+    if [[ -n $(listBranches | grep -v Project | grep ${lBranch}) ]]; then
+	echo "A branch '${lBranch}' already exists in at least one of the projects. Exiting"
+	return 1
+    fi
+
+    git branch ${lBranch}
+    git checkout ${lBranch}
+}
+
+#----------------------------------------------
+deleteBranch()
+{
+    local lBranch=${1}
+    pwd
+    git branch -d ${lBranch}
+}
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+ARGS=$(getopt -o hx:c:d:l -l "help,exclude:,create:,delete:,list" -n "$(basename ${0})" -- "$@")
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+# Go th the code directory
+if [[ $(pwd) != "${HOME}/code" ]]; then
+    cd ~/code
+fi
+
+## Parse options
+toExclude="drogon"
+while true; do
+    case ${1} in
+	-h|--help)
+	    printUsage
+	    exit 0
+	    ;;
+	-x|--exclude)
+	    toExclude="${toExclude},""${2}"
+	    shift 2
+	    ;;
+	-c|--create)
+	    task='createBranch'
+	    branchName=${2}
+	    shift 2
+	    ;;
+	-d|--delete)
+	    task='deleteBranch'
+	    branchName=${2}
+	    shift 2
+	    ;;
+	-l|--list)
+	    listBranches
+	    exit 0
+	    ;;
+	--)
+	    shift
+	    break
+	    ;;
+    esac
+done
+
+echo toExclude=${toExclude}
+for d in $(listRepos); do
+    if [[ -n $(echo ${toExclude} | grep "${d}") ]]; then
+	echo "Skipping project ${d}"
+	continue
+    fi
+    cd ${d}
+    ${task} ${branchName}
+    cd ->/dev/null
+done
