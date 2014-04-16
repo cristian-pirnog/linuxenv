@@ -8,7 +8,7 @@ printUsage()
     cat << %%USAGE%%
 
     Usage: $(basename $0) [-h] 
-                 [-f] <Debug|Release> [all|clean|fresh]
+                 [-f|-s] <Debug|Release> [all|clean|fresh]
 
     Description:
        Builds the code using CMake configurations.
@@ -16,7 +16,7 @@ printUsage()
     Options:
        -h
        --help
-             {rint this help message and exit
+             print this help message and exit
 
        -f
        --force

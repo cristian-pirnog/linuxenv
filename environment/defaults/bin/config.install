@@ -6,5 +6,6 @@ listTerminalColors $HOME/bin/listTerminalColors
 m $HOME/bin/m
 fif $HOME/bin/fif
 build $HOME/bin/build
-buildall /home/crpi/bin/buildall
 copyright $HOME/bin/copyright
+buildall ${HOME}/bin/buildall
+branch $HOME/bin/branch
