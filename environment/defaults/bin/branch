@@ -7,9 +7,10 @@ printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) [-h]
-            $(basename ${0}) [-xprj1,prj2,...] -c branchName
-            $(basename ${0}) [-xprj1,prj2,...] -d branchName
-            $(basename ${0}) [-xprj1,prj2,...] -l
+            $(basename ${0}) [-xprj1[,prj2,...]] <-c|--create>  branchName
+            $(basename ${0}) [-xprj1[,prj2,...]] <-d|--delete>  branchName
+            $(basename ${0}) [-xprj1[,prj2,...]] <-s|--switch>  branchName
+            $(basename ${0}) [-xprj1[,prj2,...]] <-l|--list> [all]
 
     Description:
        Creates/deletes a branch for all checked-out products.
@@ -31,9 +32,14 @@ cat << %%USAGE%%
        --delete branchName
              Delete branches branchName (one for each project).
 
-       -l
-       --list
-             List all branches for each project.
+       -s branchName
+       --switch branchName
+             Switch to branchName for all projects.
+
+       -l [all]
+       --list [all]
+             List the current branch for each project. If option 'all' is
+	     provided, lists all the branches for each project.
 
        <x|y>:
              One of the arguments in the brackets must be provided
@@ -44,11 +50,25 @@ cat << %%USAGE%%
 #----------------------------------------------
 listBranches()
 {
-    for p in $(listRepos); do
+    local lAll="${1}"
+
+    local lGitDirs=$(listRepos)
+    local lAlignSize=$(getAlignSize ${lGitDirs})
+
+    if [[ ${lAll} = 'all' ]]; then
+	printf "All branches: \n"
+    else
+	printf "\nCurrent active branches \n-----------------------\n"
+    fi
+
+    for p in ${lGitDirs}; do
 	cd ${p}
-	echo "Project ${p}"
-	git branch --list
-	echo ""
+	if [[ ${lAll} = 'all' ]]; then
+	    printf "Project %s: \n%s\n\n" "${p}" "$(git branch --list)"
+	else
+	    n=$(( lAlignSize - ${#p} ))
+	    printf "Project %s%${n}s: %s\n" "${p}"  "" "$(git branch --list | grep '^*' | awk '{print $NF}')"
+	fi
 	cd ->/dev/null
     done
 }
@@ -58,8 +78,8 @@ createBranch()
 {
     local lBranch=${1}
 
-    if [[ -n $(listBranches | grep -v Project | grep ${lBranch}) ]]; then
-	echo "A branch '${lBranch}' already exists in at least one of the projects. Exiting"
+    if [[ -n $(git branch --list | grep -v Project | grep ${lBranch}) ]]; then
+	echo "A branch '${lBranch}' already exists. Skipping"
 	return 1
     fi
 
@@ -68,18 +88,27 @@ createBranch()
 }
 
 #----------------------------------------------
-deleteBranch()
+forceDeleteBranch()
 {
-    local lBranch=${1}
-    pwd
-    git branch -d ${lBranch}
+    git branch -D ${1}
 }
 
+#----------------------------------------------
+deleteBranch()
+{
+    git branch -d ${1}
+}
+
+#----------------------------------------------
+switchBranch()
+{
+    git checkout ${1}
+}
 
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hx:c:d:l -l "help,exclude:,create:,delete:,list" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o hx:c:d:D:s:l -l "help,exclude:,create:,delete:,DELETE:,switch:,list::" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -95,7 +124,7 @@ if [[ $(pwd) != "${HOME}/code" ]]; then
 fi
 
 ## Parse options
-toExclude="drogon"
+toExclude=""
 while true; do
     case ${1} in
 	-h|--help)
@@ -103,7 +132,7 @@ while true; do
 	    exit 0
 	    ;;
 	-x|--exclude)
-	    toExclude="${toExclude},""${2}"
+	    toExclude="${toExclude},""${2},"
 	    shift 2
 	    ;;
 	-c|--create)
@@ -116,24 +145,49 @@ while true; do
 	    branchName=${2}
 	    shift 2
 	    ;;
+	-D|--DELETE)
+	    task='forceDeleteBranch'
+	    branchName=${2}
+	    shift 2
+	    ;;
+	-s|--switch)
+	    task='switchBranch'
+	    branchName=${2}
+	    shift 2
+	    ;;
 	-l|--list)
-	    listBranches
+	    shift
+	    listBranches ${2}
 	    exit 0
 	    ;;
 	--)
 	    shift
 	    break
 	    ;;
+	"")
+	    # This is necessary for processing missing optional arguments 
+	    shift
+	    ;;
     esac
 done
 
-echo toExclude=${toExclude}
-for d in $(listRepos); do
-    if [[ -n $(echo ${toExclude} | grep "${d}") ]]; then
+# If no task specified, default to list
+if [[ -z ${task} ]]; then
+    listBranches
+    exit 0
+fi
+
+gitDirs=$(listRepos)
+alignSize=$(getAlignSize ${gitDirs})
+
+for d in ${gitDirs}; do
+    if [[ -n $(echo ${toExclude} | grep ",${d},") ]]; then
 	echo "Skipping project ${d}"
 	continue
     fi
     cd ${d}
-    ${task} ${branchName}
+    n=$(( alignSize - ${#d} ))
+    output=$(${task} ${branchName} 2>&1)
+    printf "%s%${n}s: %s\n" "$(pwd)" "" "${output}"
     cd ->/dev/null
 done

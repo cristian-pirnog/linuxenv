@@ -30,6 +30,7 @@ alias str='cd ${HOME}/code/balerion/strategy'
 alias roc='cd ${HOME}/code/rocardian'
 alias ron='cd ${HOME}/code/ronin'
 alias n='next'
+alias br='branch'
 
 # Some standard aliases
 alias fut='from_unixtime_ms'
