@@ -7,3 +7,4 @@ m $HOME/bin/m
 fif $HOME/bin/fif
 build $HOME/bin/build
 buildall /home/crpi/bin/buildall
+copyright $HOME/bin/copyright
