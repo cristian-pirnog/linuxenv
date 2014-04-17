@@ -10,6 +10,7 @@ cat << %%USAGE%%
             $(basename ${0}) [-xprj1[,prj2,...]] <-c|--create>  branchName
             $(basename ${0}) [-xprj1[,prj2,...]] <-d|--delete>  branchName
             $(basename ${0}) [-xprj1[,prj2,...]] <-s|--switch>  branchName
+            $(basename ${0}) [-xprj1[,prj2,...]] <-m|--merge>   toBranch fromBranch
             $(basename ${0}) [-xprj1[,prj2,...]] <-l|--list> [all]
 
     Description:
@@ -36,6 +37,10 @@ cat << %%USAGE%%
        --switch branchName
              Switch to branchName for all projects.
 
+       -m fromBranch [toBranch]
+       --merge fromBranch [toBranch]
+             Merge the changes in fromBranch to toBranch
+
        -l [all]
        --list [all]
              List the current branch for each project. If option 'all' is
@@ -45,6 +50,35 @@ cat << %%USAGE%%
              One of the arguments in the brackets must be provided
 
 %%USAGE%%
+}
+
+#----------------------------------------------
+printProjectsForBranch()
+{
+    local lAll=${1}
+    listBranches ${lAll} | sed -n "/Project/,/${lBranch}/p" | grep Project | replace Project ""
+}
+
+
+#----------------------------------------------
+printActiveBranches()
+{
+    listBranches | grep Project | awk '{print $NF}' | sort | uniq
+}
+
+#----------------------------------------------
+checkLocalChanges()
+{
+    local lActivity=${1}
+    local lBranchesWithChanges=$(stall -s)
+    if [[ -n ${lBranchesWithChanges} ]]; then
+	printf "\nThe following branches have local changes\n"
+	echo "${lBranchesWithChanges}"
+	printf "\nCommit/stash changes before ${lActivity}ing.\n"
+	return 1
+    fi
+    return 0
+
 }
 
 #----------------------------------------------
@@ -74,23 +108,52 @@ listBranches()
 }
 
 #----------------------------------------------
-createBranch()
+check_createBranch()
 {
     local lBranch=${1}
 
-    if [[ -n $(git branch --list | grep -v Project | grep ${lBranch}) ]]; then
-	echo "A branch '${lBranch}' already exists. Skipping"
+    if [[ -n $(listBranches all | grep -v Project | grep " ${lBranch}") ]]; then
+	printf "Branch '${lBranch}' already exists in the following projects.\n"
+	printProjectsForBranch all
 	return 1
     fi
+
+    return 0
+}
+
+#----------------------------------------------
+createBranch()
+{
+    local lBranch=${1}
 
     git branch ${lBranch}
     git checkout ${lBranch}
 }
 
 #----------------------------------------------
+check_forceDeleteBranch()
+{
+    local lBranch=${1}
+    if [[ -n $(listBranches | grep -v Project | grep " ${lBranch}") ]]; then
+	printf "Branch ${lBranch} is active in the following projects. Will not delete."
+	printProjectsForBranch
+	return 1
+    fi
+
+    return 0
+}
+
+
+#----------------------------------------------
 forceDeleteBranch()
 {
     git branch -D ${1}
+}
+
+#----------------------------------------------
+check_deleteBranch()
+{
+    check_forceDeleteBranch $@
 }
 
 #----------------------------------------------
@@ -100,15 +163,61 @@ deleteBranch()
 }
 
 #----------------------------------------------
+check_switchBranch()
+{
+    checkLocalChanges switch || return 1
+}
+
+#----------------------------------------------
 switchBranch()
 {
     git checkout ${1}
 }
 
 #----------------------------------------------
+check_mergeBranch()
+{
+    local lToBranch=${1}
+    local lFromBranch=${2}
+
+    checkLocalChanges merge || return 1
+    local lActiveBranches=$(printActiveBranches)
+
+    # Check that there are no mixed branches
+    if [[ $(echo ${lActiveBranches} | wc -w) != 1 ]]; then
+	printf "Mixed active branches found. Will not continue.\n"
+	echo ${lActiveBranches}
+	return 1
+    fi
+
+    # Check that from- and to- branches are not the same
+    if [[ ${lToBranch} == ${lFromBranch} ]]; then
+	printf "From and to branches are the same: %s and %s\n" ${lFromBranch} ${lToBranch}
+	return 1
+    fi
+
+    # Check that the current active branch is the same as the from-branch
+    if [[ ${lActiveBranches} != ${lFromBranch} ]]; then
+	printf "The active branch is not ${lFromBranch}, but %s\n" "${lActiveBranches}"
+	printf "Make ${lFromBranch} active before merging"
+	return 1
+    fi
+
+
+}
+
+#----------------------------------------------
+mergeBranch()
+{
+    git checkout ${1} > /dev/null
+    git merge ${2}
+}
+
+
+#----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hx:c:d:D:s:l -l "help,exclude:,create:,delete:,DELETE:,switch:,list::" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o hx:c:d:D:s:m:l -l "help,exclude:,create:,delete:,DELETE:,switch:merge:,list::" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -137,22 +246,27 @@ while true; do
 	    ;;
 	-c|--create)
 	    task='createBranch'
-	    branchName=${2}
+	    arguments=${2}
 	    shift 2
 	    ;;
 	-d|--delete)
 	    task='deleteBranch'
-	    branchName=${2}
+	    arguments=${2}
 	    shift 2
 	    ;;
 	-D|--DELETE)
 	    task='forceDeleteBranch'
-	    branchName=${2}
+	    arguments=${2}
 	    shift 2
 	    ;;
 	-s|--switch)
 	    task='switchBranch'
-	    branchName=${2}
+	    arguments=${2}
+	    shift 2
+	    ;;
+	-m|--merge)
+	    task='mergeBranch'
+	    arguments=${2}
 	    shift 2
 	    ;;
 	-l|--list)
@@ -180,6 +294,23 @@ fi
 gitDirs=$(listRepos)
 alignSize=$(getAlignSize ${gitDirs})
 
+
+# If no from-branch given, take the current active one
+if [[ ${task} = 'mergeBranch' ]]; then
+    if [[ $# -lt 1 ]]; then
+	toBranch=$(printActiveBranches)
+	if [[ $(echo ${toBranch} | wc -w) -gt 1 ]]; then
+	    printf "Mixed active branches found"
+	    exit 0
+	fi
+	arguments=${arguments}" "${toBranch}
+    fi
+fi
+
+## Run checks for the given task
+check_${task} ${arguments} $* || exit 1
+
+# Then run the task
 for d in ${gitDirs}; do
     if [[ -n $(echo ${toExclude} | grep ",${d},") ]]; then
 	echo "Skipping project ${d}"
@@ -187,7 +318,7 @@ for d in ${gitDirs}; do
     fi
     cd ${d}
     n=$(( alignSize - ${#d} ))
-    output=$(${task} ${branchName} 2>&1)
+    output=$(${task} ${arguments} $* 2>&1)
     printf "%s%${n}s: %s\n" "$(pwd)" "" "${output}"
     cd ->/dev/null
 done

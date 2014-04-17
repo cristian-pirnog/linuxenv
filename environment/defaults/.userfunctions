@@ -362,7 +362,7 @@ stall()
     local gitDirs=$(listRepos)
     local alignSize=$(getAlignSize ${gitDirs})
 
-    clear
+    # clear # This puts non-printing characters in the output
     if [[ ${1} == '-s' ]]; then
 	local forNext=1
     fi
