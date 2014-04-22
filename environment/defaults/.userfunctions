@@ -11,10 +11,10 @@ getAnswer()
     # Pop the question
     local question="${1}"
     if [[ -z ${question} ]]; then
-	question="\nWould you like to continue?"
+	question="Would you like to continue?"
     fi
     question=${question}" [y\n]"
-    printf "%s " ${question}
+    printf "\n%s " "${question}"
 
     # Get the answer
     local answer
@@ -362,17 +362,18 @@ stall()
     local gitDirs=$(listRepos)
     local alignSize=$(getAlignSize ${gitDirs})
 
-    # clear # This puts non-printing characters in the output
     if [[ ${1} == '-s' ]]; then
 	local forNext=1
+    else
+	clear # This puts non-printing characters in the output	(which messes-up the function next)
     fi
 
-    echo "" # Need this for function next
     local lOldPdw=${OLDPWD}
     for d in ${gitDirs}; do
 	currMsg=""
 	cd ${d}
 	local status=$(git status)
+	local lBranchName=$(git branch --list | grep '^*' | awk '{print $NF}')
 
 	# Check for untracked files
 	local hasChanges=0
@@ -380,6 +381,7 @@ stall()
 	    currMsg=${currMsg}" has untracked files"
 	    hasChanges=$(($hasChanges || 1))
 	fi
+
 	if [[ -n $(echo $status | grep "Changes not staged") ]]; then
 	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
 	    currMsg=${currMsg}" has changes"
@@ -406,7 +408,7 @@ stall()
 	    printf "%s:%s\n" ${d} "${currMsg}"
 	elif [[ ! $forNext ]]; then
 	    n=$(( alignSize - ${#d} ))
-	    printf "%s%${n}s%s\n" ${d} "" "${currMsg}"
+	    printf "%s%${n}s (%s)  %s\n" ${d} "" "${lBranchName}" "${currMsg}"
 	fi
 	cd ->/dev/null
     done
@@ -419,12 +421,7 @@ stall()
 #
 next()
 {
-    # Need to look at the 2nd line (1st one is empty)
-    # When I removed the empty line, cd ${nextDir} just
-    #   complained that there is no such director, although
-    #   there obviously was. I suspect some non-printing
-    #   caracter, but could not find it.
-    local nextInfo=$(stall -s | head -n 2 | tail -n 1)
+    local nextInfo=$(stall -s | head -n 1 | tail -n 1)
     local nextDir=$(echo ${nextInfo} | cut -d ":"  -f 1)
 
     if [ -n "${nextDir}" ]; then
