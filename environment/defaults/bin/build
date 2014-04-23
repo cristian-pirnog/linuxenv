@@ -8,7 +8,7 @@ printUsage()
     cat << %%USAGE%%
 
     Usage: $(basename $0) [-h] 
-           $(basename $0) [-f|-s] [--shared|--static] <Debug|Release> [all|clean|fresh]
+           $(basename $0) [-f|-s] [--shared|--static] <Debug|Release> [all|clean|fresh] [install]
 
     Description:
        Builds the code using CMake configurations.
@@ -126,9 +126,9 @@ while true; do
 done
 
 buildType=${1}
-shift 1
+shift
 option=${1}
-shift 1
+shift
 
 case ${option} in
     "clean"|"fresh")
@@ -162,5 +162,5 @@ else
 	exit 1
     fi
 
-    cmakeBuild ${buildType} ${libraryType} ${option} ${moreOptions} $*
+    cmakeBuild ${buildType} ${libraryType} ${option} ${moreOptions} $@
 fi

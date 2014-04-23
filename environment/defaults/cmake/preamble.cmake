@@ -25,12 +25,19 @@ message(STATUS "Generating \"${CMAKE_BUILD_TYPE}\" Makefile")
 # 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG")
-endif()
+endif(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
 # Compiler options
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -MMD -MP")
 
-# Install options
-set(CMAKE_LIBRARY_DIR $ENV{HOME}/deploy/"bin")
-set(CMAKE_HEADERS_DIR $ENV{HOME}/deploy/"include")
+# Make lists with the files to use for building
+file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.h)
+file(GLOB_RECURSE ${PROJECT_NAME}_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.cpp)
 
+# Include src by default
+include_directories(BEFORE src)
+
+# Install options
+set(CMAKE_BINARY_DIR $ENV{HOME}/deploy/${CMAKE_BUILD_TYPE}/bin)
+set(CMAKE_LIBRARY_DIR $ENV{HOME}/deploy/${CMAKE_BUILD_TYPE}/lib)
+set(CMAKE_HEADERS_DIR $ENV{HOME}/deploy/${CMAKE_BUILD_TYPE}/include)
