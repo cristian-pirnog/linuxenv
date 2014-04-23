@@ -14,7 +14,7 @@ cat << %%USAGE%%
             $(basename ${0}) [-xprj1[,prj2,...]] <-l|--list> [all]
 
     Description:
-       Creates/deletes a branch for all checked-out products.
+       Manage (create/delete/switch/etc.) branches for all checked-out products.
 
     Options:
        -h
