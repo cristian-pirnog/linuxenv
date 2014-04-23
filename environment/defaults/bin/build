@@ -134,8 +134,9 @@ case ${option} in
     "clean"|"fresh")
 	remove=1
 	if [[ ${scriptMode} -eq 0 ]]; then
-	    getAnswer "About to remove directory ${buildType}. Continue?" && remove=1
+	    getAnswer "About to remove directory ${buildType}. Continue?" || remove=0
 	fi
+
 	test ${remove} -eq 1 && \
 	    rm -rf ${buildType} || \
 	    exit 0
