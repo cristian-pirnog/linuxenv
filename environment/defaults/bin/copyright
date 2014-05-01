@@ -146,3 +146,5 @@ if [[ ${doReplace} = 1 ]] || [[ -z $(grep "Katania Copyright" ${fileName}) ]]; t
 	handleCpp ${fileName} ${doReplace}
     fi
 fi
+
+exit 0
