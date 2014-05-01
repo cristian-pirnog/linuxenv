@@ -10,7 +10,7 @@ cat << %%USAGE%%
             $(basename ${0}) [-xprj1[,prj2,...]] <-c|--create>  branchName
             $(basename ${0}) [-xprj1[,prj2,...]] <-d|--delete>  branchName
             $(basename ${0}) [-xprj1[,prj2,...]] <-s|--switch>  branchName
-            $(basename ${0}) [-xprj1[,prj2,...]] <-m|--merge>   toBranch fromBranch
+            $(basename ${0}) [-xprj1[,prj2,...]] <-m|--merge>   fromBranch toBranch 
             $(basename ${0}) [-xprj1[,prj2,...]] <-l|--list> [all]
 
     Description:
@@ -177,8 +177,8 @@ switchBranch()
 #----------------------------------------------
 check_mergeBranch()
 {
-    local lToBranch=${1}
-    local lFromBranch=${2}
+    local lFromBranch=${1}
+    local lToBranch=${2}
 
     checkLocalChanges merge || return 1
     local lActiveBranches=$(printActiveBranches)
@@ -199,7 +199,7 @@ check_mergeBranch()
     # Check that the current active branch is the same as the from-branch
     if [[ ${lActiveBranches} != ${lFromBranch} ]]; then
 	printf "The active branch is not ${lFromBranch}, but %s\n" "${lActiveBranches}"
-	printf "Make ${lFromBranch} active before merging"
+	printf "Make ${lFromBranch} active before merging\n"
 	return 1
     fi
 
