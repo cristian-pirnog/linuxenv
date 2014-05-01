@@ -253,53 +253,6 @@ dif()
 
 
 #----------------------------------------------
-cmt()
-{
-    LOG_FILE='.user/git.log'
-    
-    if [[ -f .git/MERGE_HEAD ]]; then
-	echo "Looks like you're about to commit a merge"
-	rm ${LOG_FILE}
-    fi
-    
-    if [[ -f $LOG_FILE ]]; then
-        echo " "
-        NON_REPO_FILES=`st --porcelain | grep '?'`
-        if [ ${#NON_REPO_FILES} -ne 0 ]
-            then
-            echo -e "------------------------------------------" 
-            echo -e "Files not added to the repository\n"
-            echo -e "${NON_REPO_FILES}" | awk '{print "   "$0}'
-            echo -e "\n------------------------------------------"
-        fi
-        echo "Files changed"
-        echo " "
-        st  --untracked-files=no
-
-        echo " "
-        echo "=================== Begin of log file (" $LOG_FILE ") ========================="
-        cat $LOG_FILE
-
-        echo "==================== End of log file (" $LOG_FILE ") =========================="
-        echo
-
-        # Format the code
-        if [ -f .astyle ]; then
-            astyle --recursive '*.C' '*.h' 
-        else
-            echo "NOT Formatting the code with ASTYLE (no .astyle file found)"
-        fi
-
-        getAnswer "Would you like to use the above log message?" && \
-	    git commit -F $LOG_FILE
-    else
-        echo "Could not find log file: $LOG_FILE. Will run 'git commit' instead?"
-        git commit
-    fi
-    
-}
-
-#----------------------------------------------
 # Function for pulling changes for all repos.
 pula()
 {
