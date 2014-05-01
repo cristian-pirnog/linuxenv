@@ -2,18 +2,6 @@
 
 source ~/.userfunctions
 
-addCopyright()
-{
-    for f in $(git diff --name-only --cached); do
-	# If file exists, add copyright information to it
-	if [[ -f ${f} ]]; then
-	    copyright $f
-	fi
-    done
-}
-
-
-
 #----------------------------------------------
 # Main script
 #----------------------------------------------
