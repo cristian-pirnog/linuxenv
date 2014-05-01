@@ -10,3 +10,4 @@ copyright ${HOME}/bin/copyright
 buildall ${HOME}/bin/buildall
 branch ${HOME}/bin/branch
 cmt ${HOME}/bin/cmt
+gitdif /home/crpi/bin/gitdif

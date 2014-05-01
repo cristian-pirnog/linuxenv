@@ -2,6 +2,17 @@
 
 source ~/.userfunctions
 
+addCopyright()
+{
+    for f in $(git diff --name-only --cached); do
+	# If file exists, add copyright information to it
+	if [[ -f ${f} ]]; then
+	    copyright $f
+	fi
+    done
+}
+
+
 
 #----------------------------------------------
 # Main script
@@ -37,7 +48,7 @@ if [[ -f $logFile ]]; then
     
     # Format the code
     if [ -f .astyle ]; then
-        astyle --recursive '*.C' '*.h' 
+        astyle --recursive '*.cpp' '*.h' 
     else
         echo "NOT Formatting the code with ASTYLE (no .astyle file found)"
     fi
