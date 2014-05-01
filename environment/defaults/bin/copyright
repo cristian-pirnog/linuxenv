@@ -103,7 +103,7 @@ isPython()
 #----------------------------------------------
 
 if [[ $# -lt 1 ]]; then
-    echo "Usage: $(basename ${0}) -r fileName"
+    echo "Usage: $(basename ${0}) [-r] fileName"
     exit 1
 fi
 

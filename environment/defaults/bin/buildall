@@ -33,7 +33,7 @@ shift 1
 #    cd ~/code
 #fi
 
-dependencies="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer ${client}/live" # unit_tests/katania"
+dependencies="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer ${client}/live unit_tests/katania"
 
 ## Add portfolio build, only if not specified in the environment otherwise
 if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
