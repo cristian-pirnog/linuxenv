@@ -22,3 +22,7 @@ fi
 source ~/.userfunctions
 
 export IN_SWITZERLAND=1
+for f in ~/completions/*; do
+    source $f
+done
+

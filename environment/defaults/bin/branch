@@ -227,10 +227,10 @@ fi
 
 eval set -- "$ARGS"
 
-# Go th the code directory
-if [[ $(pwd) != "${HOME}/code" ]]; then
-    cd ~/code
-fi
+# Go th the code directory - don't do it! Bad when you have multiple copies of the code.
+#if [[ $(pwd) != "${HOME}/code" ]]; then
+#    cd ~/code
+#fi
 
 ## Parse options
 toExclude=""
