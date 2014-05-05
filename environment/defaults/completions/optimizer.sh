@@ -8,4 +8,4 @@ _optimizer()
   COMPREPLY=( $( compgen -W "$(./rocardian.optimizer listCommands})" -- $cur ) )
 }
 
-complete -o default -F _optimizer ./rocardian.optimizer
+complete -o default -o filenames -F _optimizer ./rocardian.optimizer
