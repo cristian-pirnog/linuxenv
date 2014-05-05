@@ -1,0 +1,49 @@
+#!/bin/bash
+
+source ~/.userfunctions
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+
+logFile='.user/git.log'
+    	    
+if [[ -f .git/MERGE_HEAD ]]; then
+    echo "Looks like you're about to commit a merge"
+    rm ${logFile}
+fi
+
+if [[ -f $logFile ]]; then
+    echo " "
+    NON_REPO_FILES=`st --porcelain | grep '?'`
+    if [ ${#NON_REPO_FILES} -ne 0 ]
+    then
+        echo -e "------------------------------------------" 
+        echo -e "Files not added to the repository\n"
+        echo -e "${NON_REPO_FILES}" | awk '{print "   "$0}'
+        echo -e "\n------------------------------------------"
+    fi
+    echo "Files changed"
+    echo " "
+    st  --untracked-files=no
+    
+    echo " "
+    echo "=================== Begin of log file (" $logFile ") ========================="
+    cat $logFile
+    
+    echo "==================== End of log file (" $logFile ") =========================="
+    echo
+    
+    # Format the code
+    if [ -f .astyle ]; then
+        astyle --recursive '*.cpp' '*.h' 
+    else
+        echo "NOT Formatting the code with ASTYLE (no .astyle file found)"
+    fi
+    
+    getAnswer "Would you like to use the above log message?" && \
+	git commit -F $logFile
+else
+    echo "Could not find log file: $logFile. Will run 'git commit' instead?"
+    git commit
+fi
