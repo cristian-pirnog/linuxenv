@@ -1,0 +1,7 @@
+alias oo='openoffice.org'
+alias ooc='openoffice.org --calc'
+alias opt='/home/giti/code/rocardian/optimizer/Release/rocardian.optimizer'
+alias dev='ssh -X gtirenni@10.194.42.10'
+
+
+
