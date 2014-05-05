@@ -92,7 +92,9 @@ allSourceFiles()
 #----------------------------------------------
 listRepos()
 {
-    find . -maxdepth 5 -type d -name .git | sort | xargs dirname | replace './' ''
+    for f in $(find . -maxdepth 5 -type d -name .git | sort); do
+	dirname $f | replace './' ''
+    done
 }
 
 #----------------------------------------------
