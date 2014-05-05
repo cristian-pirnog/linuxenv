@@ -99,11 +99,22 @@ isPython()
 }
 
 #----------------------------------------------
+isCpp()
+{
+    local lFileName=${1}
+    if [[ ${lFileName##*.} == 'cpp' ]] || [[ ${lFileName##*.} == 'h' ]]; then
+	echo 1
+    else
+	echo 0
+    fi
+}
+
+#----------------------------------------------
 # Main script
 #----------------------------------------------
 
 if [[ $# -lt 1 ]]; then
-    echo "Usage: $(basename ${0}) -r fileName"
+    echo "Usage: $(basename ${0}) [-r] fileName"
     exit 1
 fi
 
@@ -142,7 +153,11 @@ fileName=${1}
 if [[ ${doReplace} = 1 ]] || [[ -z $(grep "Katania Copyright" ${fileName}) ]]; then
     if [[ $(isPython ${fileName}) == 1 ]]; then
 	handlePython ${fileName} ${doReplace}
-    else
+    elif [[ $(isCpp ${fileName}) == 1 ]]; then
 	handleCpp ${fileName} ${doReplace}
+    else
+	echo "Ingoring file " ${fileName}
     fi
 fi
+
+exit 0

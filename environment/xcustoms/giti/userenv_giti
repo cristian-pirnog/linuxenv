@@ -1,7 +1,0 @@
-export PATH=$PATH:/home/giti/code/drogon/src/scripts
-
-export PYTHONPATH=$PYTHONPATH:/home/giti/code/drogon/src/python:/home/giti/code/drogon/src/C/marketdata_CME/python:/home/giti/code/drogon/lib/cvxopt-1.1.6/python:/home/giti/code/drogon/lib/python-bindings
-
-
-export LD_LIBRARY_PATH=/home/giti/code/drogon/lib/portfolio/lib:/home/giti/code/katania/Release:/home/giti/code/balerion/strategy/Release:/home/giti/code/balerion/optimizer/Release:/home/giti/code/rocardian/support/Release:$LD_LIBRARY_PATH
-

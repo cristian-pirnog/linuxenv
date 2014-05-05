@@ -40,7 +40,7 @@ NEW_LINE='
 theDirectory="."
 theDoCase=""
 theFind="find"
-thePattern='\.git'${NEW_LINE}'\.user'${NEW_LINE}'\.o'${NEW_LINE}'\.so'
+thePattern='\.git'${NEW_LINE}'\.user'${NEW_LINE}'\.o'${NEW_LINE}'\.so'${NEW_LINE}'CMakeFiles'
 
 mySkipComments=0
 while  getopts hd:i:x:s: option $*

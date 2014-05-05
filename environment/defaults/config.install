@@ -14,3 +14,4 @@ metacity $HOME/.gconf/apps/metacity
 .userfunctions $HOME/.userfunctions
 CodingTemplates $HOME/CodingTemplates
 cmake $HOME/code/cmake
+completions $HOME/completions

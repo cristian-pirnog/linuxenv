@@ -33,7 +33,7 @@ shift 1
 #    cd ~/code
 #fi
 
-dependencies="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer ${client}/live" # unit_tests/katania"
+dependencies="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer" # ${client}/live" # unit_tests/katania"
 
 ## Add portfolio build, only if not specified in the environment otherwise
 if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
@@ -41,6 +41,9 @@ if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
 fi
 
 threadCount=$(($(nproc) - 1))
+if [[ ${threadCount} < 1 ]]; then
+    threadCount=1
+fi
 
 for d in ${dependencies}; do
     cd $d && build -s -j${threadCount} ${buildType} $* || exit 1
