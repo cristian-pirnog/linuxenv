@@ -40,7 +40,7 @@ if [[ $(echo ${userDirs} | wc -w) -gt 1 ]]; then
 	printf "%s" "${message}"
 	read userCustomDir
 	
-        # Check that the chosen directory exists
+    # Check that the chosen directory exists
 	if [[ -d ${userCustomDir} ]]; then
 	    break
 	else

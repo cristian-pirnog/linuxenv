@@ -37,6 +37,9 @@ file(GLOB_RECURSE ${PROJECT_NAME}_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} s
 # Include src by default
 include_directories(BEFORE src)
 
+# 
+link_directories(/usr/local/lib)
+
 # Install options
 set(CMAKE_BINARY_DIR $ENV{HOME}/deploy/${CMAKE_BUILD_TYPE}/bin)
 set(CMAKE_LIBRARY_DIR $ENV{HOME}/deploy/${CMAKE_BUILD_TYPE}/lib)
