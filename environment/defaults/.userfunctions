@@ -114,6 +114,7 @@ isGitRepo()
 #----------------------------------------------
 cleanall()
 {
+    # 
     if [[ $# -gt 0 ]]; then
 	types="$@"
     else
@@ -121,12 +122,15 @@ cleanall()
     fi
 
     for type in ${types}; do
+	# Only Debug/Release allowed
+	if [[ ${type} != 'Debug' ]] && [[ ${t} != 'Debug' ]]; then
+	    echo "Unsupported type ${type}. Will not clean"
+	    continue
+	fi
+
 	echo "Cleaning ${type} builds"
-	for d in $(f ${type}); do 
-	    echo -e "\t$d"
-	    cd $d
-	    make clean >> /dev/null
-	    cd ->/dev/null
+	for repo in $(listRepos); do
+	    echo rm ${repo}/${type}
 	done
     done
 }
@@ -159,33 +163,6 @@ dif()
     else
 	echo "Unknown repository type (supported: git, SVN)"
     fi
-}
-
-
-#----------------------------------------------
-# Function for pulling changes for all repos.
-pula()
-{
-    gitDirs=$(listRepos)
-    local alignSize=$(getAlignSize ${gitDirs})
-
-    local msg=""
-    for d in ${gitDirs}; do
-	cd ${d}
-	logFile=.git.pull.log
-	git pull > ${logFile} 2>&1
-	if [[ $? -ne 0 ]]; then
-	    msg="There were problems. See log file ${logFile}"
-	elif [[ -n $(grep "Already up-to-date" .git.pull.log) ]]; then
-	    msg="no changes"
-	else
-	    msg="updated ($(pwd)/.git.pull.log)"
-	fi
-	cd ->/dev/null
-
-	n=$(( alignSize - ${#d} ))
-	printf "%s%${n}s: %s\n" "Pulling for ${d}" "" "${msg}"
-    done
 }
 
 
@@ -225,6 +202,14 @@ pizda()
 
 
 #----------------------------------------------
+# Function stall
+#
+# Options:
+#
+#   -s Outputs only branches that have local changes.
+#
+#   -p Output formatted for use with pizda.
+#
 stall()
 {
     local gitDirs=$(listRepos)

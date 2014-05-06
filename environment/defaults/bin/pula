@@ -1,0 +1,27 @@
+#!/bin/bash
+
+source ~/.userfunctions
+
+#----------------------------------------------
+# Function for pulling changes for all repos.
+gitDirs=$(listRepos)
+alignSize=$(getAlignSize ${gitDirs})
+
+msg=""
+for d in ${gitDirs}; do
+    cd ${d}
+    logFile=.git.pull.log
+    git pull > ${logFile} 2>&1
+    if [[ $? -ne 0 ]]; then
+	msg="There were problems. See log file ${logFile}"
+    elif [[ -n $(grep "Already up-to-date" .git.pull.log) ]]; then
+	msg="no changes"
+    else
+	msg="updated ($(pwd)/.git.pull.log)"
+    fi
+    cd ->/dev/null
+    
+    n=$(( alignSize - ${#d} ))
+    printf "%s%${n}s: %s\n" "Pulling for ${d}" "" "${msg}"
+done
+
