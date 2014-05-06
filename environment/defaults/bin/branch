@@ -281,7 +281,8 @@ check_mergeBranch()
 mergeBranch()
 {
     git checkout ${1} > /dev/null
-    git merge ${2}
+    branch -s ${2}
+    git merge ${1}
 }
 
 
@@ -364,8 +365,6 @@ while true; do
 	    ;;
     esac
 done
-
-echo oops
 
 # If no task specified, default to list
 if [[ -z ${task} ]]; then
