@@ -123,14 +123,14 @@ cleanall()
 
     for type in ${types}; do
 	# Only Debug/Release allowed
-	if [[ ${type} != 'Debug' ]] && [[ ${t} != 'Debug' ]]; then
+	if [[ ${type} != 'Debug' ]] && [[ ${type} != 'Release' ]]; then
 	    echo "Unsupported type ${type}. Will not clean"
 	    continue
 	fi
 
 	echo "Cleaning ${type} builds"
 	for repo in $(listRepos); do
-	    echo rm ${repo}/${type}
+	    rm -rf ${repo}/${type}
 	done
     done
 }

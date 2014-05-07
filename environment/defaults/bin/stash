@@ -1,0 +1,18 @@
+#!/bin/bash
+
+gitDirs=$(listRepos)
+alignSize=$(getAlignSize ${gitDirs})
+
+for d in ${gitDirs}; do
+    cd ${d}
+    stashCount=$(git stash list | wc -l)
+
+    msg=""
+    if [[ ${stashCount} -gt 0 ]]; then
+	msg="${stashCount} stashes"
+    fi
+
+    printf "%s:%s\n" ${d} "${msg}"
+    
+    cd ->/dev/null
+done
