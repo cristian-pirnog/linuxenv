@@ -77,7 +77,7 @@ if [[ $# -lt 1 ]]; then
     exit 1
 fi
 
-ARGS=$(getopt -o hfj::s -l "help,force,script,static,shared" -n "build" -- "$@")
+ARGS=$(getopt -o hfj::c:s -l "help,force,client:,script,static,shared" -n "build" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -107,6 +107,10 @@ while true; do
 		shift
 	    fi
 	    shift
+	    ;;
+	-c|--client)
+	    clientOption="--client ${2}"
+	    shift 2
 	    ;;
 	--static)
 	    libraryType=STATIC
@@ -157,7 +161,7 @@ esac
 
 # If there's a wscript file in the current dir, runn a waf build
 if [[ -f wscript ]]; then
-    wafBuild ${option}
+    wafBuild ${option} ${clientOption}
 else
     # Check for a CMakeList.txt file
     if [[ ! -f "CMakeLists.txt" ]]; then

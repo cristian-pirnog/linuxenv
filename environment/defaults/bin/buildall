@@ -55,6 +55,6 @@ if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
 fi
 
 for d in ${dependencies}; do
-    cd $d && build -s -j${threadCount} ${buildType} $* || exit 1
+    cd $d && build -s -j${threadCount} ${buildType} $* --client ${client} || exit 1
     cd ->/dev/null
 done
