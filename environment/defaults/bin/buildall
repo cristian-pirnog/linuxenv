@@ -46,7 +46,9 @@ if [[ ${threadCount} < 1 ]]; then
 fi
 
 if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
-    cleanall ${buildType}
+    for d in ${dependencies}; do
+        rm -rf ${d}/${buildType}
+    done
     ARGS=$(echo $@ | replace 'fresh' '')
     eval set -- $ARGS
     echo $@
