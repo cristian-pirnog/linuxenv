@@ -37,10 +37,12 @@ printUsage()
 #----------------------------------------------
 wafBuild()
 {
+    echo build=${1}
+    COMPILER=g++-4.8.2
     if [[ ${1} == clean ]]; then
-	waf configure clean 
+	CXX=${COMPILER} $waf clean
     fi
-    waf configure build install
+    CXX=${COMPILER} waf configure build install --client ${1}
 }
 
 

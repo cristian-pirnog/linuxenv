@@ -36,6 +36,16 @@ cat << %%USAGE%%
        --delete branchName
              Delete branches branchName (one for each project).
 
+       -D branchName
+       --DELETE branchName
+             Deletes branches branchName (one for each project) irrespective 
+	     of their merged status.
+
+       -f 
+       --fetch
+             Performs git fetch for each project, in order to update the info
+	     about branches that exist on the remote server.
+
        -s branchName
        --switch branchName
              Switch to branchName for all projects.
@@ -51,10 +61,12 @@ cat << %%USAGE%%
        -l [all]
        --list [s] [all]
              List the current branch for each project. 
-	     If option 's' is provided, the output will be formatted
-	     for use in scripts (i.e. no header, footer).
-	     If option 'all' is provided, lists all the branches for 
-	     each project.
+
+	     If option 's' is provided, the output will be formatted for use 
+	     in scripts (i.e. no header, footer).
+
+	     If option 'all' is provided, lists all the branches for each 
+	     project.
 
        <x|y>:
              One of the arguments in the brackets must be provided
