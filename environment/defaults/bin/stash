@@ -1,18 +1,148 @@
 #!/bin/bash
 
+source ~/.userfunctions
+
+
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) [-h]
+            $(basename ${0}) [-xprj1[,prj2,...]] <-l|--list> 
+            $(basename ${0}) [-xprj1[,prj2,...]] <-s|--stash>
+            $(basename ${0}) [-xprj1[,prj2,...]] <-p|--pop> [stashId]
+
+    Description:
+       Manage (push/pop/etc.) stashes for all checked-out products.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       -xprj1,prj2,...
+       --exclude prj1,prj2,...
+             The listed projects will be excluded.
+
+       -l
+       --list
+             Lists the number of stashes each project has.
+
+       -s
+       --stash 
+             Stash the working state of each project that has local changes.
+
+       -p [stashId]
+       --pop [stashId]
+             Remove the stashed state with given id and apply it on top
+	     of the current working tree for each project. If no stashId is
+	     provided stash@{0} is assumed.
+
+%%USAGE%%
+}
+
+
+#----------------------------------------------
+listStashes()
+{
+    local lStashCount=$(git stash list | wc -l)
+
+    # If no stash, return without printing anything
+    if [[ ${lStashCount} -eq 0 ]]; then
+	return 0
+    fi
+    
+    # Print the number of stashes
+    local lEnding=""
+    if [[ ${lStashCount} -gt 1 ]]; then
+	lEnding="es"
+    fi
+    printf "%d stash%s" ${lStashCount} ${lEnding}
+}
+
+#----------------------------------------------
+stashChanges()
+{
+    local lOutput=$(git stash)
+    if [[ -z $(echo $lOutput | grep '^No') ]]; then
+	printf "%s" "Stashed changes"
+    fi
+    
+}
+
+#----------------------------------------------
+popStash()
+{
+    local lOutput=$(git stash pop $@)
+    if [[ -z $(echo $lOutput | grep '^No') ]]; then
+	printf "%s" "$(echo "${lOutput}" | grep Dropped)"
+    fi
+}
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+ARGS=$(getopt -o hx:lsp:: -l "help,exclude:,list,stash,pop::" -n "$(basename ${0})" -- "$@")
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+# Default task
+task='listStashes'
+
+## Parse options
+toExclude=""
+while true; do
+    case ${1} in
+	-h|--help)
+	    printUsage
+	    exit 0
+	    ;;
+	-x|--exclude)
+	    toExclude="${toExclude},""${2},"
+	    shift 2
+	    ;;
+	-s|--stash)
+	    task='stashChanges'
+	    shift
+	    ;;
+	-p|--pop)
+	    task='popStash'
+	    arguments=${2}
+	    shift 2
+	    ;;
+	-l|--list)
+	    task='listStashes'
+	    shift
+	    ;;
+	--)
+	    shift
+	    break
+	    ;;
+	"")
+	    # This is necessary for processing missing optional arguments 
+	    shift
+	    ;;
+    esac
+done
+
+
 gitDirs=$(listRepos)
 alignSize=$(getAlignSize ${gitDirs})
 
 for d in ${gitDirs}; do
     cd ${d}
-    stashCount=$(git stash list | wc -l)
 
-    msg=""
-    if [[ ${stashCount} -gt 0 ]]; then
-	msg="${stashCount} stashes"
-    fi
+    output=$(${task} ${arguments} $@ 2>&1)
 
-    printf "%s:%s\n" ${d} "${msg}"
+    n=$(( alignSize - ${#d} ))
+    printf "%s%${n}s: %s\n" ${d} "" "${output}"
     
     cd ->/dev/null
 done

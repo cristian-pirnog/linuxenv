@@ -12,4 +12,4 @@ branch ${HOME}/bin/branch
 cmt ${HOME}/bin/cmt
 gitdif ${HOME}/bin/gitdif
 pula ${HOME}/bin/pula
-stash ${HOME/bin/stash}
+stash ${HOME}/bin/stash
