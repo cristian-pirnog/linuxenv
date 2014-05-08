@@ -186,8 +186,9 @@ pizda()
 
     for d in ${gitDirs}; do
 	n=$(( alignSize - ${#d} ))
-	printf "Pushing for %s%${n}s   : " "${d}" ""
-	cd "${d}"
+	printf "Pushing for %s%${n}s: " ${d} ""
+
+	cd ${d} >/dev/null
 	logFile=.git.push.log
 	git push > ${logFile} 2>&1
 	if [[ $? -ne 0 ]]; then
@@ -265,7 +266,7 @@ stall()
 	if [[ ${forNext} ]] && [[ ${hasChanges} == "1" ]]; then
 	    printf "%s:%s\n" ${d} "${currMsg}"
 	elif [[ ${forPizda} ]] && [[ ${hasChangesToPush} == "1" ]]; then
-	    printf "%s:%s\n" ${d} "${currMsg}."
+	    printf "%s %s\n" ${d} "${currMsg}."
 	elif [[ ! ${forNext} ]] && [[ ! ${forPizda} ]]; then
 	    n=$(( alignSize - ${#d} ))
 	    printf "%s%${n}s (%s) %s\n" ${d} "" "${lBranchName}" "${currMsg}"

@@ -44,3 +44,6 @@ link_directories(/usr/local/lib)
 set(CMAKE_BINARY_DIR $ENV{HOME}/deploy/${CMAKE_BUILD_TYPE}/bin)
 set(CMAKE_LIBRARY_DIR $ENV{HOME}/deploy/${CMAKE_BUILD_TYPE}/lib)
 set(CMAKE_HEADERS_DIR $ENV{HOME}/deploy/${CMAKE_BUILD_TYPE}/include)
+
+# Do not hard-code RPATH in binary upon installing
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)

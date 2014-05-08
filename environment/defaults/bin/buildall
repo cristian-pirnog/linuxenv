@@ -33,11 +33,16 @@ shift 1
 #    cd ~/code
 #fi
 
-dependencies="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer" # ${client}/live" # unit_tests/katania"
+# Specify which projects we want to build
+if [[ -z ${PROJECTS_TO_BUILD} ]]; then
+    PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer" # ${client}/live" # unit_tests/katania"
+else
+    PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace '__client__' "${client}")
+fi
 
 ## Add portfolio build, only if not specified in the environment otherwise
 if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
-    dependencies="${dependencies} drogon/src/C"
+    PROJECTS_TO_BUILD="${PROJECTS_TO_BUILD} drogon/src/C"
 fi
 
 threadCount=$(($(nproc) - 1))
@@ -46,7 +51,7 @@ if [[ ${threadCount} < 1 ]]; then
 fi
 
 if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
-    for d in ${dependencies}; do
+    for d in ${PROJECTS_TO_BUILD}; do
         rm -rf ${d}/${buildType}
     done
     ARGS=$(echo $@ | replace 'fresh' '')
@@ -54,7 +59,7 @@ if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
     echo $@
 fi
 
-for d in ${dependencies}; do
+for d in ${PROJECTS_TO_BUILD}; do
     cd $d && build -s -j${threadCount} ${buildType} $* --client ${client} || exit 1
     cd ->/dev/null
 done
