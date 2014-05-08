@@ -280,9 +280,9 @@ check_mergeBranch()
     fi
 
     # Check that the current active branch is the same as the from-branch
-    if [[ ${lActiveBranches} != ${lFromBranch} ]]; then
-	printf "The active branch is not ${lFromBranch}, but %s\n" "${lActiveBranches}"
-	printf "Make ${lFromBranch} active before merging\n"
+    if [[ ${lActiveBranches} != ${lToBranch} ]]; then
+	printf "The active branch is not ${lToBranch}, but %s\n" "${lActiveBranches}"
+	printf "Make ${lToBranch} active before merging\n"
 	return 1
     fi
 
@@ -292,8 +292,8 @@ check_mergeBranch()
 #----------------------------------------------
 mergeBranch()
 {
-    git checkout ${1} > /dev/null
-    branch -s ${2}
+    #git checkout ${1} > /dev/null
+    #branch -s ${2}
     git merge ${1}
 }
 

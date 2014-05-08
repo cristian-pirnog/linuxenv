@@ -87,8 +87,6 @@ fi
 
 eval set -- "$ARGS"
 
-echo $@
-
 #
 libraryType=SHARED
 scriptMode=0
