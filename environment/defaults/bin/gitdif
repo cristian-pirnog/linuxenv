@@ -5,7 +5,7 @@ source ~/.userfunctions
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-if [ ! -d .user ]; then
+if [[ ! -d .user ]]; then
     getAnswer "Directory \"`pwd`/.user\" doesn't exist. Would you like to create it?" && mkdir .user
 fi
 
@@ -17,8 +17,7 @@ fi
 
 # Check for conflict
 CONFLICTS=`st --porcelain | grep '^C'`
-if [ ${#CONFLICTS} -ne 0 ]
-then
+if [[ ${#CONFLICTS} -ne 0 ]]; then
     echo -e "\nConflicts detected. First resolve them before proceeding."
     return 0 
 fi
@@ -31,14 +30,15 @@ if [[ -n $(st | grep 'not staged') ]]; then
     #	! getAnswer && return 1
 fi
 
+logFile=.user/git.log
+
 # If the directory .user exist ==> write the result to .user/git.diff
-if [ -d .user ]; then
+if [[ -d .user ]]; then
     git diff ${diffOptions} $@ > .user/git.diff
     
     # Back-up the 'git.log' file (if it exist)...
-    if [ -f .user/git.log ]
-    then
-        cp .user/git.log .user/git.log.org
+    if [[ -f ${logFile} ]] && [[ -n $(cat ${logFile}) ]]; then
+        cp ${logFile} ${logFile}.org
     fi
     
     changedFiles=`st --porcelain | grep -v '^?' | grep -v '^U' | grep -v '^P'`
@@ -46,12 +46,11 @@ if [ -d .user ]; then
     echo "$changedFiles"
     
     # ... then write the skeleton in the new one
-    echo -e "Summary: \nDetails:" > .user/git.log
+    echo -e "Summary: \nDetails:" > ${logFile}
     
     IFS=$'\n'
     index=1
-    for FILE_STRING in $changedFiles
-    do
+    for FILE_STRING in $changedFiles; do
         # Split the string into TYPE & FILE
         TYPE=`echo "$FILE_STRING" | awk '{print $1}'`
         FILE=`echo "$FILE_STRING" | awk '{print $NF}'`
@@ -68,16 +67,13 @@ if [ -d .user ]; then
         fi
 	
         POINT="."
-        if [[ "$TYPE" = "A" ]]
-        then
+        if [[ "$TYPE" = "A" ]]; then
             PREFIX_TEXT="Added file "
             FILE_NAME=$FILE
-        elif [[ "$TYPE" = "D" ]]
-        then
+        elif [[ "$TYPE" = "D" ]]; then
             PREFIX_TEXT="Deleted file "
             FILE_NAME=$FILE
-	elif [[ "$TYPE" = "R" ]]
-        then
+	elif [[ "$TYPE" = "R" ]]; then
             PREFIX_TEXT="Renamed file:"
             FILE_NAME=$(echo ${FILE_STRING} | awk '{$1=""; print $0}')
         else
@@ -85,13 +81,13 @@ if [ -d .user ]; then
             POINT=": "
         fi
 	
-        echo -e "\t$index. $PREFIX_TEXT$FILE_NAME$POINT" >> .user/git.log
+        echo -e "\t$index. $PREFIX_TEXT$FILE_NAME$POINT" >> ${logFile}
         let "index+=1"
     done
     unset IFS
     
     # and then open it in emacs (the alias 'm' should be defined in .aliases)
-    emacs $emacs_OPTIONS -f split-window-horizontally .user/git.diff .user/git.log
+    emacs $emacs_OPTIONS -f split-window-horizontally .user/git.diff ${logFile}
     # otherwise, print it on the screen
 else
     git diff --cached $@

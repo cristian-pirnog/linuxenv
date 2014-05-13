@@ -7,10 +7,12 @@ source ~/.userfunctions
 printUsage()
 {
 cat << %%USAGE%%
-     Usage: $(basename ${0}) [-h]
+     Usage: $(basename ${0}) <-h|--help>
             $(basename ${0}) [-xprj1[,prj2,...]] <-l|--list> 
-            $(basename ${0}) [-xprj1[,prj2,...]] <-s|--stash>
+            $(basename ${0}) [-xprj1[,prj2,...]] <-s|--stash> message
             $(basename ${0}) [-xprj1[,prj2,...]] <-p|--pop> [stashId]
+            $(basename ${0}) [-xprj1[,prj2,...]] <-a|--apply> [stashId]
+            $(basename ${0}) [-xprj1[,prj2,...]] <-d|--drop> [stashId]
 
     Description:
        Manage (push/pop/etc.) stashes for all checked-out products.
@@ -38,6 +40,10 @@ cat << %%USAGE%%
 	     of the current working tree for each project. If no stashId is
 	     provided stash@{0} is assumed.
 
+       -a [stashId]
+       --apply [stashId]
+             Like pop, but do not remove the state from the stash list.
+
 %%USAGE%%
 }
 
@@ -63,7 +69,7 @@ listStashes()
 #----------------------------------------------
 stashChanges()
 {
-    local lOutput=$(git stash)
+    local lOutput=$(git stash save $@)
     if [[ -z $(echo $lOutput | grep '^No') ]]; then
 	printf "%s" "Stashed changes"
     fi
@@ -71,19 +77,72 @@ stashChanges()
 }
 
 #----------------------------------------------
+doStashCommand()
+{
+    local lCommand=${1}
+    shift
+
+    local lOutput=$(git stash ${lCommand} $@ 2>&1)
+    local lSuccess=$?
+    if [[ ${lSuccess} -ne 0 ]]; then
+	local lLogFile=git.stash.${lCommand}.log
+	cat "${lOutput}" > lLogFile
+	printf "Failed (see %s)" "${lLogFile}"
+    elif [[ -z $(echo $lOutput | grep '^No') ]]; then
+	printf "Done"
+    fi
+}
+
+#----------------------------------------------
 popStash()
 {
+    doStashCommand pop $@
+    return 0
+
     local lOutput=$(git stash pop $@)
     if [[ -z $(echo $lOutput | grep '^No') ]]; then
 	printf "%s" "$(echo "${lOutput}" | grep Dropped)"
     fi
 }
 
+#----------------------------------------------
+applyStash()
+{
+    doStashCommand apply $@
+    return 0
+
+    local lOutput=$(git stash apply $@ 2>&1)
+    local lSuccess=$?
+    if [[ ${lSuccess} -ne 0 ]]; then
+	local lLogFile=git.stash.apply.log
+	cat "${lOutput}" > lLogFile
+	printf "Failed (see %s)" "${lLogFile}"
+    elif [[ -z $(echo $lOutput | grep '^No') ]]; then
+	printf "Done"
+    fi
+}
+
+#----------------------------------------------
+dropStash()
+{
+    doStashCommand drop $@
+    return 0
+
+    local lOutput=$(git stash drop $@ 2>&1)
+    local lSuccess=$?
+    if [[ ${lSuccess} -ne 0 ]]; then
+	local lLogFile=git.stash.drop.log
+	cat "${lOutput}" > lLogFile
+	printf "Failed (see %s)" "${lLogFile}"
+    elif [[ -z $(echo $lOutput | grep '^No') ]]; then
+	printf "Done"
+    fi
+}
 
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hx:lsp:: -l "help,exclude:,list,stash,pop::" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o hx:ls:p::a::d:: -l "help,exclude:,list,stash:,pop::,apply::,drop::" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -110,10 +169,21 @@ while true; do
 	    ;;
 	-s|--stash)
 	    task='stashChanges'
-	    shift
+	    arguments=${2}
+	    shift 2
 	    ;;
 	-p|--pop)
 	    task='popStash'
+	    arguments=${2}
+	    shift 2
+	    ;;
+	-a|--apply)
+	    task='applyStash'
+	    arguments=${2}
+	    shift 2
+	    ;;
+	-d|--drop)
+	    task='dropStash'
 	    arguments=${2}
 	    shift 2
 	    ;;
@@ -135,6 +205,10 @@ done
 
 gitDirs=$(listRepos)
 alignSize=$(getAlignSize ${gitDirs})
+
+if  [[ ${task} == 'dropStash' ]]; then
+    getAnswer "About to drop stash $@ (cannot be undone). Continue?" || exit 0
+fi
 
 for d in ${gitDirs}; do
     cd ${d}
