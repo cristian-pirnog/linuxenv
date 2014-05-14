@@ -207,7 +207,7 @@ check_fetchFromRemote()
 #----------------------------------------------
 fetchFromRemote()
 {
-    git fetch
+    git fetch --all
 }
 
 #----------------------------------------------
