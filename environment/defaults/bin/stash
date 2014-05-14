@@ -8,10 +8,10 @@ printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) <-h|--help>
-            $(basename ${0}) [-xprj1[,prj2,...]] <-l|--list> 
-            $(basename ${0}) [-xprj1[,prj2,...]] <-s|--stash> message
-            $(basename ${0}) [-xprj1[,prj2,...]] <-p|--pop> [stashId]
-            $(basename ${0}) [-xprj1[,prj2,...]] <-a|--apply> [stashId]
+            $(basename ${0}) [-xprj1[,prj2,...]] <-l|--list> [all]
+            $(basename ${0}) [-xprj1[,prj2,...]] <-s|--stash> stashId
+            $(basename ${0}) [-xprj1[,prj2,...]] <-p|--pop>
+            $(basename ${0}) [-xprj1[,prj2,...]] <-a|--apply>
             $(basename ${0}) [-xprj1[,prj2,...]] <-d|--drop> [stashId]
 
     Description:
@@ -26,22 +26,23 @@ cat << %%USAGE%%
        --exclude prj1,prj2,...
              The listed projects will be excluded.
 
-       -l
-       --list
-             Lists the number of stashes each project has.
+       -l [all]
+       --list [all]
+             Lists the number of stashes each project has. If 'all' argument
+	     is provided, it also lists all stash ids for each project.
 
-       -s
-       --stash 
+       -s stashId
+       --stash stashId
              Stash the working state of each project that has local changes.
 
-       -p [stashId]
-       --pop [stashId]
+       -p
+       --pop
              Remove the stashed state with given id and apply it on top
 	     of the current working tree for each project. If no stashId is
 	     provided stash@{0} is assumed.
 
-       -a [stashId]
-       --apply [stashId]
+       -a
+       --apply
              Like pop, but do not remove the state from the stash list.
 
 %%USAGE%%
@@ -64,12 +65,18 @@ listStashes()
 	lEnding="es"
     fi
     printf "%d stash%s" ${lStashCount} ${lEnding}
+
+    if [[ $1 == 'all' ]]; then
+	printf "\n"
+	git stash list | awk -F ':' '{print "\t"$1, $NF}'
+    fi
+
 }
 
 #----------------------------------------------
 stashChanges()
 {
-    local lOutput=$(git stash save $@)
+    local lOutput=$(git stash save "$@")
     if [[ -z $(echo $lOutput | grep '^No') ]]; then
 	printf "%s" "Stashed changes"
     fi
@@ -98,11 +105,6 @@ popStash()
 {
     doStashCommand pop $@
     return 0
-
-    local lOutput=$(git stash pop $@)
-    if [[ -z $(echo $lOutput | grep '^No') ]]; then
-	printf "%s" "$(echo "${lOutput}" | grep Dropped)"
-    fi
 }
 
 #----------------------------------------------
@@ -110,16 +112,6 @@ applyStash()
 {
     doStashCommand apply $@
     return 0
-
-    local lOutput=$(git stash apply $@ 2>&1)
-    local lSuccess=$?
-    if [[ ${lSuccess} -ne 0 ]]; then
-	local lLogFile=git.stash.apply.log
-	cat "${lOutput}" > lLogFile
-	printf "Failed (see %s)" "${lLogFile}"
-    elif [[ -z $(echo $lOutput | grep '^No') ]]; then
-	printf "Done"
-    fi
 }
 
 #----------------------------------------------
@@ -127,22 +119,12 @@ dropStash()
 {
     doStashCommand drop $@
     return 0
-
-    local lOutput=$(git stash drop $@ 2>&1)
-    local lSuccess=$?
-    if [[ ${lSuccess} -ne 0 ]]; then
-	local lLogFile=git.stash.drop.log
-	cat "${lOutput}" > lLogFile
-	printf "Failed (see %s)" "${lLogFile}"
-    elif [[ -z $(echo $lOutput | grep '^No') ]]; then
-	printf "Done"
-    fi
 }
 
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hx:ls:p::a::d:: -l "help,exclude:,list,stash:,pop::,apply::,drop::" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o hx:ls:pad:: -l "help,exclude:,list,stash:,pop,apply,drop::" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -174,13 +156,11 @@ while true; do
 	    ;;
 	-p|--pop)
 	    task='popStash'
-	    arguments=${2}
-	    shift 2
+	    shift
 	    ;;
 	-a|--apply)
 	    task='applyStash'
-	    arguments=${2}
-	    shift 2
+	    shift
 	    ;;
 	-d|--drop)
 	    task='dropStash'
