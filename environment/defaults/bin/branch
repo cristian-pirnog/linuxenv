@@ -168,6 +168,8 @@ createBranch()
 check_forceDeleteBranch()
 {
     local lBranch=${1}
+    getAnswer "About to delete branch ${lBranch} from all projects. Continue?" || return 1
+
     if [[ -n $(listBranches | grep -v Project | grep " ${lBranch}") ]]; then
 	printf "Branch ${lBranch} is active in the following projects. Will not delete."
 	printProjectsForBranch
@@ -205,7 +207,7 @@ check_fetchFromRemote()
 #----------------------------------------------
 fetchFromRemote()
 {
-    git fetch
+    git fetch --all
 }
 
 #----------------------------------------------
@@ -217,7 +219,7 @@ check_switchBranch()
 #----------------------------------------------
 switchBranch()
 {
-    git checkout ${1}
+    git checkout ${1} >/dev/null
 }
 
 #----------------------------------------------

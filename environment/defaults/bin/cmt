@@ -27,6 +27,11 @@ if [[ -f $logFile ]]; then
     echo " "
     st  --untracked-files=no
     
+    if [[ -z $(cat ${logFile}) ]]; then
+	printf "The log file is empty. Aborting."
+	exit 1
+    fi
+
     echo " "
     echo "=================== Begin of log file (" $logFile ") ========================="
     cat $logFile
@@ -41,8 +46,11 @@ if [[ -f $logFile ]]; then
         echo "NOT Formatting the code with ASTYLE (no .astyle file found)"
     fi
     
-    getAnswer "Would you like to use the above log message?" && \
-	git commit -F $logFile
+    getAnswer "Would you like to use the above log message?" || exit 0
+
+    git commit -F $logFile && mv ${logFile} ${logFile}.org && > ${logFile}
+
+
 else
     echo "Could not find log file: $logFile. Will run 'git commit' instead?"
     git commit

@@ -285,8 +285,6 @@ stall()
 
 
 #----------------------------------------------
-# Options: -c --> go to the next branch that has changes
-#
 next()
 {
     local nextInfo=$(stall -s | head -n 1 | tail -n 1)
