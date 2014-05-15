@@ -224,12 +224,19 @@ stall()
 #clear # This puts non-printing characters in the output	(which messes-up the function pizda)
     fi
 
+    listOption="--list"
+    gitVersion=$(git --version | awk '{print $NF}')
+    if [[ $(echo ${gitVersion} | awk -F '.' '{print $1}') -eq 1 ]] && \
+       [[ $(echo ${gitVersion} | awk -F '.' '{print $2}') -lt 8 ]]; then
+        listOption=""
+    fi
+    
     local lOldPdw=${OLDPWD}
     for d in ${gitDirs}; do
 	currMsg=""
 	cd ${d}
 	local status=$(git status)
-	local lBranchName=$(git branch --list | grep '^*' | awk '{print $NF}')
+	local lBranchName=$(git branch ${listOption} | grep '^*' | awk '{print $NF}')
 
 	# Check for untracked files
 	local hasChanges=0
