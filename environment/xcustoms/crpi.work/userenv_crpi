@@ -23,4 +23,4 @@ export PROJECT_STABLE_BRANCH='Core/tags/tb15'
 # Inhibits some crap WARNING from Emacs (Couldn't register with accessibility bus...)
 export NO_AT_BRIDGE=1
 
-export PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer __client__/support __client__/optimizer " # __client__/live" #unit_tests/katania
+export PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer __client__/support __client__/optimizer __client__/live" #unit_tests/katania
