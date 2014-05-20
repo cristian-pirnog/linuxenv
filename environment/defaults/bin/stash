@@ -8,11 +8,11 @@ printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) <-h|--help>
-            $(basename ${0}) [-xprj1[,prj2,...]] <-l|--list> [all]
-            $(basename ${0}) [-xprj1[,prj2,...]] <-s|--stash> stashId
-            $(basename ${0}) [-xprj1[,prj2,...]] <-p|--pop>
-            $(basename ${0}) [-xprj1[,prj2,...]] <-a|--apply>
-            $(basename ${0}) [-xprj1[,prj2,...]] <-d|--drop> [stashId]
+            $(basename ${0}) [-xprj1[,prj2,...]] --all
+            $(basename ${0}) [-xprj1[,prj2,...]] <-s|--stash> msg
+            $(basename ${0}) [-xprj1[,prj2,...]] <-p|--pop> msg
+            $(basename ${0}) [-xprj1[,prj2,...]] <-a|--apply> msg
+            $(basename ${0}) [-xprj1[,prj2,...]] <-d|--drop> msg
 
     Description:
        Manage (push/pop/etc.) stashes for all checked-out products.
@@ -26,24 +26,26 @@ cat << %%USAGE%%
        --exclude prj1,prj2,...
              The listed projects will be excluded.
 
-       -l [all]
-       --list [all]
-             Lists the number of stashes each project has. If 'all' argument
-	     is provided, it also lists all stash ids for each project.
+       --all
+             Lists the number of stashes each project has and all stash 
+	     ids for each project.
 
-       -s stashId
-       --stash stashId
+       -s msg
+       --stash msg
              Stash the working state of each project that has local changes.
 
-       -p
-       --pop
+       -p msg
+       --pop msg
              Remove the stashed state with given id and apply it on top
-	     of the current working tree for each project. If no stashId is
-	     provided stash@{0} is assumed.
+	     of the current working tree for each project. 
 
-       -a
-       --apply
+       -a msg
+       --apply msg
              Like pop, but do not remove the state from the stash list.
+
+       -d msg
+       --drop msg
+             Drop the stashes with the given message from the stash list.
 
 %%USAGE%%
 }
@@ -101,30 +103,40 @@ doStashCommand()
 }
 
 #----------------------------------------------
+getStashId()
+{
+    local lMsg="$@"
+    git stash list | grep "${lMsg}" | awk -F":" '{print $1}'
+}
+
+#----------------------------------------------
 popStash()
 {
-    doStashCommand pop $@
+    local lStashId=$(getStashId $@)
+    doStashCommand pop ${lStashId}
     return 0
 }
 
 #----------------------------------------------
 applyStash()
 {
-    doStashCommand apply $@
+    local lStashId=$(getStashId $@)
+    doStashCommand apply ${lStashId}
     return 0
 }
 
 #----------------------------------------------
 dropStash()
 {
-    doStashCommand drop $@
+    local lStashId=$(getStashId $@)
+    doStashCommand drop ${lStashId}
     return 0
 }
 
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hx:ls:pad:: -l "help,exclude:,list,stash:,pop,apply,drop::" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o hx:s:p:a:d: -l "help,exclude:,all,stash:,pop:,apply:,drop:" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -156,19 +168,22 @@ while true; do
 	    ;;
 	-p|--pop)
 	    task='popStash'
-	    shift
+	    arguments=${2}
+	    shift 2
 	    ;;
 	-a|--apply)
 	    task='applyStash'
-	    shift
+	    arguments=${2}
+	    shift 2
 	    ;;
 	-d|--drop)
 	    task='dropStash'
 	    arguments=${2}
 	    shift 2
 	    ;;
-	-l|--list)
+	--all)
 	    task='listStashes'
+	    arguments='all'
 	    shift
 	    ;;
 	--)
