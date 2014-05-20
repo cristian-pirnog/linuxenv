@@ -106,7 +106,7 @@ doStashCommand()
 getStashId()
 {
     local lMsg="$@"
-    git stash list | awk -F":" '{print $NF}' | grep "${lMsg}" | awk -F":" '{print $1}'
+    git stash list | grep "${lMsg}$" | awk -F":" '{print $1}'
 }
 
 #----------------------------------------------
@@ -114,8 +114,6 @@ popStash()
 {
     local lStashId=$(getStashId $@)
     if [[ -n ${lStashId} ]]; then
-	printf "No stash found"
-    elif [[ $(echo ${lStashId} | wc -w) ]]; then
 	echo doStashCommand pop ${lStashId}
     fi
     return 0
