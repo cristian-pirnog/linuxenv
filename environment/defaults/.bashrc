@@ -4,9 +4,6 @@
 # Source .bashrc_default, if present
 test -f $HOME/.bashrc_default && . $HOME/.bashrc_default
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib64:/usr/local/lib
-
-
 # For history search configuration, see file .inputrc
 
 ##

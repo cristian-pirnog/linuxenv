@@ -29,6 +29,8 @@ fi
 buildType=${1}
 shift 1
 
+buildDirBase="${HOME}/build"
+
 #if [[ $(pwd) != "${HOME}/code" ]]; then
 #    cd ~/code
 #fi
@@ -50,16 +52,22 @@ if [[ ${threadCount} < 1 ]]; then
     threadCount=1
 fi
 
+# Get the active branch name
+branchName=$(branch -l s | awk '{print $NF}' | sort | uniq)
+if [[ $(echo ${branchName} | wc -w) -gt 1 ]]; then
+    echo "Mixed branches found. Will not build"
+    exit 1
+fi
+
+# Remove the target build dirs, if requested
 if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
-    for d in ${PROJECTS_TO_BUILD}; do
-        rm -rf ${d}/${buildType}
-    done
+    rm -rf ${buildDirBase}/${branchName}
     ARGS=$(echo $@ | replace 'fresh' '')
     eval set -- $ARGS
     echo $@
 fi
 
 for d in ${PROJECTS_TO_BUILD}; do
-    cd $d && build -s -j${threadCount} ${buildType} $* --client ${client} || exit 1
+    cd $d && build -s -j${threadCount} ${buildType} $* --client ${client} --target ${buildDirBase} --branch ${branchName} --project ${d} || exit 1
     cd ->/dev/null
 done
