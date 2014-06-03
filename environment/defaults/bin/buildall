@@ -61,7 +61,7 @@ fi
 
 # Remove the target build dirs, if requested
 if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
-    rm -rf ${buildDirBase}/${branchName}
+    rm -rf ${buildDirBase}/${branchName}/${buildType}
     ARGS=$(echo $@ | replace 'fresh' '')
     eval set -- $ARGS
     echo $@
