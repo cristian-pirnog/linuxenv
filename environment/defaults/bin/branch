@@ -9,6 +9,7 @@ cat << %%USAGE%%
      Usage: $(basename ${0}) [-h]
             $(basename ${0}) [-xprj1[,prj2,...]] <-c|--create>  branchName
             $(basename ${0}) [-xprj1[,prj2,...]] <-d|--delete>  branchName
+            $(basename ${0}) [-xprj1[,prj2,...]] --deleteRemote  branchName
             $(basename ${0}) [-xprj1[,prj2,...]] <-D|--DELETE>  branchName
             $(basename ${0}) [-xprj1[,prj2,...]] <-f|--fetch> 
             $(basename ${0}) [-xprj1[,prj2,...]] <-s|--switch>  branchName
@@ -35,6 +36,10 @@ cat << %%USAGE%%
        -d branchName
        --delete branchName
              Delete branches branchName (one for each project).
+
+       --deleteRemote branchName
+             Delete branches branchName (one for each project) on the remote
+	     server.
 
        -D branchName
        --DELETE branchName
@@ -199,6 +204,18 @@ deleteBranch()
 }
 
 #----------------------------------------------
+check_deleteRemoteBranch()
+{
+    check_forceDeleteBranch $@
+}
+
+#----------------------------------------------
+deleteRemoteBranch()
+{
+    git push origin :${1}
+}
+
+#----------------------------------------------
 check_fetchFromRemote()
 {
     return 0
@@ -275,6 +292,8 @@ check_mergeBranch()
 	return 1
     fi
 
+    getAnswer "Did you make sure that you have the latest version of branch ${lFromBranch}" || return 1
+
     # Check that from- and to- branches are not the same
     if [[ ${lToBranch} == ${lFromBranch} ]]; then
 	printf "From and to branches are the same: %s and %s\n" ${lFromBranch} ${lToBranch}
@@ -303,7 +322,7 @@ mergeBranch()
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hx:c:d:D:fs:t:m:l -l "help,exclude:,create:,delete:,DELETE:,fetch,switch:,track:,merge:,list::" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o hx:c:d:D:fs:t:m:l -l "help,exclude:,create:,delete:,deleteRemote:,DELETE:,fetch,switch:,track:,merge:,list::" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -337,6 +356,11 @@ while true; do
 	    ;;
 	-d|--delete)
 	    task='deleteBranch'
+	    arguments=${2}
+	    shift 2
+	    ;;
+	--deleteRemote)
+	    task='deleteRemoteBranch'
 	    arguments=${2}
 	    shift 2
 	    ;;

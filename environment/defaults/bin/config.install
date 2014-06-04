@@ -13,3 +13,4 @@ cmt ${HOME}/bin/cmt
 gitdif ${HOME}/bin/gitdif
 pula ${HOME}/bin/pula
 stash ${HOME}/bin/stash
+optimizer.sh ${HOME}/bin/optimizer.sh
