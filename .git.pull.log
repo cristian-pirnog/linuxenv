@@ -1,6 +1,7 @@
 From bern4:/volume1/repository/environment
-   e9b4b3a..a578782  master     -> origin/master
-Updating e9b4b3a..a578782
-Fast-forward
- environment/defaults/bin/build | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+   1d89b94..5a1b9f5  master     -> origin/master
+error: Your local changes to the following files would be overwritten by merge:
+	.git.pull.log
+	.gitignore
+Please, commit your changes or stash them before you can merge.
+Aborting
