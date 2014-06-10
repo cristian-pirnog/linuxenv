@@ -57,7 +57,11 @@ branchName=$(branch -l s | awk '{print $NF}' | sort | uniq)
 if [[ $(echo ${branchName} | wc -w) -gt 1 ]]; then
     echo "Mixed branches found. Will not build"
     exit 1
+elif [[ $(echo ${branchName} | wc -w) -eq 0 ]]; then
+    branchName="production"
 fi
+
+
 
 # Remove the target build dirs, if requested
 if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
