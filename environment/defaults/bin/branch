@@ -145,7 +145,7 @@ listBranches()
 	cd ${p}
 	if [[ ${lOption} = 'all' ]]; then
         ${listComand}
-	    printf "Project %s: \n%s\n\n" "${p}" "${listCommand}"
+	    printf "Project %s: \n%s\n\n" "${p}" "$(${listCommand})"
 	else
 	    n=$(( lAlignSize - ${#p} +1 ))
 	    printf "%s%s%s%${n}s %s\n" "${lPrefix}" "${p}" "" "${lSep}" "$(${listCommand}| grep '^*' | awk '{print $NF}')"

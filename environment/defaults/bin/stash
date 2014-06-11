@@ -208,7 +208,7 @@ gitDirs=$(listRepos)
 alignSize=$(getAlignSize ${gitDirs})
 
 if  [[ ${task} == 'dropStash' ]]; then
-    getAnswer "About to drop stash $@ (cannot be undone). Continue?" || exit 0
+    getAnswer "About to drop stash ${arguments} (cannot be undone). Continue?" || exit 0
 fi
 
 for d in ${gitDirs}; do
