@@ -134,13 +134,21 @@ listBranches()
 	printf "\nCurrent active branches \n-----------------------\n"
     fi
 
+    gitVersion=$(git --version | awk '{print $NF}')
+    listCommand='git branch --list'
+    if [[ $(echo ${gitVersion} | awk -F '.' '{print $1}') -lt 2 ]] && \
+       [[ $(echo ${gitVersion} | awk -F '.' '{print $2}') -lt 8 ]]; then
+        listCommand='git branch'
+    fi
+
     for p in ${lGitDirs}; do
 	cd ${p}
 	if [[ ${lOption} = 'all' ]]; then
-	    printf "Project %s: \n%s\n\n" "${p}" "$(git branch --list)"
+        ${listComand}
+	    printf "Project %s: \n%s\n\n" "${p}" "$(${listCommand})"
 	else
 	    n=$(( lAlignSize - ${#p} +1 ))
-	    printf "%s%s%s%${n}s %s\n" "${lPrefix}" "${p}" "" "${lSep}" "$(git branch --list | grep '^*' | awk '{print $NF}')"
+	    printf "%s%s%s%${n}s %s\n" "${lPrefix}" "${p}" "" "${lSep}" "$(${listCommand}| grep '^*' | awk '{print $NF}')"
 	fi
 	cd ->/dev/null
     done

@@ -1,0 +1,109 @@
+#! /bin/bash
+
+. ~/.userfunctions
+
+#--------------------------------
+# Function printUsage
+#--------------------------------
+printUsage()
+{
+    echo "Usage: `basename $0` command [-all | FileNames]
+
+where
+
+    command       Must be either ON or OFF (case insensitive)
+
+    -all          (optional) specifies that the trace will!be set/unset for all
+                  the source files in the current directory and its subdirs, without
+                  asking for confirmation.
+
+    FileName(s)   (optional) specifies to which files the trace will be set/unset. 
+                  If not specified, all source files in the directory (and subdire) 
+                  will be processed.
+"
+}
+
+
+#--------------------------------
+# Function enableTrace
+#--------------------------------
+enableTrace()
+{
+    local myFile=$1
+    local hasTrace=`grep '^[[:blank:]]*//.*// crpiTrace$' ${myFile}`
+
+    if [ ! -z "${hasTrace}" ]; then
+        echo Enabling trace in file "\"${myFile}\""
+        cat ${myFile} | sed "/crpiTrace$/s/^\/\/\([[:blank:]]*cout\)/\1/" > ${myFile}.new
+        mv ${myFile}.new ${myFile}
+    fi
+}
+
+
+#--------------------------------
+# Function disableTrace
+#--------------------------------
+disableTrace()
+{
+    local myFile=$1
+
+    local hasTrace=`grep '^[[:blank:]]*cout.*// crpiTrace' ${myFile}`
+
+    if [ ! -z "${hasTrace}" ]; then
+        echo Disabling trace in file "\"${myFile}\""
+        cat ${myFile} | sed "/\/\/ crpiTrace$/s/^[[:blank:]]*cout/\/\/&/" > ${myFile}.new
+        mv ${myFile}.new ${myFile}
+    fi
+}
+
+
+
+#--------------------------------
+# Main script
+#--------------------------------
+
+if [ $# -lt 1 ]; then
+    printUsage
+    exit 1
+fi
+
+myOption="${1}"
+shift
+myFiles="$*"
+
+if [[ -z ${myFiles} ]]; then
+    echo -e "Are you sure you want to set trace to all files in the current directory (and subdirs)? [y/n] "
+    read myAnswer
+
+    case `lower ${myAnswer}` in
+        y)
+            myFiles=`allSourceFiles`
+        ;;
+        *)
+            echo "Aborting."
+            exit 0
+        ;;
+    esac
+elif [ "${myFiles}" == "-all" ]; then
+    echo "Setting trace to all files in the current directory (and subdirs)."
+    myFiles=`allSourceFiles`
+fi
+
+echo myOption=${myOption}
+
+case `lower ${myOption}` in
+    on)
+        for f in $myFiles; do
+            enableTrace $f
+        done
+    ;;
+    off)
+        for f in $myFiles; do
+            disableTrace $f
+        done
+    ;;
+    *)
+        printUsage
+        echo -e "\nUnknown command \"${myOption}\""
+    ;;
+esac
