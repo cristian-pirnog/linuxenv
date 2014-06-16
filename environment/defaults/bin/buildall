@@ -75,3 +75,7 @@ for d in ${PROJECTS_TO_BUILD}; do
     cd $d && build -s -j${threadCount} ${buildType} $* --client ${client} --target ${buildDirBase} --branch ${branchName} --project ${d} || exit 1
     cd ->/dev/null
 done
+
+if [[ -n $(echo $@|grep 'install') ]]; then
+    cp -r ~/code/ronin/libs/support/lib/libkfcData.so ~/deploy/${branchName}/${buildType}/lib/
+fi
