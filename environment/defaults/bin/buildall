@@ -19,7 +19,7 @@ printUsage()
 %%USAGE%%
 }
 
-ARGS=$(getopt -l "branch:," -n ${0} -- "$@")
+ARGS=$(getopt -o '' -l "branch:," -n ${0} -- "$@")
 
 eval set -- "$ARGS"
 
@@ -57,11 +57,8 @@ case ${1} in
 	client=ronin
 	shift
 	;;
-    'Release'|'Debug')
-	client=rocardian
-	;;
     *)
-	echo ${usageMsg}
+	printUsage
 	exit 1
 	;;
 esac
