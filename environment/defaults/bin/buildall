@@ -2,29 +2,69 @@
 
 source ~/.userfunctions
 	
-usageMsg="Usage: $(basename ${0}) [roc|ron] <Release|Debug> [buildOptions]"
-if [[ $# -lt 1 ]]; then
-    echo ${usageMsg}
-    exit 1
-else
+printUsage()
+{
+
+    cat << %%USAGE%%
+    
+    Usage: $(basename ${0}) [--branch name] <roc|ron> <Release|Debug> [buildOptions]
+ 
+    Description:
+       Builds all the code using CMake configurations.
+
+    Options:
+       --branch name
+             Use 'name' as branch name, instead of inferring it from the git repositories.
+
+%%USAGE%%
+}
+
+ARGS=$(getopt -l "branch:," -n ${0} -- "$@")
+
+eval set -- "$ARGS"
+
+#
+branchName=''
+while true; do
     case ${1} in
-	'roc')
-	    client=rocardian
+	--branch)
+	    branchName="${2}"
+	    shift 2
+	    ;;
+	--)
 	    shift
+	    break
 	    ;;
-	'ron')
-	    client=ronin
+	"")
+	    # This is necessary for processing missing optional arguments 
 	    shift
-	    ;;
-	'Release'|'Debug')
-	    client=rocardian
-	    ;;
-	*)
-	    echo ${usageMsg}
-	    exit 1
 	    ;;
     esac
+done
+
+# If wrong arguments, print usage and exit
+if [[ $# -lt 1 ]]; then
+    printUsage
+    exit 1;
 fi
+
+case ${1} in
+    'roc')
+	client=rocardian
+	shift
+	;;
+    'ron')
+	client=ronin
+	shift
+	;;
+    'Release'|'Debug')
+	client=rocardian
+	;;
+    *)
+	echo ${usageMsg}
+	exit 1
+	;;
+esac
 
 buildType=${1}
 shift 1
@@ -52,16 +92,16 @@ if [[ ${threadCount} < 1 ]]; then
     threadCount=1
 fi
 
-# Get the active branch name
-branchName=$(branch -l s | awk '{print $NF}' | sort | uniq)
-if [[ $(echo ${branchName} | wc -w) -gt 1 ]]; then
-    echo "Mixed branches found. Will not build"
-    exit 1
-elif [[ $(echo ${branchName} | wc -w) -eq 0 ]]; then
-    branchName="production"
+# Get the active branch name, if not provided as input
+if [[ -z ${branchName} ]]; then
+    branchName=$(branch -l s | awk '{print $NF}' | sort | uniq)
+    if [[ $(echo ${branchName} | wc -w) -gt 1 ]]; then
+	echo "Mixed branches found. Will not build"
+	exit 1
+    elif [[ $(echo ${branchName} | wc -w) -eq 0 ]]; then
+	branchName="production"
+    fi
 fi
-
-
 
 # Remove the target build dirs, if requested
 if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then

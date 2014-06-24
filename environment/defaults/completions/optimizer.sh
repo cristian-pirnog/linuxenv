@@ -5,6 +5,6 @@ _optimizer()
   COMPREPLY=( $( compgen -W "correlationAnalysis printData DataQuality expiryAnalysis LiquidityAnalysis optimize OrderLogParser simulate staticInfo translate" -- $cur ) )
 }
 
-complete -o default -o filenames -F _optimizer ./rocardian.optimizer
-complete -o default -o filenames -F _optimizer ./ronin.optimizer
+complete -o default -o filenames -F _optimizer ./rocardian.optimizer.exe
+complete -o default -o filenames -F _optimizer ./ronin.optimizer.exe
 

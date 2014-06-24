@@ -570,16 +570,27 @@ tcnew()
 
 mountMarketData()
 {
-    targetDir="/mnt/MD"
+#    mountMarketData2 /mnt/MD_crypt/zorro "/mnt/MD2"
+    mountMarketData2 /mnt/MD_crypt/disk.crypt "/mnt/MD"
+}
+
+
+mountMarketData2()
+{
+    local cryptFile=${1}
+    local targetDir=${2}
     if [[ -n $(mount | grep " ${targetDir} ") ]]; then
 	echo $(mount | grep " ${targetDir} " | awk '{print $1 " is already mounted on " $3". Exiting."}')
 	return 0
     fi	
-    tc /mnt/MD_crypt/disk.crypt ${targetDir}
+    tc ${cryptFile} ${targetDir}
+
+    
 }
 
 
 unmountMarketData()
 {
-    untc /mnt/MD/
+    untc /mnt/MD
+#    untc /mnt/MD2
 }
