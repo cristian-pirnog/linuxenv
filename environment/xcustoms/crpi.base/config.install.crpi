@@ -4,6 +4,8 @@ software_custom $HOME/.software_custom
 .dircolors $HOME/.dircolors
 .eclipse.dict $HOME/.eclipse.dict
 synergy.conf $HOME/.synergy.conf
+aliases_crpi $HOME/.aliases_custom.base
+userenv_crpi $HOME/.userenv_custom.base
 #
 # Files from bin directory
 #
