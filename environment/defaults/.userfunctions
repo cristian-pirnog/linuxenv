@@ -417,7 +417,7 @@ getNextMapping()
 tc()
 {
     if [[ $# -lt 1 ]]; then
-	echo "Usage: tc [usb|deviceName] mountPoint"
+	echo "Usage: tc <usb|deviceName> [mountPoint]"
 	return 1
     fi
 
@@ -531,8 +531,19 @@ tcnew()
 	return 1
     fi
 
+    local lCount=1
+    local lBaseSize=64 #MB
+    if [[ ${fileSize: -1} == 'M' ]]; then
+	lCount=$((${fileSize:0:-1} / lBaseSize))
+    elif [[ ${fileSize: -1} == 'G' ]]; then
+	lCount=$((1024 * ${fileSize:0:-1} / lBaseSize))
+    else
+	echo "fileSize must end with M or G"
+	return 1
+    fi
+
     # Create the file
-    dd if=/dev/zero of="${fileName}" bs=1 count=0 seek=${fileSize}
+    dd if=/dev/urandom of="${fileName}" bs=${lBaseSize}M count=${lCount}
     # Map it to a loop device
     deviceName=$(mapLoopDevice "${fileName}")
     if [[ $? -eq 1 ]]; then
