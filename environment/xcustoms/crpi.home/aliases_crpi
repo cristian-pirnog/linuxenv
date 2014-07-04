@@ -1,0 +1,4 @@
+# -*- mode: sh -*- #
+
+alias install='sudo yum install'
+alias mountWork='sudo mount -v 10.199.10.10:/home/crpi /mnt/crpi.work'
