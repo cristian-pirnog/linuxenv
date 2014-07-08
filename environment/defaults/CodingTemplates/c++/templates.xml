@@ -22,16 +22,17 @@ private:
 assert(false);
 </template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="for loop" enabled="true" id="org.eclipse.cdt.ui.text.templates.c.for" name="for">for (${var} = 0; ${var} &lt; ${max}; ++${var}) {
 	${line_selection}${cursor}
+}</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="for loop with auto iterator" enabled="true" name="forauto">for (const auto&amp; ${v} : ${vector})
+{
+	${v}${cursor}
 }</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="for loop with temporary variable" enabled="true" id="org.eclipse.cdt.ui.text.templates.cpp.for" name="fori">for (int ${var} = 0; ${var} &lt; ${max}; ++${var}) 
 {
 	${line_selection}${cursor}
-}</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="for loop with iterator" enabled="true" name="forit">for (_ct_it(${type}) ${it} = ${var}.begin(); ${it} != ${var}.end(); ${it}++)
-{
-	(*${it})${cursor}
 }</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="for loop with temporary variable" enabled="true" name="fors">for (size_t ${var} = 0; ${var} &lt; ${max}; ++${var}) 
 {
 	${line_selection}${cursor}
-}</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="if statement" enabled="true" id="org.eclipse.cdt.ui.text.templates.c.if" name="if">if (${condition}) {
+}</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="if statement" enabled="true" id="org.eclipse.cdt.ui.text.templates.c.if" name="if">if (${condition}) 
+{
 	${line_selection}${cursor}
 }</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="if else statement" enabled="true" id="org.eclipse.cdt.ui.text.templates.c.ifelse" name="ifelse">if (${condition}) {
 	${cursor}
@@ -53,6 +54,10 @@ ${cursor}
 		break;
 	default:
 		break;
+}</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="Inserts a BOOST test case skeleton" enabled="true" name="test_case">BOOST_AUTO_TEST_CASE( ${test_name} )
+{
+  // Write your tests here and remove the line below
+  BOOST_CHECK_EQUAL(0, 1);
 }</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="Insert a cout trace statement" enabled="true" name="trc">cout &lt;&lt; "TRACE: " &lt;&lt; __FUNCTION__&lt;&lt; ": " &lt;&lt; __FILE__ &lt;&lt; " " &lt;&lt; __LINE__ &lt;&lt; endl; // crpiTrace</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="try catch block" enabled="true" id="org.eclipse.cdt.ui.text.templates.cpp.try" name="try">try {
 	${line_selection}${cursor}
 } catch (${Exception} e) {

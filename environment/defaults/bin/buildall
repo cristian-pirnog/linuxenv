@@ -7,7 +7,7 @@ printUsage()
 
     cat << %%USAGE%%
     
-    Usage: $(basename ${0}) [--branch name] <roc|ron> <Release|Debug> [buildOptions]
+    Usage: $(basename ${0}) [--force] [--branch name] <roc|ron> <Release|Debug> [buildOptions]
  
     Description:
        Builds all the code using CMake configurations.
@@ -16,20 +16,28 @@ printUsage()
        --branch name
              Use 'name' as branch name, instead of inferring it from the git repositories.
 
+       --force
+             Force build, even when issues are found. Should be used, when having mixed
+	     branches e.g. due to checking out of old revisions.
 %%USAGE%%
 }
 
-ARGS=$(getopt -o '' -l "branch:," -n ${0} -- "$@")
+ARGS=$(getopt -o '' -l "branch:,force" -n ${0} -- "$@")
 
 eval set -- "$ARGS"
 
 #
 branchName=''
+forceBuild=0
 while true; do
     case ${1} in
 	--branch)
 	    branchName="${2}"
 	    shift 2
+	    ;;
+	--force)
+	    forceBuild=1
+	    shift
 	    ;;
 	--)
 	    shift
@@ -93,8 +101,12 @@ fi
 if [[ -z ${branchName} ]]; then
     branchName=$(branch -l s | awk '{print $NF}' | sort | uniq)
     if [[ $(echo ${branchName} | wc -w) -gt 1 ]]; then
-	echo "Mixed branches found. Will not build"
-	exit 1
+	if [[ ${forceBuild} ]]; then
+	    echo "Warning!!! Mixed branches found. Forcing build."
+	else
+	    echo "Mixed branches found. Will not build. Use --force option to force build"
+	    exit 1
+	fi
     elif [[ $(echo ${branchName} | wc -w) -eq 0 ]]; then
 	branchName="production"
     fi
