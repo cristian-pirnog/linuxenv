@@ -1,0 +1,101 @@
+#!/bin/bash
+
+source ~/.userfunctions
+
+#----------------------------------------------
+# Function stall
+#
+# Options:
+#
+#   -s Outputs only branches that have local changes.
+#
+#   -p Output formatted for use with pizda.
+#
+stall()
+{
+    local gitDirs=$(listRepos)
+    local alignSize=$(getAlignSize ${gitDirs})
+
+    if [[ ${1} == '-s' ]]; then
+	local forNext=1
+    elif [[ ${1} == '-p' ]]; then
+	local forPizda=1
+#    else
+#clear # This puts non-printing characters in the output	(which messes-up the function pizda)
+    fi
+
+    listOption="--list"
+    gitVersion=$(git --version | awk '{print $NF}')
+    if [[ $(echo ${gitVersion} | awk -F '.' '{print $1}') -eq 1 ]] && \
+       [[ $(echo ${gitVersion} | awk -F '.' '{print $2}') -lt 8 ]]; then
+        listOption=""
+    fi
+    
+    local lOldPdw=${OLDPWD}
+    for d in ${gitDirs}; do
+	currMsg=""
+	cd ${d}
+	local status=$(git status)
+	local lBranchName=$(git branch ${listOption} | grep '^*' | awk '{print $NF}')
+
+	# Check for untracked files
+	local hasChanges=0
+	local hasChangesToPush=0
+	if [[ -n $(echo $status | grep "Untracked files") ]]; then
+	    currMsg=${currMsg}" has untracked files"
+	    hasChanges=$(($hasChanges || 1))
+	fi
+
+	if [[ -n $(echo $status | grep "Changes not staged") ]]; then
+	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
+	    currMsg=${currMsg}" has changes"
+	    hasChanges=$(($hasChanges || 1))
+	fi
+
+	if [[ -n $(echo $status | grep "Changes to be committed") ]]; then
+	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
+	    currMsg=${currMsg}" has changes staged for commiting"
+	    hasChanges=$(($hasChanges || 1))
+	fi
+	
+	if [[ -n $(echo $status | grep "Your branch is ahead") ]]; then
+	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
+	    currMsg=${currMsg}" is ahead of origin"
+	    hasChangesToPush=$(($hasChangesToPush || 1))
+	fi
+
+	if [[ -n $(echo $status | grep "have diverged,") ]]; then
+	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
+	    currMsg=${currMsg}" has diverged from origin"
+	    hasChangesToPush=$(($hasChangesToPush || 1))
+	fi
+
+	if [[ -n $(echo $status | grep "You have unmerged paths") ]]; then
+	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
+	    currMsg=${currMsg}" has unmerged paths"
+	    hasChanges=$(($hasChanges || 1))
+	fi
+
+	if [[ ${forNext} ]] && [[ ${hasChanges} == "1" ]]; then
+	    printf "%s:%s\n" ${d} "${currMsg}"
+	elif [[ ${forPizda} ]] && [[ ${hasChangesToPush} == "1" ]]; then
+	    printf "%s %s\n" ${d} "${currMsg}."
+	elif [[ ! ${forNext} ]] && [[ ! ${forPizda} ]]; then
+	    n=$(( alignSize - ${#d} ))
+	    printf "%s%${n}s (%s) %s\n" ${d} "" "${lBranchName}" "${currMsg}"
+	fi
+	cd ->/dev/null
+    done
+    OLDPWD=${lOldPdw}
+}
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+if [[ $(isGitRepo) -eq 1 ]]; then
+    git status $@
+else
+    stall $@
+fi
+

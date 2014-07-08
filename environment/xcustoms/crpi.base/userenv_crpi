@@ -1,0 +1,5 @@
+# -*- mode: sh -*- #
+
+export DOCUMENTATION_DIR='/home/crpi/documentation'
+
+export PATH=${JAVA_HOME}/bin:$MYSQL_HOME/bin:${PATH}

@@ -1,26 +1,10 @@
 # -*- mode: sh -*- #
 
-export DOCUMENTATION_DIR='/home/crpi/documentation'
-
-export IDEA_HOME=/opt/Software/idea/idea-IC-103.72
-
-export PATH=${JAVA_HOME}/bin:$MYSQL_HOME/bin:${IDEA_HOME}/bin:${PATH}
-
-# The matlab root installation
-export PATH=$MATLAB_HOME/bin:$PATH
-
-# You need at least one entry in your classpath
-if [ ${#CLASSPATH} -eq 0 ]
-then
-    export CLASSPATH=.
-    # Otherwise the following will leave ':' at the end of the classpath which is illegal
-fi
-
-export IDEA_JDK=/opt/Software/jdk/jdk1.6.0_23/
-
-export PROJECT_STABLE_BRANCH='Core/tags/tb15'
+test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
 
 # Inhibits some crap WARNING from Emacs (Couldn't register with accessibility bus...)
 export NO_AT_BRIDGE=1
+
+export WORKING_HOURS="80000 160000"
 
 export PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live __client__/support __client__/optimizer unit_tests/katania __client__/live"
