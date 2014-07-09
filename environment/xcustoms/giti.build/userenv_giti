@@ -1,5 +1,8 @@
 # -*- mode: sh -*- #
 
+
+export PATH=/usr/local/anaconda/bin:$PATH:/home/giti/code/drogon/src/script
+
 test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/giti/code/drogon/lib/portfolio/lib:/home/giti/deploy/master/Release/lib:/home/giti/code/ronin/libs/support/lib:/usr/local/lib64:/usr/local/lib
