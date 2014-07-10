@@ -76,6 +76,12 @@ stall()
 	    hasChanges=$(($hasChanges || 1))
 	fi
 
+    if [[ ${hasChanges} != 1 ]]; then
+        if [[ -z $(echo $status | grep "nothing to commit") ]]; then
+            currMsg=${currMsg}" has changes not recognized"
+        fi
+    fi
+
 	if [[ ${forNext} ]] && [[ ${hasChanges} == "1" ]]; then
 	    printf "%s:%s\n" ${d} "${currMsg}"
 	elif [[ ${forPizda} ]] && [[ ${hasChangesToPush} == "1" ]]; then
