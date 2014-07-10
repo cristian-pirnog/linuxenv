@@ -17,3 +17,4 @@ optimizer.sh ${HOME}/bin/optimizer.sh
 toggleTrace ${HOME}/bin/toggleTrace
 runOpts.sh ${HOME}/bin/runOpts.sh
 st ${HOME}/bin/st
+runRollingOpts.sh ${HOME}/bin/runRollingOpts.sh
