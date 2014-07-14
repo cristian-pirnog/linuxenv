@@ -3,3 +3,4 @@
 test -f ~/.aliases_custom.base && source ~/.aliases_custom.base
 
 alias install='sudo yum install'
+alias cdb='cd ~/deploy/master/Release/bin'

@@ -5,7 +5,7 @@ printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) <-h|--help>
-            $(basename ${0}) jobPrefix duration latestDate [earliestDate]
+            $(basename ${0}) jobPrefix duration mostRecentDate [earliestDate]
 
     Description:
        Manage (push/pop/etc.) stashes for all checked-out products.
@@ -16,11 +16,11 @@ cat << %%USAGE%%
        duration
              One of: 6m, 3m
 
-       latestDate
-             The latest date of the simulations
+       mostRecentDate
+             The most recent date in the simulations
 
        earliestDate
-             The earliest date of the simulation. If not provided: takes 20120806.
+             The earliest date of the simulation. If not provided: takes 20121102.
 
     Options:
        -h
@@ -39,7 +39,7 @@ generateRollingOpts()
 {
     local lPrefix=$1
     local lDuration=$2
-    local lLatestDate=$3
+    local lMostRecentDate=$3
     local lEarliestDate=$4
     
     ## Set the lDuration
@@ -52,20 +52,20 @@ generateRollingOpts()
 	return 1
     fi
     
-    ## Set the lLatestDate (i.e. the latest date
-    if [[ -z ${lLatestDate} ]]; then
-	d=$(date --date 'last monday' +%Y%m%d)    
+    ## Set the lMostRecentDate
+    if [[ -z ${lMostRecentDate} ]]; then
+	d=$(date --date 'last friday' +%Y%m%d)    
     else
-	d=${lLatestDate}
+	d=${lMostRecentDate}
     fi
     
-    if [[ $(date --date ${d} +%u) -ne 1 ]]; then
-	echo "Start date is not a monday, but " $(date --date ${d} +%A)
+    if [[ $(date --date ${d} +%u) -ne 5 ]]; then
+	echo "Start date is not a friday, but " $(date --date ${d} +%A)
 	return 1
     fi
     
     if [[ -z ${lEarliestDate} ]]; then
-	lEarliestDate=20120806
+	lEarliestDate=20121102
     elif [[ $(date --date ${lEarliestDate} +%u > /dev/null ) ]]; then
 	echo "Invalid date ${lEarliestDate}"
 	return 1
@@ -74,7 +74,7 @@ generateRollingOpts()
     d=$(date --date "$d + 7 days" +%Y%m%d)
     while [[ $d -gt ${lEarliestDate} ]]; do 
 	d=$(date --date "$d - 7 days" +%Y%m%d)
-	echo $lPrefix $d `date --date "$d + ${shiftWeeks} weeks - 3 days" +%Y%m%d`
+	echo $lPrefix `date --date "$d - ${shiftWeeks} weeks + 3 days" +%Y%m%d` $d
     done
     
 }

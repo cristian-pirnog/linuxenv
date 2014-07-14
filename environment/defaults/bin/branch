@@ -104,7 +104,7 @@ printActiveBranches()
 checkLocalChanges()
 {
     local lActivity=${1}
-    local lBranchesWithChanges=$(stall -s)
+    local lBranchesWithChanges=$(st -s)
     if [[ -n ${lBranchesWithChanges} ]]; then
 	printf "\nThe following branches have local changes\n"
 	echo "${lBranchesWithChanges}"
