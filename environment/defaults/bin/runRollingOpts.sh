@@ -132,7 +132,7 @@ done <<< "$commands"
 # 
 doneJobs=1
 while read -r line; do
-    echo -e "\nRunning job ${doneJobs}/${totalJobs}:"$line"\n\n"
+    echo -e "\nRunning job ${doneJobs}/${totalJobs}:" $line"\n\n"
     $line
     doneJobs=$((doneJobs+1))
 done <<< "$commands"
