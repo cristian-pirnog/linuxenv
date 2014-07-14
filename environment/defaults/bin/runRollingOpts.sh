@@ -20,7 +20,7 @@ cat << %%USAGE%%
              The most recent date in the simulations
 
        earliestDate
-             The earliest date of the simulation. If not provided: takes 20121102.
+             The earliest date of the simulation. If not provided: takes 20120802.
 
     Options:
        -h
@@ -65,16 +65,18 @@ generateRollingOpts()
     fi
     
     if [[ -z ${lEarliestDate} ]]; then
-	lEarliestDate=20121102
+	lEarliestDate=20120802
     elif [[ $(date --date ${lEarliestDate} +%u > /dev/null ) ]]; then
 	echo "Invalid date ${lEarliestDate}"
 	return 1
     fi
 
     d=$(date --date "$d + 7 days" +%Y%m%d)
-    while [[ $d -gt ${lEarliestDate} ]]; do 
+    startDate=${d}
+    while [[ `date --date "${startDate} - 7 days" +%Y%m%d` -gt ${lEarliestDate} ]]; do 
 	d=$(date --date "$d - 7 days" +%Y%m%d)
-	echo $lPrefix `date --date "$d - ${shiftWeeks} weeks + 3 days" +%Y%m%d` $d
+	startDate=`date --date "$d - ${shiftWeeks} weeks + 3 days" +%Y%m%d`
+	echo $lPrefix ${startDate} $d
     done
     
 }
@@ -130,7 +132,7 @@ done <<< "$commands"
 # 
 doneJobs=1
 while read -r line; do
-    echo -e "\nRuning job ${doneJobs}/${totalJobs}:"$line"\n\n"
-    $line
+    #echo -e "\nRuning job ${doneJobs}/${totalJobs}:"$line"\n\n"
+    echo $line
     doneJobs=$((doneJobs+1))
 done <<< "$commands"
