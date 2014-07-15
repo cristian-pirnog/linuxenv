@@ -59,7 +59,7 @@ then
     echo -e "\nUsage:\n\n\t$(basename $0) jobFile startDate stopDate\n"
     exit 1
 fi
-echo "Running job: $@"
+#echo "Running job: $@"
 jobFile=${1}
 startD=${2}
 stopD=${3}
@@ -250,12 +250,15 @@ do
         exit 1
     fi
 
-    echo -e "PROD1: $prod1 \t PROD2: $prod2 \t START: $startT \t STOP: $stopT \t SIMLOC: $simLoc \t ISSPREAD: $isSpr \t GRIDFILE: $gridFile \t DIRNAME: $dirName"
+    #echo -e "PROD1: $prod1 \t PROD2: $prod2 \t START: $startT \t STOP: $stopT \t SIMLOC: $simLoc \t ISSPREAD: $isSpr \t GRIDFILE: $gridFile \t DIRNAME: $dirName"
+
+    theDate=$(date +"%Y%m%d %H:%M:%S")
+    echo -e "Running optimization for\t$jobId\t($startD-$stopD)\t(started at $theDate)"
 
     weekDay=$(date +%u)
     currentT1=$(date +"%H%M%S")
     currentT2=$(date --date="-$maxRunTime seconds ago" +"%H%M%S")
-    echo -e "WEEK DAY: ${weekDay} \t CURRENT TIME ADAPTED: $currentT2 \t CURRENT TIME: $currentT1 \t START NOT RUN TIME: $breakStartTime \t STOP NOT RUN TIME: $breakStopTime \t MAX RUN TIME: $maxRunTime" 
+    #echo -e "WEEK DAY: ${weekDay} \t CURRENT TIME ADAPTED: $currentT2 \t CURRENT TIME: $currentT1 \t START NOT RUN TIME: $breakStartTime \t STOP NOT RUN TIME: $breakStopTime \t MAX RUN TIME: $maxRunTime" 
     if [[ ${weekDay} -lt 6 ]] && \
        [[ $((10#$currentT2)) -ge $((10#$breakStartTime)) ]] && \
        [[ $((10#$currentT1)) -le $((10#$breakStopTime)) ]]; then
@@ -274,8 +277,6 @@ do
 	fi
     fi
 
-    theDate=$(date +"%Y%m%d %H:%M:%S") 
-    echo -e "Running optimization for\t$jobId\t($startD-$stopD)\t(started at $theDate)"
     startRunTime=$(date +%s)
     LD_LIBRARY_PATH=${libDir} $binaryFile optimize $prod1 $prod2 $gridFile $startT $stopT $isIntraday $startD $stopD serverLocation:$simLoc > screenOutput.txt
     runTime=$(( $(date +%s) - $startRunTime ))
