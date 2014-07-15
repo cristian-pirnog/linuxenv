@@ -10,21 +10,27 @@ printUsage()
     cat << %%USAGE%%
 
     Usage: $(basename $0) [-h]
-           $(basename $0) <on|off> [-a|--all]
-           $(basename $0) <on|off> FileNames
+           $(basename $0) <on|off> [Options] [FileNames]
 
-where
+Arguments:
 
     <on|off>     (mandatory) Specify if to set (on) or unset (off) the trace.
-
-    -a
-    --all         (optional) specifies that the trace will be set/unset for all
-                  the source files in the current directory and its subdirs, without
-                  asking for confirmation.
 
     FileName(s)   (optional) specifies to which files the trace will be set/unset. 
                   If not specified, all source files in the directory (and subdire) 
                   will be processed.
+
+Options:
+    -a
+    --all         Specifies that the trace will be set/unset for all the source
+                  files in the current directory and its subdirs, without asking
+                  for confirmation. Any specified FileName(s) will be disregarded.
+
+    -t    tagName
+    --tag tagName Specifies the tag that should be used (defaults to crpiTrace).
+		  
+ 
+
 %%USAGE%%
 }
 
@@ -35,11 +41,13 @@ where
 trace_on()
 {
     local myFile=$1
-    local hasTrace=`grep '^[[:blank:]]*//.*// crpiTrace$' ${myFile}`
+    local lTagName=${2}
+
+    local hasTrace=$(grep "^[[:blank:]]*//.*// ${lTagName}$" ${myFile})
 
     if [ ! -z "${hasTrace}" ]; then
         echo Enabling trace in file "\"${myFile}\""
-        cat ${myFile} | sed "/crpiTrace$/s/^\/\/\([[:blank:]]*cout\)/\1/" > ${myFile}.new
+        cat ${myFile} | sed "/${lTagName}$/s/^\/\/\([[:blank:]]*cout\)/\1/" > ${myFile}.new
         mv ${myFile}.new ${myFile}
     fi
 }
@@ -51,12 +59,13 @@ trace_on()
 trace_off()
 {
     local myFile=$1
+    local lTagName=${2}
 
-    local hasTrace=`grep '^[[:blank:]]*cout.*// crpiTrace' ${myFile}`
+    local hasTrace=$(grep "^[[:blank:]]*cout.*// ${lTagName}" ${myFile})
 
     if [ ! -z "${hasTrace}" ]; then
         echo Disabling trace in file "\"${myFile}\""
-        cat ${myFile} | sed "/\/\/ crpiTrace$/s/^[[:blank:]]*cout/\/\/&/" > ${myFile}.new
+        cat ${myFile} | sed "/\/\/ ${lTagName}$/s/^[[:blank:]]*cout/\/\/&/" > ${myFile}.new
         mv ${myFile}.new ${myFile}
     fi
 }
@@ -72,7 +81,7 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
-ARGS=$(getopt -o ha -l "help,all" -n $(basename $0) -- "$@")
+ARGS=$(getopt -o hat: -l "help,all,tag:" -n $(basename $0) -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -82,6 +91,7 @@ fi
 
 eval set -- "$ARGS"
 
+tagName='crpiTrace'
 while true; do
     case ${1} in
 	-h|--help)
@@ -92,6 +102,10 @@ while true; do
 	    echo "Toggling trace to all files in the current directory (and subdirs)."
 	    myFiles=`allSourceFiles`
 	    shift
+	    ;;
+	-t|--tag)
+	    tagName=${2}
+	    shift 2
 	    ;;
 	--)
 	    shift
@@ -127,6 +141,6 @@ if [[ -z $(echo ${supportedCommands}|grep -e "${myOption}") ]]; then
 fi
 
 for f in $myFiles; do
-    trace_${myOption} $f
+    trace_${myOption} $f ${tagName}
 done
 

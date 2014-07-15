@@ -8,10 +8,10 @@ cat << %%USAGE%%
             $(basename ${0}) jobPrefix duration mostRecentDate [earliestDate]
 
     Description:
-       Manage (push/pop/etc.) stashes for all checked-out products.
+       Runs rolling optimizations with 3 or 6 months in-sample periods.
 
     Arguments:
-       jobPrefix
+       jobPrefix (e.g. "/mnt/optimization_result/runOptimizations.sh TestCaseDefinition_ID_index.txt")
 
        duration
              One of: 6m, 3m
@@ -42,6 +42,11 @@ generateRollingOpts()
     local lMostRecentDate=$3
     local lEarliestDate=$4
     
+    if [[ $(echo ${lPrefix} | wc -w) -ne 2 ]]; then
+	echo "Job prefix must have two elements"
+	return 1
+    fi
+
     ## Set the lDuration
     if [[ $lDuration == '3m' ]]; then
 	shiftWeeks=13
@@ -115,13 +120,14 @@ while true; do
     esac
 done
 
-
-commands=$(generateRollingOpts "$@"|sort -r)
-if [[ $? -ne 0 ]]; then
+commands=$(generateRollingOpts "$@")
+outputStatus=$?
+if [[ ${outputStatus} -ne 0 ]]; then
     echo "There was an error in generating the commands:"
-    echo $commands
+    echo -e ${commands}
     exit 1
 fi
+
 
 totalJobs=0
 while read -r line; do
@@ -132,7 +138,7 @@ done <<< "$commands"
 # 
 doneJobs=1
 while read -r line; do
-    #echo -e "\nRuning job ${doneJobs}/${totalJobs}:"$line"\n\n"
-    echo $line
+    echo -e "\nRuning job ${doneJobs}/${totalJobs}:"$line"\n\n"
+    $line
     doneJobs=$((doneJobs+1))
 done <<< "$commands"
