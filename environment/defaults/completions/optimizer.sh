@@ -8,3 +8,4 @@ _optimizer()
 complete -o default -o filenames -F _optimizer ./rocardian.optimizer.exe
 complete -o default -o filenames -F _optimizer ./ronin.optimizer.exe
 
+complete -o default -o filenames -F _optimizer ./run.sh

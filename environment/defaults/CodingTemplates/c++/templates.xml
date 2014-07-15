@@ -5,7 +5,7 @@ public:
 	${cursor}
 
 private:
-};</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="default multiline comment" enabled="true" id="org.eclipse.cdt.ui.text.templates.c.comment" name="comment">
+};</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="Inserts a cout trace for comparison" enabled="true" name="cmpTrc">cout &lt;&lt; ${cursor} &lt;&lt; endl; // ${tag}Cmp</template><template autoinsert="true" context="org.eclipse.cdt.ui.text.templates.c" deleted="false" description="default multiline comment" enabled="true" id="org.eclipse.cdt.ui.text.templates.c.comment" name="comment">
 /*
  * author ${user}
  *
