@@ -2,3 +2,8 @@
 export PATH=$PATH:/home/giti/code/drogon/src/scripts
 
 export PYTHONPATH=$PYTHONPATH:/home/giti/code/drogon/src/python:/home/giti/code/drogon/src/C/marketdata_CME/python:/home/giti/code/drogon/lib/cvxopt-1.1.6/python:/home/giti/code/drogon/lib/python-bindings:/home/giti/deploy/master/Release/lib
+
+
+# use keychain to recover ssh-agent
+eval $(keychain --eval --agents ssh -Q --quiet)
+
