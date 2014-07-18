@@ -5,3 +5,8 @@ test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/giti/code/drogon/lib/portfolio/lib:/home/giti/deploy/master/Release/lib:/usr/local/lib64:/usr/local/lib:/home/giti/code/ronin/libs/support/lib
 
 export PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live __client__/support __client__/optimizer" # unit_tests/katania" __client__/live"
+
+# use keychain to recover ssh-agent
+eval $(keychain --eval --agents ssh -Q --quiet)
+
+
