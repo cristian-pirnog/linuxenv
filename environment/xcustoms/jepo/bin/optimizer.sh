@@ -31,12 +31,12 @@ client=$1
 branch=$2
 mode=$3
 
-baseDir=/home/jepo/deploy/$branch/$mode
+baseDir=/home/$USER/deploy/$branch/$mode
 libDir=$baseDir/lib
 
-if [ ! -d /home/jepo/deploy/$branch/ ]
+if [ ! -d /home/$USER/deploy/$branch/ ]
 then
-	echo "DIRECTORY NOT FOUND: /home/jepo/deploy/$branch/ ; BRANCH NAME '$branch' INCORRECT?"
+	echo "DIRECTORY NOT FOUND: /home/$USER/deploy/$branch/ ; BRANCH NAME '$branch' INCORRECT?"
 	exit 1
 fi
 
