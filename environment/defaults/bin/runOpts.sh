@@ -289,7 +289,7 @@ do
     fi
 
     startRunTime=$(date +%s)
-    LD_LIBRARY_PATH=${libDir} $binaryFile optimize $prod1 $prod2 $gridFile $startT $stopT $isIntraday $startD $stopD serverLocation:$simLoc > screenOutput.txt
+    LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib:/usr/local/lib64:${libDir} $binaryFile optimize $prod1 $prod2 $gridFile $startT $stopT $isIntraday $startD $stopD serverLocation:$simLoc > screenOutput.txt
     runTime=$(( $(date +%s) - $startRunTime ))
 
     # Make sure that all the optimization directories and files are read & write for everybody
