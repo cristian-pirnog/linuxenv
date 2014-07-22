@@ -54,15 +54,23 @@ function test_job_succeeded
 
 
 
-if [[ $# -ne 3 ]]
+if [[ $# -ne 4 ]]
 then
-    echo -e "\nUsage:\n\n\t$(basename $0) jobFile startDate stopDate\n"
+    echo -e "\nUsage:\n\n\t$(basename $0) jobFile startDate stopDate runForEver\n"
     exit 1
 fi
+
 #echo "Running job: $@"
 jobFile=${1}
 startD=${2}
 stopD=${3}
+runForEver=${4}
+
+if [ $runForEver -ne 0 -a $runForEver -ne 1 ]
+then
+	echo "4th argument is RunForEver which should be either 0 or 1"
+	exit 1
+fi
 
 baseDir="/home/$USER/deploy/master/Release"
 libDir="${baseDir}/lib"
@@ -259,10 +267,13 @@ do
     currentT1=$(date +"%H%M%S")
     currentT2=$(date --date="-$maxRunTime seconds ago" +"%H%M%S")
     #echo -e "WEEK DAY: ${weekDay} \t CURRENT TIME ADAPTED: $currentT2 \t CURRENT TIME: $currentT1 \t START NOT RUN TIME: $breakStartTime \t STOP NOT RUN TIME: $breakStopTime \t MAX RUN TIME: $maxRunTime" 
-    if [[ ${weekDay} -lt 6 ]] && \
-       [[ $((10#$currentT2)) -ge $((10#$breakStartTime)) ]] && \
-       [[ $((10#$currentT1)) -le $((10#$breakStopTime)) ]]; then
-        sleep_until $breakStopTime
+    if [ $runForEver -eq 0 ]
+    then
+    	if [[ ${weekDay} -lt 6 ]] && \
+    	   [[ $((10#$currentT2)) -ge $((10#$breakStartTime)) ]] && \
+       	   [[ $((10#$currentT1)) -le $((10#$breakStopTime)) ]]; then
+        	sleep_until $breakStopTime
+    	fi
     fi
 
     # Test whether binary is still there, if not, wait 60 sec
