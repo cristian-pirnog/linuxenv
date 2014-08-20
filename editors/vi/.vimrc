@@ -20,14 +20,14 @@ set smartindent
 " colorscheme cristian_color_scheme
 " colorscheme blue
 " some abbreviations
-ab //- //--------------------------------------------------------------------
-ab catch catch(Exception anException)<CR>{<CR>new Fault( .class, this).log(anException);<CR>}<CR>
-ab try try<CR>{<CR>}<CR>catch (Exception anException)<CR>{<CR>new Fault( .class,this).log(anException);<CR>}<CR><UP><UP><UP><UP>
-ab acc public void<CR>accept(Visitor aVisitor)<CR>{<CR>if (theTrace.ACTIVE) theTrace.println("accept(" +<CR>"aVisitor = " + aVisitor + ")");<CR><CR>if (aVisitor instanceof Visitor)<CR>{<CR>((Visitor)aVisitor).visit (this);<CR>}<CR>else<CR>{<CR>aVisitor.deny(this);<CR>}<CR>}<CR>
-ab memc //--------------------------------------------------------------------<CR>// members<CR>//--------------------------------------------------------------------<CR>private final static Trace theTrace =<CR><TAB>new Trace( .class.getName());<LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT>
-ab pubc //--------------------------------------------------------------------<CR>// public<CR>//--------------------------------------------------------------------<CR>
-ab pric //--------------------------------------------------------------------<CR>// private<CR>//--------------------------------------------------------------------<CR>
-ab proc //--------------------------------------------------------------------<CR>// protected<CR>//--------------------------------------------------------------------<CR>
+" ab //- //--------------------------------------------------------------------
+" ab catch catch(Exception anException)<CR>{<CR>new Fault( .class, this).log(anException);<CR>}<CR>
+" ab try try<CR>{<CR>}<CR>catch (Exception anException)<CR>{<CR>new Fault( .class,this).log(anException);<CR>}<CR><UP><UP><UP><UP>
+" ab acc public void<CR>accept(Visitor aVisitor)<CR>{<CR>if (theTrace.ACTIVE) theTrace.println("accept(" +<CR>"aVisitor = " + aVisitor + ")");<CR><CR>if (aVisitor instanceof Visitor)<CR>{<CR>((Visitor)aVisitor).visit (this);<CR>}<CR>else<CR>{<CR>aVisitor.deny(this);<CR>}<CR>}<CR>
+" ab memc //--------------------------------------------------------------------<CR>// members<CR>//--------------------------------------------------------------------<CR>private final static Trace theTrace =<CR><TAB>new Trace( .class.getName());<LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT><LEFT>
+" ab pubc //--------------------------------------------------------------------<CR>// public<CR>//--------------------------------------------------------------------<CR>
+" ab pric //--------------------------------------------------------------------<CR>// private<CR>//--------------------------------------------------------------------<CR>
+" ab proc //--------------------------------------------------------------------<CR>// protected<CR>//--------------------------------------------------------------------<CR>
 "ab st String
 "ab St String
 "ab sta static

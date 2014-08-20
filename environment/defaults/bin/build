@@ -185,7 +185,6 @@ if [[ ${buildDirRoot} != "." ]]; then
 else
     buildDir=${buildType}
 fi
-echo buildType=${buildType}
 
 case ${option} in
     "clean"|"fresh")
@@ -209,9 +208,12 @@ case ${option} in
 	;;
 esac
 
+
+
+
 # If there's a wscript file in the current dir, runn a waf build
 if [[ -f wscript ]]; then
-    wafBuild ${clientOption} --buildType ${buildType} --branch ${branchName}
+    wafBuild ${clientOption} --buildType ${buildType} --branch ${branchName} --libDirRoot ${buildDirRoot}
 else
     # Check for a CMakeList.txt file
     if [[ ! -f "CMakeLists.txt" ]]; then
@@ -219,6 +221,6 @@ else
 	exit 1
     fi
 
-    cd ${buildDirRoot}
+    cd ${buildDirRoot} || exit 1
     cmakeBuild ${buildDir} ${buildType} ${branchName} ${libraryType} ${sourceDir} ${option} ${moreOptions} $@
 fi

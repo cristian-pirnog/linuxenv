@@ -43,44 +43,51 @@ stall()
 	local hasChangesToPush=0
 	if [[ -n $(echo $status | grep "Untracked files") ]]; then
 	    currMsg=${currMsg}" has untracked files"
-	    hasChanges=$(($hasChanges || 1))
+	    hasChanges=1
 	fi
 
 	if [[ -n $(echo $status | grep "Changes not staged") ]]; then
 	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
 	    currMsg=${currMsg}" has changes"
-	    hasChanges=$(($hasChanges || 1))
+	    hasChanges=1
 	fi
 
 	if [[ -n $(echo $status | grep "Changes to be committed") ]]; then
 	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
 	    currMsg=${currMsg}" has changes staged for commiting"
-	    hasChanges=$(($hasChanges || 1))
+	    hasChanges=1
 	fi
 	
 	if [[ -n $(echo $status | grep "Your branch is ahead") ]]; then
 	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
 	    currMsg=${currMsg}" is ahead of origin"
-	    hasChangesToPush=$(($hasChangesToPush || 1))
+	    hasChangesToPush=1
 	fi
 
 	if [[ -n $(echo $status | grep "have diverged,") ]]; then
 	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
 	    currMsg=${currMsg}" has diverged from origin"
-	    hasChangesToPush=$(($hasChangesToPush || 1))
+	    hasChangesToPush=1
 	fi
 
 	if [[ -n $(echo $status | grep "You have unmerged paths") ]]; then
 	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
 	    currMsg=${currMsg}" has unmerged paths"
-	    hasChanges=$(($hasChanges || 1))
+	    hasChanges=1
 	fi
 
-    if [[ ${hasChanges} != 1 ]]; then
-        if [[ -z $(echo $status | grep "nothing to commit") ]]; then
-            currMsg=${currMsg}" has changes not recognized"
-        fi
-    fi
+	if [[ -n $(echo $status | grep "you are still merging") ]]; then
+	    if [[ -n ${currMsg} ]]; then currMsg=${currMsg}" AND"; fi
+	    currMsg=${currMsg}" has merge not yet commited"
+	    hasChanges=1
+	fi
+
+	if [[ ${hasChanges} != 1 ]]; then
+            if [[ -z $(echo $status | grep "nothing to commit") ]]; then
+		currMsg=${currMsg}" has changes not recognized"
+		hasChanges=1
+            fi
+	fi
 
 	if [[ ${forNext} ]] && [[ ${hasChanges} == "1" ]]; then
 	    printf "%s:%s\n" ${d} "${currMsg}"
