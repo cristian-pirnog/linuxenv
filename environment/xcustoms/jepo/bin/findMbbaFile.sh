@@ -3,6 +3,7 @@
 if [ $# -ne 2 ]
 then
 	echo -e "\t$0 symbol date"
+	exit 1
 fi
 
 symbol=$1
