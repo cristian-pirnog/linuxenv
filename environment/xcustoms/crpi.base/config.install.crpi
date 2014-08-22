@@ -7,6 +7,10 @@ synergy.conf $HOME/.synergy.conf
 aliases_crpi $HOME/.aliases_custom.base
 userenv_crpi $HOME/.userenv_custom.base
 #
+# Files from '.ssh' directory
+#
+.ssh/config $HOME/.ssh/config
+#
 # Files from bin directory
 #
 bin/from_unixtime_ms $HOME/bin/from_unixtime_ms

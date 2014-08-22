@@ -56,7 +56,8 @@ file=$baseDir/bin/$client".optimizer.exe"
 
 file_exists $file
 
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib:/usr/local/lib64:$libDir
+#echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:$libDir"
+export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:$libDir
 
 shift 3
 $file $@
