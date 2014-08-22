@@ -80,6 +80,10 @@ cmakeBuild()
     local lCompilerFlags=${7}
     shift 7
     
+    if [[ ${lCompilerFlags} == 'none' ]]; then
+    lCompilerFlags=''
+    fi
+
     if [[ ! -d ${lBuildDir} ]]; then
 	mkdir -p ${lBuildDir} || exit 1
     fi
@@ -118,6 +122,7 @@ libraryType=SHARED
 scriptMode=0
 buildDirRoot="."
 sourceDir=$(pwd)
+compilerFlags='none'
 while true; do
     case ${1} in
 	-h|--help)
