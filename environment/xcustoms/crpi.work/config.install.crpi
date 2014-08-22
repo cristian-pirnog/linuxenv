@@ -3,5 +3,4 @@ userenv_crpi $HOME/.userenv_custom
 #
 # Files from '.ssh' directory
 #
-.ssh/config $HOME/.ssh/config
 .ssh/known_hosts $HOME/.ssh/known_hosts
