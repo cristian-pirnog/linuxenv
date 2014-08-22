@@ -8,7 +8,7 @@ printUsage()
     cat << %%USAGE%%
 
     Usage: $(basename $0) [-h] 
-           $(basename $0) [-f|-s] [--source dirName] [--target dirName] [--branch name] [--project name] <Debug|Release> [all|clean|fresh] [install]
+           $(basename $0) [-f|-s] [--source dirName] [--target dirName] [--branch name] [--project name] --frameworkOnly <Debug|Release> [all|clean|fresh] [install]
 	   
 
     Description:
@@ -45,6 +45,10 @@ printUsage()
              (Only when --target is specified) append the given project
 	     name to the target dirName.
 
+       --frameworkOnly
+             Builds the live code such that all ArByte processing is disabled,
+             and thus only framework stuff runs.
+
        <x|y>:  one of the arguments in the brackets must be provided
 
        [x|y]:  optional argument; if none provided, defaults to the first
@@ -73,7 +77,8 @@ cmakeBuild()
     local lLibraryType=${4}
     local lCodeDir=${5}
     local lOption=${6}
-    shift 6
+    local lCompilerFlags=${7}
+    shift 7
     
     if [[ ! -d ${lBuildDir} ]]; then
 	mkdir -p ${lBuildDir} || exit 1
@@ -82,8 +87,8 @@ cmakeBuild()
     cd ${lBuildDir}
     
     printf "Running cmake...\n\n"
-    cmake -DCMAKE_INSTALL_PREFIX=${HOME}/code ${lCodeDir} -DCMAKE_LIBRARY_TYPE=${lLibraryType} -DBUILD_OUTPUT_DIR=$(pwd) -DPROJECT_BRANCH=${lBranchName} -DCMAKE_BUILD_TYPE=${buildType}|| return 1
-    
+    cmake -DCMAKE_INSTALL_PREFIX=${HOME}/code ${lCodeDir} -DCMAKE_LIBRARY_TYPE=${lLibraryType} -DBUILD_OUTPUT_DIR=$(pwd) -DPROJECT_BRANCH=${lBranchName} -DCMAKE_BUILD_TYPE=${buildType} ${lCompilerFlags}|| return 1
+
     printf "\n\nRunning make $s...\n\n" ${lOption}
     make ${lOption} ${moreLOptions} $*
 }
@@ -98,7 +103,7 @@ if [[ $# -lt 1 ]]; then
     exit 1
 fi
 
-ARGS=$(getopt -o hfj::c:s -l "help,force,client:,source:,target:,branch:,project:,script,static,shared" -n "build" -- "$@")
+ARGS=$(getopt -o hfj::c:s -l "help,force,client:,source:,target:,branch:,project:,script,static,shared,frameworkOnly" -n "build" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -151,6 +156,10 @@ while true; do
 	    projectName=$(echo ${2} | replace '\.' '/')
 	    shift 2
 	    ;;
+    --frameworkOnly)
+        compilerFlags="-DCOMPILER_DEFINES=-DFRAMEWORK_ONLY"
+        shift
+        ;;
 #	--static)
 #	    libraryType=STATIC
 #	    shift
@@ -222,5 +231,5 @@ else
     fi
 
     cd ${buildDirRoot} || exit 1
-    cmakeBuild ${buildDir} ${buildType} ${branchName} ${libraryType} ${sourceDir} ${option} ${moreOptions} $@
+    cmakeBuild ${buildDir} ${buildType} ${branchName} ${libraryType} ${sourceDir} ${option} ${compilerFlags} ${moreOptions} $@
 fi
