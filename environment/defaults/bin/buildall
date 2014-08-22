@@ -25,7 +25,7 @@ printUsage()
 %%USAGE%%
 }
 
-ARGS=$(getopt -o '' -l "branch:,target:,force,frameworkOnly" -n ${0} -- "$@")
+ARGS=$(getopt -o '' -l "branch:,target:,force,debugLiveFramework" -n ${0} -- "$@")
 
 eval set -- "$ARGS"
 
