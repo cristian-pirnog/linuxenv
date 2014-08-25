@@ -43,3 +43,9 @@ alias push='git push'
 # Other aliases
 alias lib='LD_LIBRARY_PATH=../lib/'
 
+# Create aliases for hosts in .ssh/config
+for h in $(grep 'Host prd' ~/.ssh/config | awk '{print $2}'); do
+    alias $h="ssh $h"
+done
+
+
