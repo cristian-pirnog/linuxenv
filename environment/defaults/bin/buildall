@@ -25,7 +25,7 @@ printUsage()
 %%USAGE%%
 }
 
-ARGS=$(getopt -o '' -l "branch:,target:,force" -n ${0} -- "$@")
+ARGS=$(getopt -o '' -l "branch:,target:,force,debugLiveFramework" -n ${0} -- "$@")
 
 eval set -- "$ARGS"
 
@@ -55,6 +55,10 @@ while true; do
 	    # This is necessary for processing missing optional arguments 
 	    shift
 	    ;;
+    *)
+        optionsToForward="${optionsToForward} ${1}"
+        shift
+        ;;
     esac
 done
 
@@ -127,7 +131,7 @@ if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
 fi
 
 for d in ${PROJECTS_TO_BUILD}; do
-    cd $d && build -s -j${threadCount} ${buildType} $* --client ${client} --target ${buildDirBase} --branch ${branchName} --project ${d} || exit 1
+    cd $d && build -s -j${threadCount} ${buildType} --client ${client} --target ${buildDirBase} --branch ${branchName} --project ${d} ${optionsToForward} $@ || exit 1
     cd ->/dev/null
 done
 
