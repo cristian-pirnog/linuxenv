@@ -77,11 +77,11 @@ cmakeBuild()
     local lLibraryType=${4}
     local lCodeDir=${5}
     local lOption=${6}
-    local lCompilerFlags=${7}
+    local lCmakeOptions=${7}
     shift 7
     
-    if [[ ${lCompilerFlags} == 'none' ]]; then
-    lCompilerFlags=''
+    if [[ ${lCmakeOptions} == 'none' ]]; then
+    lCmakeOptions=''
     fi
 
     if [[ ! -d ${lBuildDir} ]]; then
@@ -91,7 +91,7 @@ cmakeBuild()
     cd ${lBuildDir}
     
     printf "Running cmake...\n\n"
-    cmake -DCMAKE_INSTALL_PREFIX=${HOME}/code ${lCodeDir} -DCMAKE_LIBRARY_TYPE=${lLibraryType} -DBUILD_OUTPUT_DIR=$(pwd) -DPROJECT_BRANCH=${lBranchName} -DCMAKE_BUILD_TYPE=${buildType} ${lCompilerFlags}|| return 1
+    cmake -DCMAKE_INSTALL_PREFIX=${HOME}/code ${lCmakeOptions} ${lCodeDir} -DCMAKE_LIBRARY_TYPE=${lLibraryType} -DBUILD_OUTPUT_DIR=$(pwd) -DPROJECT_BRANCH=${lBranchName} -DCMAKE_BUILD_TYPE=${buildType}|| return 1
 
     printf "\n\nRunning make $s...\n\n" ${lOption}
     make ${lOption} ${moreLOptions} $*
