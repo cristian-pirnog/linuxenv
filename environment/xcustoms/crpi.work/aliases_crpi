@@ -4,7 +4,3 @@ test -f ~/.aliases_custom.base && source ~/.aliases_custom.base
 
 alias install='sudo yum install'
 alias cdb='cd ~/deploy/master/Release/bin'
-
-for h in $(grep 'Host prd' ~/.ssh/config | awk '{print $2}'); do
-    alias $h="ssh $h"
-done
