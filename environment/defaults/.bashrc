@@ -41,5 +41,10 @@ if [ -f ~/.aliases_custom ]; then
     . ~/.aliases_custom
 fi
 
+# Make keychain reuse the existing ssh agent (if keychain is installed)
+if [[ `which keychain > /dev/null 2>&1` -eq 0 ]]; then
+    eval $(keychain --eval --agents ssh -Q --quiet)
+fi
+
 # Set the file masks
 umask 002

@@ -39,8 +39,13 @@ alias fut='from_unixtime_ms'
 alias add='git add --all'
 alias pull='git pull'
 alias push='git push'
-alias reset='git reset HEAD'
 
 # Other aliases
 alias lib='LD_LIBRARY_PATH=../lib/'
+
+# Create aliases for hosts in .ssh/config
+for h in $(grep 'Host prd' ~/.ssh/config | awk '{print $2}'); do
+    alias $h="ssh $h"
+done
+
 

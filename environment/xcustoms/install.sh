@@ -35,13 +35,25 @@ if [[ $(echo ${userDirs} | wc -w) -gt 1 ]]; then
     echo "Found the followig user directories:"
     echo ${userDirs} | tr ' ' '\n'
 
-    message="Choose which to install: "
+    if [[ -f .userdir ]]; then
+	defaultCustomDir=$(cat .userdir)
+    fi
+
+    message="Choose which to install"
     while true; do
-	printf "%s" "${message}"
+	if [[ -n ${defaultCustomDir} ]]; then
+	    message=${message}" (default ${defaultCustomDir})"
+	fi
+	printf "%s" "${message}: "
 	read userCustomDir
-	
+    
+	if [[ -z ${userCustomDir} ]] && [[ -n ${defaultCustomDir} ]]; then
+	    userCustomDir=${defaultCustomDir}
+	fi
+
     # Check that the chosen directory exists
 	if [[ -d ${userCustomDir} ]]; then
+	    echo ${userCustomDir} > .userdir
 	    break
 	else
 	    message="Directory '${userCustomDir}' is not in the list. Choose again: "
