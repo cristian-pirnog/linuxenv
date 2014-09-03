@@ -93,7 +93,7 @@ allSourceFiles()
 listRepos()
 {
     for f in $(find . -maxdepth 5 -type d -name .git | sort); do
-	dirname $f | replace './' ''
+	dirname $f | sed 's_./__g'
     done
 }
 
