@@ -1,9 +1,0 @@
-# -*- mode: sh -*- #
-
-MAILTO=pirnog@gmail.com
-
-# Set this variable for running X-based applications
-DISPLAY=:0
-
-26 * * * 1-5 bash --login -c "date > $HOME/test.txt" > /dev/null 2>&1
-
