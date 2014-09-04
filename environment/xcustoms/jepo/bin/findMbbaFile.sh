@@ -16,4 +16,4 @@ then
 	exit 1
 fi
 
-find /home/data/RONIN/MBBA/$symbol* -name "$date.mbba" | awk -F '/' '{if(length($6)==(length("'$symbol'")+2)){print $0}}'
+find /home/data/RONIN/MBBA/$symbol* -name "$date.mbba" | awk -F '/' '{if(length($6)==(length("'$symbol'")+2)){print $0}}' | xargs ls -l
