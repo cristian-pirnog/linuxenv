@@ -1,4 +1,3 @@
-aliases_crpi $HOME/.aliases_custom
 userenv_crpi $HOME/.userenv_custom
 #
 # Files from '.ssh' directory

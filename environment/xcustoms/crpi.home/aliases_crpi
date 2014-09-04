@@ -1,4 +1,7 @@
 # -*- mode: sh -*- #
 
+test -f ~/.aliases_custom.base && source ~/.aliases_custom.base
+
 alias install='sudo yum install'
-alias mountWork='sudo mount -v 10.199.10.10:/home/crpi /mnt/crpi.work'
+alias mountWork='sudo mount 10.199.10.10:/home/crpi /mnt/crpi.work'
+alias unmountWork='sudo umount /mnt/crpi.work'

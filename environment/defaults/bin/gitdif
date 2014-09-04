@@ -23,7 +23,7 @@ if [[ ${#CONFLICTS} -ne 0 ]]; then
 fi
 
 diffOptions="--cached"
-if [[ -n $(st | grep 'not staged') ]]; then
+if [[ -n $(st | grep 'not staged') ]] || [[ -n $(st | grep 'Changed but not updated') ]] ; then
     diffOptions=""
     echo -e "\nThere are changes not staged for commit\n"
     st | grep -A 10 'not staged'

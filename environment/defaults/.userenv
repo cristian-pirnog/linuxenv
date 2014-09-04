@@ -18,6 +18,12 @@ if [ $? -ne 1 ]; then
     export EDITOR='emacs -nw'
 fi
 
+# Make keychain reuse the existing ssh agent (if keychain is installed)
+which keychain > /dev/null 2>&1
+if [[ $? -eq 0 ]]; then
+    eval $(keychain --eval --agents ssh -Q --quiet)
+fi
+
 source ~/.userfunctions
 
 export IN_SWITZERLAND=1
