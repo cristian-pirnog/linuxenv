@@ -16,4 +16,10 @@ then
 	exit 1
 fi
 
-find /home/data/RONIN/MBBA/$symbol* -name "$date.mbba" | awk -F '/' '{if(length($6)==(length("'$symbol'")+2)){print $0}}'
+found=$(find /home/data/RONIN/MBBA/$symbol* -name "$date.mbba" | awk -F '/' '{if(length($6)==(length("'$symbol'")+2)){print $0}}' | wc -l)
+if [ $found -gt 0 ]
+then
+	find /home/data/RONIN/MBBA/$symbol* -name "$date.mbba" | awk -F '/' '{if(length($6)==(length("'$symbol'")+2)){print $0}}' | xargs ls -l
+else
+	echo -e "FILE NOT FOUND $symbol*/$date.mbba"
+fi

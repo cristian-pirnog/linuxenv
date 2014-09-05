@@ -68,7 +68,7 @@ do
 done
 
 # Update the crontab, if a cron.$USER.tab exists
-CRONTAB_FILE=$HOME/CRON/cron.${USER}.tab
+CRONTAB_FILE=$HOME/CRON/cron.tab
 if [ -f $CRONTAB_FILE ]; then
     echo "--- Updated cron jobs from file: $CRONTAB_FILE."
     crontab $CRONTAB_FILE
