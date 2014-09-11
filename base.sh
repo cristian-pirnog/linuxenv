@@ -25,8 +25,8 @@ UpdateFile()
     # Take action only if the target dir of the symlink exists
     TARGET_PATH=`GetFilePath $2` 
     if [ ! -d $TARGET_PATH ]; then
-        echo "        Skipping. Target directory doesn't exist: $TARGET_PATH"
-        return 1
+        echo "        Creating target directory: $TARGET_PATH"
+        mkdir -p ${TARGET_PATH} || (echo "        Failed to create directory" && exit 1)
     fi
 
     # Only if a BACK_UP_DIR specified
