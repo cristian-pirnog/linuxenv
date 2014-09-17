@@ -4,3 +4,5 @@
 .userenv_jepo $HOME/.userenv_custom
 bin/optimizer.sh $HOME/bin/optimizer.sh
 bin/findMbbaFile.sh $HOME/bin/findMbbaFile.sh
+bin/rsyncScript.sh $HOME/bin/rsyncScript.sh
+
