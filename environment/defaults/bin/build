@@ -162,7 +162,7 @@ while true; do
 	    shift 2
 	    ;;
     --debugLiveFramework)
-        compilerFlags="-DCOMPILER_DEFINES=-DDEBUG_LIVE_FRAMEWORK"
+        compilerFlags="-DDEBUG_LIVE_FRAMEWORK=on"
         shift
         ;;
 #	--static)
