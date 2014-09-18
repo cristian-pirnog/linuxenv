@@ -4,3 +4,8 @@ userenv_crpi $HOME/.userenv_custom
 # Files from '.ssh' directory
 #
 .ssh/known_hosts $HOME/.ssh/known_hosts
+
+#
+# Files from the 'bin' directory
+#
+bin/killVPStratLauncher ${HOME}/bin/killVPStratLauncher

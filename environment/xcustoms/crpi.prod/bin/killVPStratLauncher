@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo kill `ps -eo pid,cmd |grep './VPStratLauncher' | grep ' --stratname ArByte' | grep -v 'grep ' | awk '{print $1}'`

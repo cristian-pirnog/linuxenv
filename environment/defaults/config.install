@@ -15,3 +15,9 @@ metacity $HOME/.gconf/apps/metacity
 CodingTemplates $HOME/CodingTemplates
 cmake $HOME/code/cmake
 completions $HOME/completions
+
+#
+# Files from the 'bin' directory
+#
+bin/initProductionMachine.sh ${HOME}/bin/initProductionMachine
+bin/updateProductionMachine.sh ${HOME}/bin/updateProductionMachine.sh
