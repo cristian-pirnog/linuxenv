@@ -46,10 +46,18 @@ if [[ ! -f ${configFile} ]]; then
 fi
 
 # Disconnect the wired connection
-nmcli device disconnect ${connectionId}
+nmcli connection show active ${connectionId} >/dev/null 2>&1
+wasConnected=!$?
+if [[ ${wasConnected} -eq 1 ]]; then
+    nmcli device disconnect ${connectionId}
+fi
 
 # Change the config file accordingly
 sudo cp ${configFile} /etc/sysconfig/network-scripts/
 
 # Bring the wired connection back up
-nmcli con up ${connectionId}
+if [[ ${wasConnected} -eq 1 ]]; then
+    nmcli con up ${connectionId}
+else
+    echo "Interface ${connectionId} was not connected"
+fi
