@@ -19,5 +19,5 @@ completions $HOME/completions
 #
 # Files from the 'bin' directory
 #
-bin/initProductionMachine.sh ${HOME}/bin/initProductionMachine
-bin/updateProductionMachine.sh ${HOME}/bin/updateProductionMachine.sh
+bin/initProductionMachine ${HOME}/bin/initProductionMachine
+bin/updateProductionMachine ${HOME}/bin/updateProductionMachine

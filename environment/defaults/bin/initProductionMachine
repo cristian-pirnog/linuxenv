@@ -7,7 +7,8 @@ printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) [-h]
-            $(basename ${0}) [--full] [--local] user@host
+            $(basename ${0}) user@host
+            $(basename ${0}) [--local] 
 
     Description:
         Install the production environment on the given host, for the given user.
