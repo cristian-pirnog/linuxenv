@@ -53,14 +53,21 @@ if [[ $(pwd) != ${TARGET_DIRECTORY} ]]; then
     exit 1
 fi
 
-if [ ${BASE_DIRECTORY} != "./" ]; then
+if [[ ${BASE_DIRECTORY} != "./" ]]; then
    echo "This script must be run from the directory where it resides: $BASE_DIRECTORY"
    exit 1
 fi
 
-if [ -z $XCUSTOMS_USER ]; then
-    echo "The environment variable XCUSTOMS_USER is not defined. Will use the user name: $USER."
-    XCUSTOMS_USER=$USER
+if [[ -z $XCUSTOMS_USER ]]; then
+    if [[ -f .xcustoms_user ]]; then
+        XCUSTOMS_USER=$(cat .xcustoms_user)
+        echo "Installing for XCUSTOMS_USER=${XCUSTOMS_USER} (found in file .xcustoms_user)"
+    else
+        echo "The environment variable XCUSTOMS_USER is not defined. Will use the user name: $USER."
+        XCUSTOMS_USER=$USER
+    fi
+else
+    echo ${XCUSTOMS_USER} > .xcustoms_user
 fi
 
 CONFIG_DIR=$HOME/.$USER"_config"
