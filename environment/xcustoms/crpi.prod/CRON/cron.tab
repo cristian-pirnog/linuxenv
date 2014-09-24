@@ -5,5 +5,6 @@ MAILTO=pirnog@gmail.com
 # Set this variable for running X-based applications
 #DISPLAY=:0
 
-26 * * * 1-5 bash --login -c "cd live_testing/live_api/VPStratLauncher/bin && ./runMine.sh --batch" > /dev/null 2>&1
+50 6 * * 1-5 bash --login -c "cd ~/live/bin && ./runMine.sh --batch" > /dev/null 2>&1
 
+30 22 * * 1-5 bash --login -c "~/bin/killVPStratLauncher"
