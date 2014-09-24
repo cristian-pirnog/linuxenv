@@ -135,10 +135,15 @@ if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
 fi
 
 for d in ${PROJECTS_TO_BUILD}; do
+    if [[ -f ${d}/.skipBuild ]]; then
+	echo -e "\n\nSkipping build of ${d} (.skipBuild file found)"
+	continue
+    fi
+
     cd $d && build -s -j${threadCount} ${buildType} --client ${client} --target ${buildDirBase} --branch ${branchName} --project ${d} ${optionsToForward} $@ || exit 1
     cd ->/dev/null
 done
 
 if [[ -n $(echo $@|grep 'install') ]]; then
-    cp -r ~/code/ronin/libs/support/lib/libkfcData.so ~/deploy/${branchName}/${buildType}/lib/
+    cp -r ~/code/ronin/libs/kfc/lib/libkfcData.so ~/deploy/${branchName}/${buildType}/lib/
 fi
