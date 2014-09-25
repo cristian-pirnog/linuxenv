@@ -39,10 +39,40 @@ makeSymLink()
 
 
 
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+ARGS=$(getopt -o h -l "help,nopull" -n "$(basename ${0})" -- "$@")
 
-##
-# The main script
-##
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+noPull=0
+while true; do
+    case ${1} in
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    --nopull)
+        noPull=1
+        shift
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # this is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
 
 TARGET_DIRECTORY=$HOME/.${USER}_config
 
@@ -86,9 +116,10 @@ if [ ! -d $HOME/bin ]; then
     mkdir $HOME/bin || (echo "Could not create the 'bin' directory" && exit 0)
 fi
 
-echo "Updating from the GIT repository"
-git pull
-
+if [[ noPull -eq 0 ]]; then
+    echo "Updating from the GIT repository"
+    git pull
+fi
 
 # Run the install script 
 source install.sh
