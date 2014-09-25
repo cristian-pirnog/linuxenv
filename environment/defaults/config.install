@@ -21,3 +21,4 @@ completions $HOME/completions
 #
 bin/initProductionMachine ${HOME}/bin/initProductionMachine
 bin/updateProductionMachine ${HOME}/bin/updateProductionMachine
+bin/deployToProduction ${HOME}/bin/deployToProduction
