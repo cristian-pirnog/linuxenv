@@ -1,4 +1,3 @@
-CRON/cron.tab $HOME/CRON/cron.tab
 userenv_crpi $HOME/.userenv_custom
 #
 # Files from '.ssh' directory
