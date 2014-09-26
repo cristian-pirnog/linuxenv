@@ -16,6 +16,9 @@ printf "\n%s%s\n\n" "${msg}" "${branches}"
 
 msg=""
 for d in ${gitDirs}; do
+    n=$(( alignSize - ${#d} ))
+    printf "%s%${n}s: " "Pulling for ${d}" "" 
+    
     cd ${d}
     logFile=.git.pull.log
     git pull > ${logFile} 2>&1
@@ -28,7 +31,6 @@ for d in ${gitDirs}; do
     fi
     cd ->/dev/null
     
-    n=$(( alignSize - ${#d} ))
-    printf "%s%${n}s: %s\n" "Pulling for ${d}" "" "${msg}"
+    printf "%s\n" "${msg}"
 done
 
