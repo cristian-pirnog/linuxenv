@@ -10,5 +10,5 @@ if [ $# -lt 1 ]; then
     echo "Usage: fp ProcessName"
 fi
 
-ps x | grep "$1" | grep -v grep | grep -v "/fp $@"
+ps x -u ${USER} | grep "$1" | grep -v grep | grep -v "/fp $@"
 
