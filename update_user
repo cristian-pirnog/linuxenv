@@ -1,5 +1,26 @@
 #!/bin/bash
 
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+Usage: $(basename ${0}) [-h|--help]
+       $(basename ${0}) [--nopull]
+
+    Description:
+        Updates the user environment.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       --nopull
+             Update the environment without doing a 'git pull'.
+%%USAGE%%
+}
+
+
 ###
 # Function "GetFilePath"
 ###
