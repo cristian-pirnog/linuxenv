@@ -35,9 +35,9 @@ GetFilePath()
 }
 
 
-##
+#----------------------------------------------
 # Function 'makeSymLink'
-##
+#----------------------------------------------
 # Arguments: $1 = TARGET_NAME
 #            $2 = LINK_NAME
 #
@@ -95,6 +95,8 @@ while true; do
     esac
 done
 
+source base.sh
+
 TARGET_DIRECTORY=$HOME/.${USER}_config
 
 BASE_DIRECTORY=`GetFilePath $0`
@@ -110,16 +112,16 @@ if [[ ${BASE_DIRECTORY} != "./" ]]; then
 fi
 
 if [[ -z $XCUSTOMS_USER ]]; then
-    if [[ -f .xcustoms_user ]]; then
-        XCUSTOMS_USER=$(cat .xcustoms_user)
-        echo "Installing for XCUSTOMS_USER=${XCUSTOMS_USER} (found in file .xcustoms_user)"
+    XCUSTOMS_USER=$(GetCachedConfigValue XCUSTOMS_USER)
+    if [[ -n ${XCUSTOMS_USER} ]]; then
+        echo "Installing for XCUSTOMS_USER=${XCUSTOMS_USER} (found in cache)"
     else
         echo "The environment variable XCUSTOMS_USER is not defined. Will use the user name: $USER."
         XCUSTOMS_USER=$USER
     fi
-else
-    echo ${XCUSTOMS_USER} > .xcustoms_user
 fi
+
+SaveConfigValueToCache XCUSTOMS_USER ${XCUSTOMS_USER}
 
 CONFIG_DIR=$HOME/.$USER"_config"
 

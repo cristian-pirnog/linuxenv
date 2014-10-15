@@ -50,7 +50,7 @@ if [[ $(echo ${userDirs} | wc -w) -gt 1 ]]; then
     echo ${userDirs} | tr ' ' '\n'
 
     if [[ -f .userdir ]]; then
-	defaultCustomDir=$(cat .userdir)
+	defaultCustomDir=$(GetCachedConfigValue DEFAULT_CUSTOM_DIR)
     fi
 
     message="Choose which to install"
@@ -74,6 +74,8 @@ if [[ $(echo ${userDirs} | wc -w) -gt 1 ]]; then
 	fi
     done
 fi
+SaveConfigValueToCache DEFAULT_CUSTOM_DIR ${userCustomDir}
+
 
 # Install for the base dir
 if [[ -d ${userBaseDir} ]]; then
@@ -88,11 +90,9 @@ else
 fi
 
 
-# Check that the chosen directory exists
-if [[ -d ${userCustomDir} ]]; then
-    fullDir=$(pwd)/${userCustomDir}
-    InstallFromDir ${fullDir}
+# Install for the custom dir
+fullDir=$(pwd)/${userCustomDir}
+InstallFromDir ${fullDir}
 
-    LinkStandarFile ${fullDir}/.userenv_custom
-    LinkStandarFile ${fullDir}/.aliases_custom
-fi
+LinkStandarFile ${fullDir}/.userenv_custom
+LinkStandarFile ${fullDir}/.aliases_custom
