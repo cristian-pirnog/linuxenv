@@ -49,9 +49,7 @@ if [[ $(echo ${userDirs} | wc -w) -gt 1 ]]; then
     echo "Found the followig user directories:"
     echo ${userDirs} | tr ' ' '\n'
 
-    if [[ -f .userdir ]]; then
-	defaultCustomDir=$(GetCachedConfigValue DEFAULT_CUSTOM_DIR)
-    fi
+    defaultCustomDir=$(GetCachedConfigValue DEFAULT_CUSTOM_DIR)
 
     message="Choose which to install"
     while true; do
@@ -65,9 +63,8 @@ if [[ $(echo ${userDirs} | wc -w) -gt 1 ]]; then
 	    userCustomDir=${defaultCustomDir}
 	fi
 
-    # Check that the chosen directory exists
+	# Check that the chosen directory exists
 	if [[ -d ${userCustomDir} ]]; then
-	    echo ${userCustomDir} > .userdir
 	    break
 	else
 	    message="Directory '${userCustomDir}' is not in the list. Choose again: "
