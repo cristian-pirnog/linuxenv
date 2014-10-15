@@ -1,7 +1,5 @@
-.aliases_jepo $HOME/.aliases_custom
 # Files from '.ssh' directory
 .ssh/known_hosts $HOME/.ssh/known_hosts
-.userenv_jepo $HOME/.userenv_custom
 bin/optimizer.sh $HOME/bin/optimizer.sh
 bin/findMbbaFile.sh $HOME/bin/findMbbaFile.sh
 bin/rsyncScript.sh $HOME/bin/rsyncScript.sh

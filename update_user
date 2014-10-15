@@ -21,9 +21,9 @@ Usage: $(basename ${0}) [-h|--help]
 }
 
 
-###
+#----------------------------------------------
 # Function "GetFilePath"
-###
+#----------------------------------------------
 # Arguments: $1 = FULL_FILE_NAME
 #
 #
@@ -124,9 +124,9 @@ fi
 CONFIG_DIR=$HOME/.$USER"_config"
 
 echo "Warning!!! This will overwrite any existing customizations."
-echo "Are you sure you want to continue? [Y/N]"
-
+printf "Are you sure you want to continue? [Y/N] "
 read answer
+
 case $answer in
     y| Y | yes | Yes | YES) ;;
     *) echo "Aborting at user request" & exit 0

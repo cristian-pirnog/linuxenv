@@ -4,7 +4,7 @@ echo " "
 echo "Installing default settings for text editors"
 echo "------------------------------------------------"
 
-echo -e "\nWould you like to install default settings for text editors?[ (Y)es/(N)o/(A)ll]"
+printf  "\nWould you like to install default settings for text editors? [(Y)es/(N)o/(A)ll] "
 DO_INSTALL=1
 
 read answer

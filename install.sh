@@ -13,7 +13,6 @@ source "$HOME/.${USER}_config/base.sh"
 # ----------------------------------------------
 #
 
-CWD=`pwd`
 # The directory 'environment' is treated differently
 ALL_DIRS=`find . -type d | grep -v '.git' | grep -v '^\.$' | grep '^\./environment' | sort`
 ALL_DIRS=$ALL_DIRS" "`find . -type d | grep -v '.git' | grep -v '^\.$' | grep -v '^\./environment'`
@@ -22,9 +21,15 @@ INSTALL_SCRIPT="install.sh"
 myConfigFile="config.install"
 
 myOriginalDir=`pwd`
+
+# Remove all symlinks that point to the current dir
+cd ${HOME}
+rm $(ls -AFl | awk '{print $(NF-2), $NF}' | grep ${myOriginalDir} | awk '{print $1}')
+cd $myOriginalDir
+
 for myDir in $ALL_DIRS
 do
-  cd $myOriginalDir > /dev/null
+  cd $myOriginalDir
   echo " "
   echo "---  Entering directory $myDir"
   echo "     Looking for config file: $myDir/$myConfigFile"

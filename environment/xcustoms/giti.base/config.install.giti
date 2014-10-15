@@ -1,3 +1,1 @@
-aliases_giti $HOME/.aliases_custom.base
-userenv_giti $HOME/.userenv_custom.base
 .inputrc $HOME/.inputrc
