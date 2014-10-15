@@ -1,0 +1,12 @@
+# -*- mode: sh -*- #
+
+test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
+
+# Inhibits some crap WARNING from Emacs (Couldn't register with accessibility bus...)
+export NO_AT_BRIDGE=1
+
+export WORKING_HOURS="80000 160000"
+
+export PROJECTS_TO_BUILD="katania balerion/strategy balerion/live balerion/optimizer __client__/support __client__/optimizer unit_tests/katania __client__/live"
+
+
