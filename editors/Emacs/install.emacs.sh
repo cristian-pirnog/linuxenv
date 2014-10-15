@@ -3,7 +3,7 @@
 MESSAGE="Installing the default settings for Emacs"
 DO_INSTALL=1
 
-CEDET="cedet-1.0.1"
+CEDET="cedet-1.1"
 
 source "$HOME/.${USER}_config/base.sh"
 
