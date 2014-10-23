@@ -12,11 +12,11 @@ if [[ -z ${INSTALL_EDITORS} ]]; then
     case $answer in
 	y | Y | yes | Yes | YES)
 	    INSTALL_EDITORS=1
-	    INSTALL_ALL_EDITORS=1
+	    INSTALL_ALL_EDITORS=0
 	    ;;
 	a | A | all | All | ALL)
 	    INSTALL_EDITORS=1
-	    INSTALL_ALL_EDITORS=0
+	    INSTALL_ALL_EDITORS=1
 	    ;;
 	*) INSTALL_EDITORS=0
     esac
@@ -33,7 +33,7 @@ if [ ${INSTALL_EDITORS} -eq 1 ]; then
     source install.vi.sh $INSTALL_ALL_EDITORS
     cd - > /dev/null
     cd XEmacs
-    source install.xemacs.sh $INSTALL_ALL_EDITORS
+    source install.xemacs.sh $INSTALL_ALL_EDITORS ${CEDET}
     cd - > /dev/null
     cd Emacs
     source install.emacs.sh $INSTALL_ALL_EDITORS ${CEDET}
