@@ -1,0 +1,4 @@
+# -*- mode: sh -*- #
+
+test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
+
