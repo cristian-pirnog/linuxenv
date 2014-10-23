@@ -32,12 +32,14 @@ if [[ ${INSTALL_XEMACS} -eq 1 ]]; then
     UpdateFile $CWD/.dabbrev $HOME/.dabbrev $BACK_UP_DIR
     UpdateFile $CWD/.xemacs $HOME/.xemacs $BACK_UP_DIR
 
-    # Make symlink to 'cedet' directory
-    if [ -d "$HOME/cedet-1.0pre3" ]; then
-        if [ ! -L "$HOME/.xemacs/lisp/cedet-1.0pre3" ]; then
-            ln -s "$HOME/cedet-1.0pre3" "$HOME/.xemacs/lisp/cedet-1.0pre3"
-        fi
-    fi
+    echo "        Not installing CEDET (not supported for XEmacs)"
+
+#    # Make symlink to 'cedet' directory
+#    if [ -d "$HOME/cedet-1.0pre3" ]; then
+#        if [ ! -L "$HOME/.xemacs/lisp/cedet-1.0pre3" ]; then
+#            ln -s "$HOME/cedet-1.0pre3" "$HOME/.xemacs/lisp/cedet-1.0pre3"
+#        fi
+#    fi
 
     MESSAGE=$MESSAGE"\t[Done]"
     echo -e $MESSAGE
