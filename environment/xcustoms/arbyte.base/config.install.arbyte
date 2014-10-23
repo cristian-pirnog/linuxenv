@@ -1,3 +1,5 @@
+userenv_arbyte $HOME/.userenv_custom
+software_arbyte $HOME/.software_custom
 #
 # Files from '.ssh' directory
 #
