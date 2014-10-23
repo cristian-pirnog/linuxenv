@@ -106,6 +106,6 @@ for user in ${userNames}; do
     printf "Updating for ${userAtHost}...\t"
     targetConfigDir='scratch/cluster/config/RONIN'
     ssh -A ${userAtHost} "mkdir -p '${targetConfigDir}'"
-    ${rsyncCommand} /mnt/config/RONIN/exchanges.csv ${userAtHost}:${targetConfigDir}
+    ${rsyncCommand} /mnt/config/RONIN/*.csv ${userAtHost}:${targetConfigDir}
     printf "[Done]\n"
 done

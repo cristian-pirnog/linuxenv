@@ -7,6 +7,27 @@ printErrorMessage()
 }
 
 
+#----------------------------------------------
+# Function GetCachedConfigValue
+#----------------------------------------------
+GetCachedConfigValue()
+{
+    if [[ ! -f $HOME/.${USER}_config/.config_cache ]]; then return 1; fi
+    grep "${1}" $HOME/.${USER}_config/.config_cache | awk -F '=' '{print $NF}' | head -1
+}
+
+#----------------------------------------------
+# Function SaveConfigValueToCache
+#----------------------------------------------
+SaveConfigValueToCache()
+{
+    if [[ -f $HOME/.${USER}_config/.config_cache ]]; then
+	sed -i "/^${1}/d" $HOME/.${USER}_config/.config_cache
+    fi
+
+    echo "${1}=${2}" >> $HOME/.${USER}_config/.config_cache
+}
+
 ##
 # Function 'UpdateFile'
 ##

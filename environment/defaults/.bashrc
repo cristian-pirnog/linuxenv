@@ -14,13 +14,6 @@ if [ -f $HOME/.userenv ]; then
     . $HOME/.userenv
 fi
 
-# Source the custom software file
-if [ -f $HOME/.software_custom ]; then
-    . $HOME/.software_custom
-else
-    echo "File $HOME/.software_custom does not exist. No custom software will be available installed."
-fi
-
 # The custom environment
 if [ -f $HOME/.userenv_custom ]; then
     . $HOME/.userenv_custom

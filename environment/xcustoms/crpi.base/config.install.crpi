@@ -1,10 +1,7 @@
 metacity $HOME/.gconf/apps/metacity
-software_custom $HOME/.software_custom
 .dircolors $HOME/.dircolors
 .eclipse.dict $HOME/.eclipse.dict
 synergy.conf $HOME/.synergy.conf
-aliases_crpi $HOME/.aliases_custom.base
-userenv_crpi $HOME/.userenv_custom.base
 #
 # Files from '.ssh' directory
 #
@@ -15,6 +12,7 @@ userenv_crpi $HOME/.userenv_custom.base
 bin/from_unixtime_ms $HOME/bin/from_unixtime_ms
 bin/myXterm $HOME/bin/myXterm
 bin/twoTerms $HOME/bin/twoTerms
+bin/runPy $HOME/bin/runPy
 bin/coolSsh $HOME/bin/coolSsh
 #
 # Files from 'useful' directory

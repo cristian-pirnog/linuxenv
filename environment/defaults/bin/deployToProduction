@@ -111,4 +111,5 @@ for user in ${userNames}; do
     # Ronin stuff
     ${rsyncCommand} ~/code/ronin/libs/live/3p_libs/ ${userAtHost}:live/3p_libs/
     ${rsyncCommand} ~/code/ronin/libs/live/VPStratLauncher/bin/ ${userAtHost}:live/bin/
+    ${rsyncCommand} ~/code/ronin/libs/live/VPStratLauncher/cfg/ ${userAtHost}:live/cfg/
 done

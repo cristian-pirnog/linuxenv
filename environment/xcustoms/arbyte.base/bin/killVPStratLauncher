@@ -8,4 +8,4 @@ if [[ -z ${processIds} ]]; then
 fi
 
 echo "Killing process with id: ${processIds}"
-kill ${processIds}
+kill $@ ${processIds}
