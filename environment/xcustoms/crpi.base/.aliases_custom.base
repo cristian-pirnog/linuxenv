@@ -35,11 +35,6 @@ alias br='branch'
 # Some standard aliases
 alias fut='from_unixtime_ms'
 
-# Git aliases
-alias add='git add --all'
-alias pull='git pull'
-alias push='git push'
-
 # Other aliases
 alias lib='LD_LIBRARY_PATH=../lib/'
 
