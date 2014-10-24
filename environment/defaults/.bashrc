@@ -24,15 +24,9 @@ fi
 ##
 # Last, source user aliases
 ##
-if [ -f $HOME/.aliases ]; then
-    . $HOME/.aliases
-fi
-
-
-# The custom aliases
-if [ -f ~/.aliases_custom ]; then
-    . ~/.aliases_custom
-fi
+test -f ~/.aliases && source ~/.aliases
+test -f ~/.aliases_custom.base && source ~/.aliases_custom.base
+test -f ~/.aliases_custom && source ~/.aliases_custom
 
 # Set the file masks
 umask 002
