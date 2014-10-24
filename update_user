@@ -111,21 +111,22 @@ if [[ ${BASE_DIRECTORY} != "./" ]]; then
    exit 1
 fi
 
-if [[ -z $XCUSTOMS_USER ]]; then
-    XCUSTOMS_USER=$(GetCachedConfigValue XCUSTOMS_USER)
-    if [[ -n ${XCUSTOMS_USER} ]]; then
-        echo "Installing for XCUSTOMS_USER=${XCUSTOMS_USER} (found in cache)"
-    else
-        echo "The environment variable XCUSTOMS_USER is not defined. Will use the user name: $USER."
-        XCUSTOMS_USER=$USER
-    fi
+XCUSTOMS_USER=$(GetCachedConfigValue XCUSTOMS_USER)
+if [[ -z ${XCUSTOMS_USER} ]]; then
+    XCUSTOMS_USER=$USER
+fi
+
+printf "Enter user name (default ${XCUSTOMS_USER}): "
+read answer
+if [[ -n ${answer} ]]; then
+  XCUSTOMS_USER=${answer}
 fi
 
 SaveConfigValueToCache XCUSTOMS_USER ${XCUSTOMS_USER}
 
 CONFIG_DIR=$HOME/.$USER"_config"
 
-echo "Warning!!! This will overwrite any existing customizations."
+printf "Warning!!! This will overwrite any existing customizations for the user ${XCUSTOMS_USER}\n"
 printf "Are you sure you want to continue? [Y/N] "
 read answer
 
