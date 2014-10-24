@@ -42,15 +42,18 @@ fi
 # Build the 'cedet' package
 echo "    Building the CEDET package"
 cd $HOME/.emacs.d/lisp
-if [ -d "$HOME/.emacs.d/lisp/${CEDET}" ]; then
+answer=yes
+if [ -d "${CEDET}" ]; then
     printf "Looks like CEDET is already built. Would you like to rebuild? [Y/N] "
     read answer
-
-    case $answer in
-	y| Y | yes | Yes | YES)
-	    tar -xzf "$CEDET".tar.gz > /dev/null 2>&1
-	    cd $HOME/.emacs.d/lisp/${CEDET}
-	    make EMACS=emacs # > /dev/null 2>&1
-	    echo "    Finished building the CEDET package";;
-    esac
 fi
+
+case $answer in
+	y| Y | yes | Yes | YES)
+        pwd; ls
+        tar -xzf "${CEDET}".tar.gz #> /dev/null 2>&1
+    	cd ${CEDET}
+    	make EMACS=emacs # > /dev/null 2>&1
+    	echo "    Finished building the CEDET package"
+    ;;
+esac
