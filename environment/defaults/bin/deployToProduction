@@ -13,7 +13,7 @@ cat << %%USAGE%%
             $(basename ${0}) --user userNames host
 
     Description:
-        Update the configurations for the production environment on the given host.
+        Update the Ronin binaries for the production environment on the given host.
 
     Options:
        -h
