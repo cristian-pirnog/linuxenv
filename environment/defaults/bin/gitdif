@@ -55,7 +55,7 @@ if [[ -d .user ]]; then
         TYPE=`echo "$FILE_STRING" | awk '{print $1}'`
         FILE=`echo "$FILE_STRING" | awk '{print $NF}'`
 
-	if [[ -f ${FILE} ]]; then
+	if [[ ! -f .3rdparty ]] && [[ -f ${FILE} ]]; then
 	    copyright ${FILE}
 	fi
 	

@@ -1,8 +1,29 @@
 #!/bin/bash
 
-###
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+Usage: $(basename ${0}) [-h|--help]
+       $(basename ${0}) [--nopull]
+
+    Description:
+        Updates the user environment.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       --nopull
+             Update the environment without doing a 'git pull'.
+%%USAGE%%
+}
+
+
+#----------------------------------------------
 # Function "GetFilePath"
-###
+#----------------------------------------------
 # Arguments: $1 = FULL_FILE_NAME
 #
 #
@@ -14,9 +35,9 @@ GetFilePath()
 }
 
 
-##
+#----------------------------------------------
 # Function 'makeSymLink'
-##
+#----------------------------------------------
 # Arguments: $1 = TARGET_NAME
 #            $2 = LINK_NAME
 #
@@ -39,10 +60,42 @@ makeSymLink()
 
 
 
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+ARGS=$(getopt -o h -l "help,nopull" -n "$(basename ${0})" -- "$@")
 
-##
-# The main script
-##
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+noPull=0
+while true; do
+    case ${1} in
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    --nopull)
+        noPull=1
+        shift
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # this is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
+
+source base.sh
 
 TARGET_DIRECTORY=$HOME/.${USER}_config
 
@@ -53,22 +106,30 @@ if [[ $(pwd) != ${TARGET_DIRECTORY} ]]; then
     exit 1
 fi
 
-if [ ${BASE_DIRECTORY} != "./" ]; then
+if [[ ${BASE_DIRECTORY} != "./" ]]; then
    echo "This script must be run from the directory where it resides: $BASE_DIRECTORY"
    exit 1
 fi
 
-if [ -z $XCUSTOMS_USER ]; then
-    echo "The environment variable XCUSTOMS_USER is not defined. Will use the user name: $USER."
+XCUSTOMS_USER=$(GetCachedConfigValue XCUSTOMS_USER)
+if [[ -z ${XCUSTOMS_USER} ]]; then
     XCUSTOMS_USER=$USER
 fi
 
+printf "Enter user name (default ${XCUSTOMS_USER}): "
+read answer
+if [[ -n ${answer} ]]; then
+  XCUSTOMS_USER=${answer}
+fi
+
+SaveConfigValueToCache XCUSTOMS_USER ${XCUSTOMS_USER}
+
 CONFIG_DIR=$HOME/.$USER"_config"
 
-echo "Warning!!! This will overwrite any existing customizations."
-echo "Are you sure you want to continue? [Y/N]"
-
+printf "Warning!!! This will overwrite any existing customizations for the user ${XCUSTOMS_USER}\n"
+printf "Are you sure you want to continue? [Y/N] "
 read answer
+
 case $answer in
     y| Y | yes | Yes | YES) ;;
     *) echo "Aborting at user request" & exit 0
@@ -79,9 +140,10 @@ if [ ! -d $HOME/bin ]; then
     mkdir $HOME/bin || (echo "Could not create the 'bin' directory" && exit 0)
 fi
 
-echo "Updating from the GIT repository"
-git pull
-
+if [[ noPull -eq 0 ]]; then
+    echo "Updating from the GIT repository"
+    git pull
+fi
 
 # Run the install script 
 source install.sh

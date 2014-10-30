@@ -2,7 +2,7 @@
 
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp"))
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/modes"))
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/cedet-1.0.1/common"))
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/cedet-1.1/common"))
 
 ;; Improved dynamic completion
 (load-file "~/.dabbrev/dabbrev.elc")

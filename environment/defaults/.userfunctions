@@ -139,10 +139,6 @@ cleanall()
 #----------------------------------------------
 dif()
 {
-    if [ ! -d .user ]; then
-        getAnswer "Directory \"`pwd`/.user\" doesn't exist. Would you like to create it?" && mkdir .user
-    fi
-
     if [[ -d svn ]]; then
 	svndif $@
     elif [[ $(isGitRepo) -eq 1 ]]; then

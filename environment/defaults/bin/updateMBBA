@@ -1,0 +1,212 @@
+#!/bin/bash
+
+source ~/.userfunctions
+
+# Run this script to update the MBBA files for a given period
+
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) -h
+            $(basename ${0}) client --lastWeek
+            $(basename ${0}) client --fromDate D1 --toDate D2
+
+    Description:
+        Updates the MBBA files for the given client
+
+    Arguments
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       --fromDate D1
+	     Starts with date D1. Default: one week ago.
+
+       --toDate D2
+	     Ends with date D2. Default: yesterday.
+
+       --lastWeek
+             Equivalent to: --fromDate lastWeeksMonday --toDate lastWeeksFriday.
+	     Cannot be used at the same time with --fromDate or --toDate.
+	     
+%%USAGE%%
+}
+
+#----------------------------------------------
+printDateOptionConstraints()
+{
+    printf "\nCannot use the option --lastWeek at the same time with --fromDate or --toDate.\n\n"
+}
+
+#----------------------------------------------
+roninProducts()
+{
+    echo "6A
+6B
+6C
+6E
+6J
+6M
+6N
+6S
+BZ
+CL
+E7
+EMD
+ES
+FBTP
+FBTS
+FCE
+FDAX
+FESX
+FGBL
+FGBM
+FGBX
+FOAT
+FSMI
+FTI
+GC
+GE
+GF
+HE
+HG
+HO
+KE
+LE
+NG
+NIY
+NKD
+NQ
+PA
+PL
+QM
+R
+RB
+RF
+RP
+RY
+SI
+SP
+UB
+YM
+Z
+ZB
+ZC
+ZF
+ZL
+ZM
+ZN
+ZQ
+ZS
+ZT
+ZW"
+}
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+ARGS=$(getopt -o h -l "help,fromDate:,toDate:,lastWeek" -n "$(basename ${0})" -- "$@")
+scriptOptions=$(echo ${ARGS} | awk -F ' -- ' '{print $1}')
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+dateFormat="+%Y%m%d"
+toDate=$(date -d yesterday ${dateFormat})
+fromDate=$(date -d "today - 1 week" ${dateFormat})
+dateOption=0
+lastWeekOption=0
+while true; do
+    case ${1} in
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    --lastWeek)
+	if [[ ${dateOption} == 1 ]]; then printDateOptionConstraints ; exit 1; fi
+	fromDate=$(date -d "last Monday - 1 week" ${dateFormat})
+	toDate=$(date -d "${fromDate} + 4 days" ${dateFormat})
+	shift
+	lastWeekOption=1
+	;;
+    --fromDate)
+	if [[ ${lastWeekOption} == 1 ]]; then printDateOptionConstraints; exit 1; fi
+	fromDate="$2"
+        shift 2
+	dateOption=1
+        ;;
+    --toDate)
+	if [[ ${lastWeekOption} == 1 ]]; then printDateOptionConstraints; exit 1; fi
+	toDate="$2"
+        shift 2
+	dateOption=1
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # This is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
+
+# Check the dates
+if [[ ${fromDate} > ${toDate} ]]; then
+    printf "\nfromDate must not come after toDate\n\n"
+    exit 2
+fi
+
+if [[ $# -lt 1 ]]; then
+    printUsage
+    exit 1
+fi
+
+client=${1}
+shift
+
+deployPath=${HOME}/deploy/master/Release
+binary="${deployPath}/bin/${client}.optimizer.exe"
+
+
+if [[ ${client} == 'ronin' ]]; then
+    products=$(${client}Products)
+else
+    printf "\nClient ${client} not supported\n\n"
+    exit 1
+fi
+
+alignSize=$(getAlignSize ${products})
+
+#echo fromDate=${fromDate}
+#echo toDate=${toDate}
+
+export LD_LIBRARY_PATH=${deployPath}/lib
+for p in ${products}; do
+    currDate=${fromDate}
+    
+    n=$(( alignSize - ${#p} ))
+    printf "Updating for %s:%${n}s" $p ""
+    hasEmpty=0
+    while [[ ${currDate} -le ${toDate} ]]; do
+	if [[ $(date -d ${currDate} +%w) -lt 6 ]]; then 
+	    printf " %s"${currDate}
+	    tickCount=$(${binary} printData $p ${currDate} q c useDB:1 | grep ticks | awk '{print $1}')
+	    if [[ ${tickCount} -eq 0 ]]; then hasEmpty=1; printf "!"; else printf " "; fi
+	fi
+	currDate=$(date -d "${currDate} + 1 day" ${dateFormat})
+    done
+    if [[ ${hasEmpty} == 1 ]]; then printf "  !!!"; fi
+    printf "\n"
+done
+

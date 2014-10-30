@@ -1,0 +1,11 @@
+userenv_arbyte $HOME/.userenv_custom
+software_arbyte $HOME/.software_custom
+#
+# Files from '.ssh' directory
+#
+.ssh/known_hosts $HOME/.ssh/known_hosts
+
+#
+# Files from the 'bin' directory
+#
+bin/killVPStratLauncher ${HOME}/bin/killVPStratLauncher
