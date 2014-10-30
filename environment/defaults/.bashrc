@@ -2,7 +2,7 @@
 # .bashrc
 
 # Source .bashrc_default, if present
-test -f $HOME/.bashrc_default && . $HOME/.bashrc_default
+test -f ${HOME}/.bashrc_default && . ${HOME}/.bashrc_default
 
 # For history search configuration, see file .inputrc
 
@@ -10,36 +10,16 @@ test -f $HOME/.bashrc_default && . $HOME/.bashrc_default
 # User environment settings
 ##
 # Default environment
-if [ -f $HOME/.userenv ]; then
-    . $HOME/.userenv
-fi
-
-# Source the custom software file
-if [ -f $HOME/.software_custom ]; then
-    . $HOME/.software_custom
-else
-    echo "File $HOME/.software_custom does not exist. No custom software will be available installed."
-fi
-
+test -f ${HOME}/.userenv && source ${HOME}/.userenv
 # The custom environment
-if [ -f $HOME/.userenv_custom ]; then
-    . $HOME/.userenv_custom
-else
-    echo "File $HOME/.userenv_custom does not exist. Using default environment."
-fi
+test -f ${HOME}/.userenv_custom && source ${HOME}/.userenv_custom
 
 ##
 # Last, source user aliases
 ##
-if [ -f $HOME/.aliases ]; then
-    . $HOME/.aliases
-fi
-
-
-# The custom aliases
-if [ -f ~/.aliases_custom ]; then
-    . ~/.aliases_custom
-fi
+test -f ${HOME}/.aliases && source ${HOME}/.aliases
+test -f ${HOME}/.aliases_custom.base && source ${HOME}/.aliases_custom.base
+test -f ${HOME}/.aliases_custom && source ${HOME}/.aliases_custom
 
 # Set the file masks
 umask 002

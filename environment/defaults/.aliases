@@ -18,6 +18,11 @@ alias vi=vim
 alias cdc='cd ${HOME}/.${USER}_config'
 alias cdr='cd ${HOME}/run'
 
+# Git aliases
+alias add='git add --all'
+alias pull='git pull'
+alias push='git push'
+
 # Use custom colors for 'ls' instead of the default ones
 if [[ -f ~/.dircolors ]]; then eval `dircolors ~/.dircolors`; fi
 

@@ -13,7 +13,7 @@ cat << %%USAGE%%
             $(basename ${0}) [-xprj1[,prj2,...]] <-D|--DELETE>  branchName
             $(basename ${0}) [-xprj1[,prj2,...]] <-f|--fetch> 
             $(basename ${0}) [-xprj1[,prj2,...]] <-s|--switch>  branchName
-	    $(basename ${0}) [-xprj1[,prj2,...]] <-t|--track>   [branchName]
+            $(basename ${0}) [-xprj1[,prj2,...]] <-t|--track>   [branchName]
             $(basename ${0}) [-xprj1[,prj2,...]] <-m|--merge>   fromBranch toBranch 
             $(basename ${0}) [-xprj1[,prj2,...]] <-l|--list> [s] [all]
 

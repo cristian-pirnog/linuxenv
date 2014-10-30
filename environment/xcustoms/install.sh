@@ -1,12 +1,24 @@
 #!/bin/bash
 
-##
-# Script that installs the environment for the current user
-##
+LinkStandarFile()
+{
+    local lFileName=${1}
 
+    if [[ ! -f ${lFileName} ]]; then
+	touch ${lFileName}
+    fi
+
+    ln -sf ${lFileName} ${HOME}
+}
+
+
+
+#----------------------------------------------
+# Script that installs the environment for the current user
+#----------------------------------------------
 InstallFromDir()
 {
-    local lDirName="$(pwd)/${1}"
+    local lDirName="${1}"
     local lUserConfigFile="config.install.${XCUSTOMS_USER}"
     local lFullFileName="$lDirName/$lUserConfigFile"
 
@@ -14,8 +26,10 @@ InstallFromDir()
 	printf "Making symlinks for: %s\n" "${lDirName}"
 	InstallFromConfigFile "${lDirName}" "${lUserConfigFile}"
 	printf "\t[Done]\n"
+    else
+	printf "Could not find config file: ${lFullFileName}\n"
     fi
-        
+    
     # Run the custom install script (if it exists)
     if [[ -f ${lDirName}/${INSTALL_SCRIPT} ]]; then
 	cd $lDirName
@@ -35,9 +49,7 @@ if [[ $(echo ${userDirs} | wc -w) -gt 1 ]]; then
     echo "Found the followig user directories:"
     echo ${userDirs} | tr ' ' '\n'
 
-    if [[ -f .userdir ]]; then
-	defaultCustomDir=$(cat .userdir)
-    fi
+    defaultCustomDir=$(GetCachedConfigValue DEFAULT_CUSTOM_DIR)
 
     message="Choose which to install"
     while true; do
@@ -51,23 +63,33 @@ if [[ $(echo ${userDirs} | wc -w) -gt 1 ]]; then
 	    userCustomDir=${defaultCustomDir}
 	fi
 
-    # Check that the chosen directory exists
+	# Check that the chosen directory exists
 	if [[ -d ${userCustomDir} ]]; then
-	    echo ${userCustomDir} > .userdir
 	    break
 	else
 	    message="Directory '${userCustomDir}' is not in the list. Choose again: "
 	fi
     done
 fi
+SaveConfigValueToCache DEFAULT_CUSTOM_DIR ${userCustomDir}
+
 
 # Install for the base dir
 if [[ -d ${userBaseDir} ]]; then
-    InstallFromDir ${userBaseDir}
+    echo "+++ Installing from base dir ${userBaseDir}"
+    fullDir=$(pwd)/${userBaseDir}
+    InstallFromDir ${fullDir}
+
+    LinkStandarFile ${fullDir}/.userenv_custom.base
+    LinkStandarFile ${fullDir}/.aliases_custom.base
+else
+    echo "+++ Base dir not found ${userBaseDir}"
 fi
 
 
-# Check that the chosen directory exists
-if [[ -d ${userCustomDir} ]]; then
-    InstallFromDir ${userCustomDir}
-fi
+# Install for the custom dir
+fullDir=$(pwd)/${userCustomDir}
+InstallFromDir ${fullDir}
+
+LinkStandarFile ${fullDir}/.userenv_custom
+LinkStandarFile ${fullDir}/.aliases_custom

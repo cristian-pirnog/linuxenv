@@ -81,8 +81,11 @@ setupAccount()
     mkdir -p ${lHomeDir}/live/dat
 
     # Clone/update the git repo
-    git clone arbyte@10.199.10.104:/volume1/repository/environment ~/.${user}_config || return 1
-    cd ~/.${user}_config && ./update_user --nopull
+    targetGitDir=/home/${user}/.${user}_config
+    if [[ ! -d /home/${user}/.${user}_config ]]; then
+	git clone arbyte@10.199.10.104:/volume1/repository/environment ${targetGitDir} || return 1
+    fi
+    cd ${targetGitDir} && ./update_user --nopull
 
     # Make user owner of all the files in his home directory
     chown ${lAccountName}:prod -R ${lHomeDir}
@@ -117,6 +120,7 @@ prepare_software()
 #----------------------------------------------
 run_software()
 {
+    cd /home/${user}/${tmpDir}
     yum install bzip2-devel
     ./do_gcc_make_install.sh
     ./env_for_building_using_4.8.2.sh
@@ -240,6 +244,7 @@ done
 
 ## Upload itself to the target server, when not local run
 if [[ ${localRun} == 0 ]]; then
+    echo -e "\nExecuting the install script on the local machine (preparing target machine)"
     ssh -A ${userAtHost} "mkdir -p bin" || exit 1
     scp -q ${0} ${userAtHost}:${tmpDir} || exit 1
 fi
@@ -252,6 +257,6 @@ done
 
 # ... and then executes itself on the target machine
 if [[ ${localRun} == 0 ]]; then
-    echo "Executing the install script on the target machine"
+    echo -e "\nExecuting the install script on the target machine"
     ssh -A -t ${userAtHost} "cd ${tmpDir} && sudo ~/${tmpDir}/$(basename $0) --local ${userAtHost} ${tasks} " || exit 0
 fi

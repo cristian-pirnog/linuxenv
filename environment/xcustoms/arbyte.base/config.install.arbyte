@@ -1,5 +1,5 @@
-CRON/cron.tab $HOME/CRON/cron.tab
-userenv_crpi $HOME/.userenv_custom
+userenv_arbyte $HOME/.userenv_custom
+software_arbyte $HOME/.software_custom
 #
 # Files from '.ssh' directory
 #
