@@ -58,6 +58,8 @@ mv ${logDir}/*.log ${historicalLogDir}
 ftpServer='64.95.232.100'
 
 # Archive and copy the historicalLogDir to the NAS and to Ronin's ftp accoun
-archive ${historicalLogDir}
+historicalLogDirBase=$(dirname ${historicalLogDir})
+cd ${historicalLogDirBase}/..
+archive ${historicalLogDirBase}
 echo "\$ uploadTrail ${historicalLogDir}.tar.gz ${HOSTNAME}" | ftp -v ${ftpServer}
 scp -C -r ${historicalLogDir} crpi@10.199.10.104:/volume1/live_trading/log/
