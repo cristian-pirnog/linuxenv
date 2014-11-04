@@ -54,12 +54,12 @@ IFS=" "
 # Change permissions to the '.ssh' configuration files
 SSH_CONFIG_FILES="config known_hosts"
 echo " "
-echo "--- Setting permissions for files"
-for myFile in $SSH_CONFIG_FILES
+echo "--- Setting permissions for sensitive files"
+for myFile in ~/.ssh/config ~/.ssh/known_hosts ~/.netrc
 do
     # If the file is a symlink, 
-    if [[ -L $HOME/.ssh/${myFile} ]]; then
-	myTargetFile=$(ls -AFl $HOME/.ssh/${myFile} | awk '{print $NF}')
+    if [[ -L ${myFile} ]]; then
+	myTargetFile=$(ls -AFl ${myFile} | awk '{print $NF}')
     else
 	myTargetFile=${myFile}
     fi

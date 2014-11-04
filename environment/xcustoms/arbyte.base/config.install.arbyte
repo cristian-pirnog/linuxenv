@@ -1,5 +1,6 @@
 userenv_arbyte $HOME/.userenv_custom
 software_arbyte $HOME/.software_custom
+.netrc $HOME/.netrc
 #
 # Files from '.ssh' directory
 #

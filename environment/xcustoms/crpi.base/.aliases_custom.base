@@ -13,22 +13,22 @@
 #
 MakeCDAlias()
 {
-    ALIAS_NAME=$1
-    PATH=$2
+    local ALIAS_NAME=$1
+    local PATH=$2
 
     if [ -d "$PATH" ]; then
-        echo "alias ${ALIAS_NAME}='cd \"$PATH\"'"
+        alias ${ALIAS_NAME}="cd \"$PATH\""
     else
-        echo "alias ${ALIAS_NAME}='echo \"Directory $PATH does not exist.\"'"
+        alias ${ALIAS_NAME}="echo \"Directory $PATH does not exist.\""
     fi
 }
 
-alias cod='cd ${HOME}/code'
-alias kat='cd ${HOME}/code/katania'
-alias opt='cd ${HOME}/code/balerion/optimizer'
-alias str='cd ${HOME}/code/balerion/strategy'
-alias roc='cd ${HOME}/code/rocardian'
-alias ron='cd ${HOME}/code/ronin'
+
+
+MakeCDAlias cod "${HOME}/code"
+MakeCDAlias codm "${HOME}/code.master"
+
+#alias cod='cd ${HOME}/code'
 alias n='next'
 alias br='branch'
 
