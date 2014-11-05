@@ -1,6 +1,6 @@
 #!/bin/bash
 
-processIds=`ps -eo pid,cmd |grep './VPStratLauncher' | grep ' --stratname ArByte' | grep -v 'grep ' | awk '{print $1}'`
+processIds=`ps -eo pid,cmd,ruser|grep " ${USER}$" |grep './VPStratLauncher' | grep ' --stratname ArByte' | grep -v 'grep ' | awk '{print $1}'`
 
 if [[ -z ${processIds} ]]; then
     echo "No processes found to kill"
