@@ -37,6 +37,7 @@ alias fut='from_unixtime_ms'
 
 # Other aliases
 alias lib='LD_LIBRARY_PATH=../lib/'
+alias acmt='add&&cmt'
 
 # Create aliases for hosts in .ssh/config
 for h in $(grep '^Host' ~/.ssh/config | awk '{print $2}'); do
