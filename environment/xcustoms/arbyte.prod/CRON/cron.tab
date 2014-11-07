@@ -7,6 +7,9 @@ MAILTO=pirnog@gmail.com
 # Set this variable for running X-based applications
 #DISPLAY=:0
 
+# Each Sunday, run the startOfWeek script
+00 08 * * Sun bash --login -c "cd ~/live/bin && ~/CRON/startOfWeek.sh" > /dev/null 2>&1
+
 # Each weekday, start the binary at 00:15 UTC
 15 07 * * Mon-Fri bash --login -c "cd ~/live/bin && ~/CRON/runVPStratLauncher.sh" > /dev/null 2>&1
 # ... and stop it at 21:00 UTC
