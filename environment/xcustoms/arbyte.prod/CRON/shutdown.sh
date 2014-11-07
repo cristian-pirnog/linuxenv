@@ -30,7 +30,8 @@ getHistoricalLogDir()
 #----------------------------------
 
 # Kill the binary
-killVPStratLauncher
+printf "\n\n\nRemember to enable the killing of the launcher \n\n\n"
+echo killVPStratLauncher
 
 baseScript=${HOME}/CRON/base.sh
 if [[ ! -f ${baseScript} ]]; then
@@ -41,25 +42,46 @@ fi
 # Source the base script
 source ${baseScript}
 
+
+###############################
+# Copy/Move all relevant files to the historicalLogDir
+###############################
 historicalLogDir=$(getHistoricalLogDir)
+# ... move the log files
+mv ${binDir}/*.log ${historicalLogDir} >/dev/null 2>&1
+mv ${logDir}/*.log ${historicalLogDir} >/dev/null 2>&1
 
-# Move the cme recover file
-if [[ -f ${cmeRecoverFile} ]]; then
-    mv ${cmeRecoverFile} ${historicalLogDir}
-else
-    printf "Failed to move the file %s\n" ${cmeRecoverFile}
-fi
+# ... move the cmeRecoverFile (if any exists)
+mv ${cmeRecoverFile} ${historicalLogDir} >/dev/null 2>&1
 
-# Move the log files
-mv ${binDir}/*.log ${historicalLogDir}
-mv ${logDir}/*.log ${historicalLogDir}
+# ... copy the fix log files
+cp -r ${logDir}/fix8 ${historicalLogDir} || exit -1
+
+# ... [TODO] copy log files for other protocols
 
 
-ftpServer='64.95.232.100'
+###############################
+# Copy the historicalLogDir to the NAS
+###############################
+bkpDirOnNAS=${arbyteLiveBkpDir}/${date}/$(hostname --short)
+ssh ${arbyteNAS} "mkdir -p ${bkpDirOnNAS}"
+rsync -azvh ${historicalLogDir} ${bkpDirOnNAS}
 
-# Archive and copy the historicalLogDir to the NAS and to Ronin's ftp accoun
-historicalLogDirBase=$(dirname ${historicalLogDir})
-cd ${historicalLogDirBase}/..
-~/bin/archive ${historicalLogDirBase}
-echo "\$ uploadTrail ${historicalLogDir}.tar.gz ${HOSTNAME}" | ftp -v ${ftpServer}
-scp -C -r ${historicalLogDir} crpi@10.199.10.104:/volume1/live_trading/log/
+
+###############################
+# Copy files to the compliance shared dir
+###############################
+# ... the fix8 log files
+complianceLogDir=${complianceLogDir}/${date}/$(hostname --short)
+mkdir -p ${complianceLogDir}
+
+cp -r ${historicalLogDir}/fix8/fix_*.log.* ${complianceLogDir}
+
+
+###############################
+# Clean-up for the next day
+###############################
+# ... remove all fix log files
+rm -f ${logDir}/fix8/*.log.*
+rm -f ${datDir}/*
+
