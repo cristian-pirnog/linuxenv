@@ -1,6 +1,6 @@
 # -*- mode: sh -*- #
 
-# All times UTC (CET - 2 hours)
+# All times UTC (In Sommer time: CET - 2 hours)
 
 MAILTO=pirnog@gmail.com
 
@@ -8,7 +8,7 @@ MAILTO=pirnog@gmail.com
 #DISPLAY=:0
 
 # Each weekday, start the binary at 00:15 UTC
-15 07 * * Mon-Fri bash --login -c "cd ~/live/bin && ~/CRON/runVPStrateLauncher.sh" > /dev/null 2>&1
+15 07 * * Mon-Fri bash --login -c "cd ~/live/bin && ~/CRON/runVPStratLauncher.sh" > /dev/null 2>&1
 # ... and stop it at 21:00 UTC
 00 21 * * Mon-Fri bash --login -c "~/CRON/shutdown.sh" > /dev/null 2>&1
 
