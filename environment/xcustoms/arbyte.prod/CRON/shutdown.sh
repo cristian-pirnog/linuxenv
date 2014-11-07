@@ -2,7 +2,7 @@
 
 # Script to be run by the cron job at the end of trading
 
-
+#----------------------------------------------
 getHistoricalLogDir()
 {
     local histLogDir=""
