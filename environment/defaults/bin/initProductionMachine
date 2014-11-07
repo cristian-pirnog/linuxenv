@@ -89,6 +89,9 @@ setupAccount()
 
     # Make user owner of all the files in his home directory
     chown ${lAccountName}:prod -R ${lHomeDir}
+
+    # Deploy the ssh keys for the production user
+
 }
 
 #----------------------------------------------
