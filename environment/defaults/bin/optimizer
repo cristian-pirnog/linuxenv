@@ -93,6 +93,6 @@ if [[ ! -f ${binary} ]]; then
     exit 1
 fi
 
-printf "Running command: %s\n\n" "${binary} $@"
+printf "\n[%s %s %s]\n\n" ${client} ${branch} ${buildType} 
 LD_LIBRARY_PATH=${libPath} ${binary} $@
 
