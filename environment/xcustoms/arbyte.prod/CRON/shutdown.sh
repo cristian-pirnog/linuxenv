@@ -30,8 +30,7 @@ getHistoricalLogDir()
 #----------------------------------
 
 # Kill the binary
-printf "\n\n\nRemember to enable the killing of the launcher \n\n\n"
-echo killVPStratLauncher
+killVPStratLauncher
 
 baseScript=${HOME}/CRON/base.sh
 if [[ ! -f ${baseScript} ]]; then
@@ -51,8 +50,8 @@ historicalLogDir=$(getHistoricalLogDir)
 mv ${binDir}/*.log ${historicalLogDir} >/dev/null 2>&1
 mv ${logDir}/*.log ${historicalLogDir} >/dev/null 2>&1
 
-# ... move the cmeRecoverFile (if any exists)
-mv ${cmeRecoverFile} ${historicalLogDir} >/dev/null 2>&1
+# ... copy the dat dir (which includes the cmeRecoverFile (if any exists))
+cp -r ${datDir} ${historicalLogDir} >/dev/null 2>&1
 
 # ... copy the fix log files
 cp -r ${logDir}/fix8 ${historicalLogDir} || exit -1
@@ -75,7 +74,7 @@ rsync -azvh ${historicalLogDir} ${bkpDirOnNAS}
 complianceLogDir=${complianceLogDir}/${date}/$(hostname --short)
 mkdir -p ${complianceLogDir}
 
-cp -r ${historicalLogDir}/fix8/fix_*.log.* ${complianceLogDir}
+cp -r ${historicalLogDir}/fix8/* ${complianceLogDir}
 
 
 ###############################
