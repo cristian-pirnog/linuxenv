@@ -1,5 +1,6 @@
 userenv_arbyte $HOME/.userenv_custom
 software_arbyte $HOME/.software_custom
+.netrc $HOME/.netrc
 #
 # Files from '.ssh' directory
 #
@@ -9,3 +10,4 @@ software_arbyte $HOME/.software_custom
 # Files from the 'bin' directory
 #
 bin/killVPStratLauncher ${HOME}/bin/killVPStratLauncher
+bin/seqedit ${HOME}/bin/seqedit

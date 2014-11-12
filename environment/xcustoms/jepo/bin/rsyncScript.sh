@@ -7,7 +7,7 @@ function nrOfFilesFound
 	local dirName1=$1
 	local extension1=$2
 
-	find $dirName1 -name "*.$extension1" | xargs ls -l | awk '{if($5>100000){print $9}}' | wc -l
+	find $dirName1 -name "*.$extension1" | xargs ls -l | awk '{if($5>100){print $9}}' | wc -l
 }
 
 #__________________________________________________
