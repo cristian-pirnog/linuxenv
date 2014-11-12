@@ -30,7 +30,11 @@ getHistoricalLogDir()
 #----------------------------------
 
 # Kill the binary
-killVPStratLauncher
+processId=$(isVPStratLauncherRunning)
+if [[ $? == 0 ]]; then 
+    printf "Binary still running (process id: ${processId}). Aborting."
+    exit 1
+fi
 
 baseScript=${HOME}/CRON/base.sh
 if [[ ! -f ${baseScript} ]]; then

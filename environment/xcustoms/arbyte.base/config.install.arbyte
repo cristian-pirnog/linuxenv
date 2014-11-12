@@ -9,5 +9,6 @@ software_arbyte $HOME/.software_custom
 #
 # Files from the 'bin' directory
 #
+bin/isVPStratLauncherRunning ${HOME}/bin/isVPStratLauncherRunning
 bin/killVPStratLauncher ${HOME}/bin/killVPStratLauncher
 bin/seqedit ${HOME}/bin/seqedit
