@@ -64,7 +64,7 @@ cp -r ${logDir}/fix8 ${historicalLogDir} || exit -1
 ###############################
 bkpDirOnNAS=${arbyteLiveBkpDir}/${date}/$(hostname --short)
 ssh ${arbyteNAS} "mkdir -p ${bkpDirOnNAS}"
-rsync -azvh ${historicalLogDir} ${bkpDirOnNAS}
+rsync -azvh ${historicalLogDir} ${arbyteNAS}:${bkpDirOnNAS}
 
 
 ###############################
@@ -83,4 +83,13 @@ cp -r ${historicalLogDir}/fix8/* ${complianceLogDir}
 # ... remove all fix log files
 rm -f ${logDir}/fix8/*.log.*
 rm -f ${datDir}/*
+
+
+###############################
+# Update environment from then nas
+###############################
+# ... libraries
+# rsync -azvh ${arbyteNAS}:${libraryDirOnNAS}/ ${libraryDir}
+
+
 

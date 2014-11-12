@@ -51,28 +51,22 @@ ab svnmerge MatlabInfo:merge; origin:XXX; target:XXX; range:XXX:YYY;
 "ab tra <ESC>ma?(<CR>:.,/{/!/home/developer/bin/TraceAssertFilter.pl<ESC>`a<ESC>i
 "ab cpc <ESC>ma?(<CR>:.,/{/!/home/developer/bin/CopyConstructor.pl<ESC>`a<ESC>i
 
-" map keyboard to toggle paste mode
-map <F9> <ESC>:w<ESC>:! make<CR>
-map <F10> :set paste<CR> 
-map <F7> :set nopaste<CR>
-imap <F10> <C-O>:set paste<CR>
-imap <F9> <nop>
-set pastetoggle=<F9>
-" Switch on/off search highlighting
-map <F5> : set hls<CR>
-imap <F5> <C-O>:set hls<CR>
-map <F4> : set nohls<CR>
-imap <F4> <C-O>:set nohls<CR>
-
 " rew and save
 map <F2> <ESC>:rew<CR>
 
+" Switch on/off search highlighting
+map <F4> : set nohls<CR>
+imap <F4> <C-O>:set nohls<CR>
+map <F5> : set hls<CR>
+imap <F5> <C-O>:set hls<CR>
+
 " set the tab size to 2/4
-"map <F6> : set ts=2 sw=2<CR>
-"map <F7> : set ts=4 sw=4<CR>
-" generate get and set method
-map <F8> <ESC>:.!/home/developer/bin/GetSetMethodFilter.pl<CR><ESC>i
-imap <F8> <ESC>:.!/home/developer/bin/GetSetMethodFilter.pl<CR><ESC>i
+map <F6>  : tabp <CR>
+map <F7>  : tabn <CR>
+
+" map keyboard to toggle paste mode
+map <F9> :set paste<CR> 
+map <F10> :set nopaste<CR>
 
 " show status line
 set laststatus=2
