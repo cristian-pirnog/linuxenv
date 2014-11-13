@@ -3,5 +3,5 @@
 client=$1
 shift
 
-LD_LIBRARY_PATH=/home/crpi/deploy/master/Release/lib:/home/crpi/code.master/drogon/lib/portfolio/lib PYTHONPATH=/home/crpi/code.master/drogon/src/python:/home/crpi/code.master/drogon/src/C/marketdata_CME/python:/home/crpi/code.master/drogon/lib/cvxopt-1.1.6/python:/home/crpi/code.master/drogon/lib/python-bindings:/home/crpi/deploy/master/Release/lib:/home/crpi/code.master/drogon/lib/portfolio/lib PYCLIENT=${client} $@ &
+LD_LIBRARY_PATH=/home/crpi/deploy/master/Release/lib:/home/crpi/code/drogon/lib/portfolio/lib PYTHONPATH=/home/crpi/code/drogon/src/python:/home/crpi/code/drogon/src/C/marketdata_CME/python:/home/crpi/code/drogon/lib/cvxopt-1.1.6/python:/home/crpi/code/drogon/lib/python-bindings:/home/crpi/deploy/master/Release/lib:/home/crpi/code/drogon/lib/portfolio/lib PYCLIENT=${client} $@
 

@@ -8,8 +8,8 @@ if (@ARGV)
     }
     else
     {
-        $myLocalTime = scalar localtime $ARGV[0]/1000;
-	$myMilliseconds = substr($ARGV[0], length($ARGV[0])-3, length($ARGV[0]));
+        $myLocalTime = scalar localtime $ARGV[0]/1000000000;
+	$myMilliseconds = substr($ARGV[0], length($ARGV[0])-9, length($ARGV[0]));
 	print substr($myLocalTime, 0, length($myLocalTime)-5), ".", $myMilliseconds, substr($myLocalTime, length($myLocalTime)-5, length($myLocalTime));
     }
     exit

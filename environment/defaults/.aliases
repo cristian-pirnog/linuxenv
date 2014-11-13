@@ -23,9 +23,6 @@ alias add='git add --all'
 alias pull='git pull'
 alias push='git push'
 
-# Use custom colors for 'ls' instead of the default ones
-if [[ -f ~/.dircolors ]]; then eval `dircolors ~/.dircolors`; fi
-
 #Aliases for 'ls' and variations
 alias ls='/bin/ls --color=auto'
 alias l='/bin/ls --color=auto -dA */'
