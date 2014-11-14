@@ -11,7 +11,7 @@ MAILTO=pirnog@gmail.com
 00 08 * * Sun bash --login -c "cd ~/live/bin && ~/CRON/startOfWeek.sh" > /dev/null 2>&1
 
 # Each weekday, start the binary at 00:15 UTC
-15 07 * * Mon-Fri bash --login -c "cd ~/live/bin && ~/CRON/runVPStratLauncher.sh" > /dev/null 2>&1
+15 06 * * Mon-Fri bash --login -c "cd ~/live/bin && ~/CRON/runVPStratLauncher.sh" > /dev/null 2>&1
 # ... and stop it at 21:00 UTC
-00 17 * * Mon-Fri bash --login -c "~/CRON/shutdown.sh" > /dev/null 2>&1
+30 22 * * Mon-Fri bash --login -c "~/CRON/shutdown.sh" > /dev/null 2>&1
 
