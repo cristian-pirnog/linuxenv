@@ -24,6 +24,7 @@ arbyteLiveBkpDir=/volume1/live.logs
 libraryDirOnNAS=/volume1/production.libs
 
 date=$(date +%Y%m%d)
+timeStamp=$(date +%Y%m%dT%H%M%S)
 
 
 #----------------------------------

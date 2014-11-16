@@ -1,6 +1,6 @@
 CRON/cron.tab $HOME/CRON/cron.tab
 CRON/base.sh $HOME/CRON/base.sh
 CRON/startup.sh $HOME/CRON/startup.sh
-CRON/startOfWeek.sh $HOME/CRONT/startOfWeek.sh
+CRON/startOfWeek.sh $HOME/CRON/startOfWeek.sh
 CRON/shutdown.sh $HOME/CRON/shutdown.sh
 CRON/runVPStratLauncher.sh $HOME/CRON/runVPStratLauncher.sh
