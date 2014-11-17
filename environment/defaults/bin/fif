@@ -42,31 +42,51 @@ theDoCase=""
 theFind="find"
 thePattern='\.git'${NEW_LINE}'\.user'${NEW_LINE}'\.o'${NEW_LINE}'\.so'${NEW_LINE}'CMakeFiles'
 
-mySkipComments=0
-while  getopts hd:i:x:s: option $*
-do
-        case $option in
-        h)
-                printUsage
-                exit 0;
-                ;;
-        d)
-                theDirectory="$OPTARG"
-                ;;
-        i)      
-                theDoCase="-i"
-                OPTIND=`expr $OPTIND - 1`
-                ;;
-        x)
-                thePattern=${thePattern}${NEW_LINE}${OPTARG}
-		;;
-	s)
-	        mySkipComments=1
-		theComment=${OPTARG}
-        esac
-done
+ARGS=$(getopt -o hd:ix:s: -n "fif" -- "$@")
 
-shift   `expr $OPTIND - 1`
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+#
+mySkipComments=0
+while true; do
+    case ${1} in
+	-h|--help)
+	    printUsage
+	    exit 0
+	    ;;
+        -d)
+            theDirectory="${2}"
+	    shift 2
+            ;;
+        -i)      
+            theDoCase="-i"
+	    shift
+            ;;
+        -x)
+            thePattern=${thePattern}${NEW_LINE}${2}
+	    shift 2
+	    ;;
+	-s)
+	    mySkipComments=1
+	    theComment=${2}
+	    shift 2
+	    ;;
+    	--)
+	    shift
+	    break
+	    ;;
+	"")
+	    # This is necessary for processing missing optional arguments 
+	    shift
+	    ;;
+    esac
+done
 
 theSearchWord="$1"
 
@@ -91,7 +111,7 @@ do
 	
 	if [ $mySkipComments == "1" ]
 	then
-	    myTemp=`echo $myTemp | grep -v "$theComment.*$theSearchWord"`
+	    myTemp=`echo $myTemp | grep -v "$theComment"`
 	fi
 
         if [ "$myTemp" != "" ]
