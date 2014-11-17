@@ -7,6 +7,7 @@
 liveDir=${HOME}/live
 binDir=${liveDir}/bin
 logDir=${liveDir}/log
+fixDir=${logDir}/fix8
 cfgDir=${liveDir}/cfg
 datDir=${liveDir}/dat
 libraryDir=/mnt/data/deploy/master/Release/lib/
