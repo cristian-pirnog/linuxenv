@@ -88,7 +88,7 @@ cp -r ${fixDir} ${historicalLogDir} || exit -1
 ###############################
 bkpDirOnNAS=${arbyteLiveBkpDir}/${date}/$(hostname --short)
 ssh ${arbyteNAS} "mkdir -p ${bkpDirOnNAS}"
-rsync -azvh ${historicalLogDir} ${arbyteNAS}:${bkpDirOnNAS}
+rsync -azvh ${logDir}/${date}/ ${arbyteNAS}:${bkpDirOnNAS}
 
 
 ###############################
