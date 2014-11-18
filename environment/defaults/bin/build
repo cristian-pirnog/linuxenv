@@ -61,9 +61,6 @@ printUsage()
 wafBuild()
 {
     COMPILER=g++-4.8.2
-    if [[ ${1} == clean ]]; then
-	CXX=${COMPILER} waf clean
-    fi
     CXX=${COMPILER} waf configure build install $@
 }
 
@@ -207,10 +204,14 @@ case ${option} in
 	    getAnswer "About to remove directory ${buildType}. Continue?" || remove=0
 	fi
 
-	test ${remove} -eq 1 && \
-	    rm -rf ${buildType} || \
-	    exit 0
-	
+	if [[ ${remove} -eq 1 ]]; then
+	    if [[ -f wscript ]]; then
+		waf configure distclean -o ${buildDirRoot}/${buildDir}
+	    else
+		rm -rf ${buildType}
+	    fi
+	fi
+
 	if [[ ${option} == "clean" ]]; then 
 	    exit 0
 	else
@@ -227,7 +228,7 @@ esac
 
 # If there's a wscript file in the current dir, runn a waf build
 if [[ -f wscript ]]; then
-    wafBuild ${clientOption} --buildType ${buildType} --branch ${branchName} --libDirRoot ${buildDirRoot}
+    wafBuild ${clientOption} --buildType ${buildType} --branch ${branchName} --libDirRoot ${buildDirRoot} -o ${buildDirRoot}/${buildDir}
 else
     # Check for a CMakeList.txt file
     if [[ ! -f "CMakeLists.txt" ]]; then

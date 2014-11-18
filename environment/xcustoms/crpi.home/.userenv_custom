@@ -1,9 +1,4 @@
 # -*- mode: sh -*- #
 
-test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
-
-export MATLAB_BASE_DIR="$HOME/code/matlab/modules"
-export MATLAB_PRODUCTION_BRANCH="$MATLAB_BASE_DIR/$PROJECT_STABLE_BRANCH"
-
 export PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live __client__/support __client__/optimizer drogon/src/C" # unit_tests/katania __client__/live"
 

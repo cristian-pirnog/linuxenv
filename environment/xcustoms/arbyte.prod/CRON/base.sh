@@ -7,8 +7,10 @@
 liveDir=${HOME}/live
 binDir=${liveDir}/bin
 logDir=${liveDir}/log
+fixDir=${logDir}/fix8
 cfgDir=${liveDir}/cfg
 datDir=${liveDir}/dat
+libraryDir=/mnt/data/deploy/master/Release/lib/
 
 cmeRecoverFile=${datDir}/cmearbp1_recover.csv
 
@@ -17,11 +19,13 @@ if [[ $USER == "arbytetest" ]]; then
 	complianceLogDir=${complianceLogDir}/test
 fi
 
+# Directories on ArByte's NAS
 arbyteNAS=livebkp@10.199.10.104
-arbyteLiveBkpBaseDir=/volume1/live.logs
-arbyteLiveBkpDir=${arbyteNAS}:${arbyteLiveBkpBaseDir}
+arbyteLiveBkpDir=/volume1/live.logs
+libraryDirOnNAS=/volume1/production.libs
 
 date=$(date +%Y%m%d)
+timeStamp=$(date +%Y%m%dT%H%M%S)
 
 
 #----------------------------------
