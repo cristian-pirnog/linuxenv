@@ -7,6 +7,7 @@
 liveDir=${HOME}/live
 binDir=${liveDir}/bin
 logDir=${liveDir}/log
+fixDir=${logDir}/fix8
 cfgDir=${liveDir}/cfg
 datDir=${liveDir}/dat
 libraryDir=/mnt/data/deploy/master/Release/lib/
@@ -24,6 +25,7 @@ arbyteLiveBkpDir=/volume1/live.logs
 libraryDirOnNAS=/volume1/production.libs
 
 date=$(date +%Y%m%d)
+timeStamp=$(date +%Y%m%dT%H%M%S)
 
 
 #----------------------------------
