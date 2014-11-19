@@ -80,6 +80,9 @@ cp -r ${datDir} ${historicalLogDir} >/dev/null 2>&1
 # ... copy the fix log files
 cp -r ${fixDir} ${historicalLogDir} || exit -1
 
+# ... copy the strategy config directory (for future reference)
+cp -r ${strategyConfigDir} ${historicalLogDir}
+
 # ... [TODO] copy log files for other protocols
 
 
