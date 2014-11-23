@@ -10,4 +10,5 @@ software_arbyte $HOME/.software_custom
 # Files from the 'bin' directory
 #
 bin/killVPStratLauncher ${HOME}/bin/killVPStratLauncher
+bin/findVPStratLauncherInstances ${HOME}/bin/findVPStratLauncherInstances
 bin/seqedit ${HOME}/bin/seqedit
