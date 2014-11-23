@@ -9,9 +9,8 @@ test -f ${HOME}/.bashrc_default && . ${HOME}/.bashrc_default
 ##
 # User environment settings
 ##
-# Default environment
 test -f ${HOME}/.userenv && source ${HOME}/.userenv
-# The custom environment
+test -f ${HOME}/.userenv_custom.base && source ${HOME}/.userenv_custom.base
 test -f ${HOME}/.userenv_custom && source ${HOME}/.userenv_custom
 
 ##

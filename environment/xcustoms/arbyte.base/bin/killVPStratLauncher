@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Note: cmd must stay at the end, such that it is printed in full
 processIds=$(findVPStratLauncherInstances)
 
 if [[ -z ${processIds} ]]; then

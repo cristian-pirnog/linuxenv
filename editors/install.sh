@@ -20,9 +20,20 @@ if [[ -z ${INSTALL_EDITORS} ]]; then
 	    ;;
 	*) INSTALL_EDITORS=0
     esac
-else
-    INSTALL_ALL_EDITORS=$(GetCachedConfigValue INSTALL_ALL_EDITORS)
 fi
+
+INSTALL_ALL_EDITORS=$(GetCachedConfigValue INSTALL_ALL_EDITORS)
+if [[ -z ${INSTALL_ALL_EDITORS} ]]; then
+    printf "\nWould you like to install all editors? [(Y)es/(N)o] "
+    read answer
+    case $answer in
+        y | Y | yes | Yes | YES)
+            INSTALL_ALL_EDITORS=1
+            ;;
+	*) INSTALL_ALL_EDITORS=0
+    esac
+fi
+
 SaveConfigValueToCache INSTALL_EDITORS ${INSTALL_EDITORS}
 SaveConfigValueToCache INSTALL_ALL_EDITORS ${INSTALL_ALL_EDITORS}
 

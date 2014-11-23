@@ -23,14 +23,37 @@ getHistoricalLogDir()
     echo ${histLogDir}
 }
 
+#----------------------------------------------
+resetSequenceNumbers()
+{
+    local lExchange=${1}
 
+    if [[ ! -f ${cfgDir}/${lExchange}_client.xml ]]; then
+      return 0
+    fi
+
+    local lExchangeTag=$(grep target_comp_id ${cfgDir}/${lExchange}_client.xml | awk -F'=' '{print $2}' | sed 's/"//g') 
+
+    if [[ -z ${lExchangeTag} ]]; then
+      sendMail "Error!!! Failed to reset sequence numbers" "Failed to reset sequence numbers for exchange ${lExchange}" ${CRISTIAN}
+      exit 1
+    fi
+
+    local lFilePattern=${fixDir}/'client.*.'${lExchangeTag}
+    seqedit -S 1 ${lFilePattern}
+    seqedit -R 1 ${lFilePattern}
+}
 
 #----------------------------------
 # Main script
 #----------------------------------
 
-# Kill the binary
-killVPStratLauncher
+# If the binary still runs, exit
+processId=$(isVPStratLauncherRunning)
+if [[ $? == 0 ]]; then 
+    printf "Binary still running (process id: ${processId}). Aborting."
+    exit 1
+fi
 
 baseScript=${HOME}/CRON/base.sh
 if [[ ! -f ${baseScript} ]]; then
@@ -40,6 +63,7 @@ fi
 
 # Source the base script
 source ${baseScript}
+source ${HOME}/CRON/email.sh
 
 
 ###############################
@@ -54,7 +78,10 @@ mv ${logDir}/*.log ${historicalLogDir} >/dev/null 2>&1
 cp -r ${datDir} ${historicalLogDir} >/dev/null 2>&1
 
 # ... copy the fix log files
-cp -r ${logDir}/fix8 ${historicalLogDir} || exit -1
+cp -r ${fixDir} ${historicalLogDir} || exit -1
+
+# ... copy the strategy config directory (for future reference)
+cp -r ${strategyConfigDir} ${historicalLogDir}
 
 # ... [TODO] copy log files for other protocols
 
@@ -64,7 +91,7 @@ cp -r ${logDir}/fix8 ${historicalLogDir} || exit -1
 ###############################
 bkpDirOnNAS=${arbyteLiveBkpDir}/${date}/$(hostname --short)
 ssh ${arbyteNAS} "mkdir -p ${bkpDirOnNAS}"
-rsync -azvh ${historicalLogDir} ${bkpDirOnNAS}
+rsync -azvh ${logDir}/${date}/ ${arbyteNAS}:${bkpDirOnNAS}
 
 
 ###############################
@@ -81,6 +108,24 @@ cp -r ${historicalLogDir}/fix8/* ${complianceLogDir}
 # Clean-up for the next day
 ###############################
 # ... remove all fix log files
-rm -f ${logDir}/fix8/*.log.*
+rm -f ${fixDir}/*.log.*
 rm -f ${datDir}/*
+
+# ... reset sequence numbers
+#     ... daily on EUX
+resetSequenceNumbers Eurex 
+resetSequenceNumbers ICE
+#     ... at the end of the week on CME
+if [[ $(date +%w) -eq 5 ]]; then
+    resetSequenceNumbers CME
+fi
+
+
+###############################
+# Update environment from then nas
+###############################
+# ... libraries
+# rsync -azvh ${arbyteNAS}:${libraryDirOnNAS}/ ${libraryDir}
+
+
 
