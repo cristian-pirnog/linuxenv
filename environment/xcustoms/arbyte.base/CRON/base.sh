@@ -6,7 +6,7 @@
 #----------------------------------
 liveDir=${HOME}/live
 binDir=${liveDir}/bin
-logDir=${liveDir}/log
+logDir=/dev/shm/log
 fixDir=${logDir}/fix8
 cfgDir=${liveDir}/cfg
 strategyConfigDir=${liveDir}/configs
