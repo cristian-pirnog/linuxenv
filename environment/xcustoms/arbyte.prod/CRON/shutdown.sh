@@ -49,8 +49,8 @@ resetSequenceNumbers()
 #----------------------------------
 
 # If the binary still runs, exit
-processId=$(isVPStratLauncherRunning)
-if [[ $? == 0 ]]; then 
+processId=$(findVPStratLauncherInstances)
+if [[ -n "${processId}" ]]; then 
     printf "Binary still running (process id: ${processId}). Aborting."
     exit 1
 fi
