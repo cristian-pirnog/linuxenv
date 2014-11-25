@@ -1,3 +1,4 @@
 alias cdb='cd ~/live/bin'
 alias cdl='cd ~/live/log'
 alias cdll='cd ~/live/log/latest'
+alias cdconf='cd ~/live/configs'
