@@ -1,6 +1,6 @@
 #!/bin/bash
 
-processIds=$(isVPStratLauncherRunning)
+processIds=$(findVPStratLauncherInstances)
 
 if [[ -z ${processIds} ]]; then
     echo "No processes found to kill"

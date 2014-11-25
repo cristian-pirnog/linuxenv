@@ -8,7 +8,7 @@ getHistoricalLogDir()
     local histLogDir=""
     for i in `seq 1 50`; do
 	local dir=${date}/${i}
-        histLogDir=${logDir}/${dir}
+        histLogDir=${liveDir}/log/${dir}
 	if [[ ! -d ${histLogDir} ]]; then
             mkdir -p ${histLogDir}
 	    
@@ -49,8 +49,8 @@ resetSequenceNumbers()
 #----------------------------------
 
 # If the binary still runs, exit
-processId=$(isVPStratLauncherRunning)
-if [[ $? == 0 ]]; then 
+processId=$(findVPStratLauncherInstances)
+if [[ -n "${processId}" ]]; then 
     printf "Binary still running (process id: ${processId}). Aborting."
     exit 1
 fi
