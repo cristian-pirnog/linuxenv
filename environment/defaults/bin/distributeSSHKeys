@@ -1,0 +1,104 @@
+#!/bin/bash
+
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) -h
+            $(basename ${0}) [-f keyFile] [--alias alias] user@host
+
+    Description:
+       Distributes the user's ssh keys to the give user@host
+
+    Options:
+       -h
+             Print this help message and exit.
+
+       -f keyFile
+             Use the given keyFile instead of the default ~/.ssh/id_rsa.pub.
+
+       --alias alias
+             Uses the given alias, instead of the one found in the keyFile.
+%%USAGE%%
+}
+
+#----------------------------------------------
+exitWithError()
+{
+    printf "$1\n"
+    exit 1
+}
+
+
+#---------------------------------------------------
+
+
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+
+# If wrong arguments, print usage and exit
+if [[ $# -ne 1 ]]; then
+    printUsage
+    exit 1;
+fi
+
+
+ARGS=$(getopt -o hf: -l "help,alias:" -n "$(basename ${0})" -- "$@")
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+## Parse options
+publicKeyFile=${HOME}/.ssh/id_rsa.pub
+while true; do
+    case ${1} in
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    -f)
+        publicKeyFile=${2}
+        shift 2
+        ;;
+    --alias)
+        keyUser=${2}
+        shift 2
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "") 
+        # This is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
+
+userAtHost=${1}
+
+# Get the key
+test -f ${publicKeyFile} || exitWithError "Key file not found: ${publicKeyFile}"
+
+# Retrieve the components of the public key
+wholeKey=$(cat $publicKeyFile)
+keyType=$(echo ${wholeKey} | awk '{print $1}')
+keyValue=$(echo ${wholeKey} | awk '{print $2}')
+if [[ -z ${keyUser} ]]; then
+    keyUser=$(echo ${wholeKey} | awk '{print $3}')
+fi
+
+sshCommand="ssh ${userAtHost}" 
+authorizedKeysFile=".ssh/authorized_keys"
+
+${sshCommand} "test -n \"\$(grep \"${keyValue}\" ${authorizedKeysFile})\" || echo ${keyType} ${keyValue} ${keyUser} >> ${authorizedKeysFile}" || exit 0
+
+exit 0

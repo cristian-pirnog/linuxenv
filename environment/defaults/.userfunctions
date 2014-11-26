@@ -14,7 +14,7 @@ getAnswer()
 	question="Would you like to continue?"
     fi
     question=${question}" [y\n]"
-    printf "\n%s " "${question}"
+    printf "%s " "${question}"
 
     # Get the answer
     local answer
@@ -216,45 +216,6 @@ ric()
     replace "$from" "$to" -- ${myFiles}
     unset IFS
 }
-
-#------------------------------------------
-deSCize()
-{
-    for tag in $*; do
-	tagCopy=${tag}
-	prefix=''
-	if [[ ${tagCopy:0:1} == '_' ]]; then
-            prefix='_'
-            tagCopy=${tagCopy:1}
-	fi
-	
-	firstLetter=${tagCopy:1:1}
-	mainBody=${tagCopy:2}
-	
-	# For members
-	firstLetter=$(lower ${firstLetter})
-	
-	ric "${tag}" "${prefix}${firstLetter}${mainBody}"
-    done
-}
-
-#------------------------------------------
-deGet()
-{
-    for tag in $*; do
-	
-	# Check that it starts with get
-	if [[ ${tag:0:3} != 'get' ]]; then
-	    echo "tag $tag does not start with 'get'"
-	    continue
-	fi
-	
-	tagBody=${tag:4}
-	firstLetter=$(lower ${tag:3:1})
-	ric "${tag}()" "${firstLetter}${tagBody}()"
-    done
-}
-
 
 #----------------------------------------------
 lna()
