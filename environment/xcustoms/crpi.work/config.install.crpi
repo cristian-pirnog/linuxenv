@@ -2,3 +2,10 @@
 # Files from '.ssh' directory
 #
 .ssh/known_hosts $HOME/.ssh/known_hosts
+
+#
+# Files from 'CRON' directory
+#
+CRON/cron.tab ${HOME}/CRON/cron.tab
+CRON/checkRolling.sh ${HOME}/CRON/checkRolling.sh
+

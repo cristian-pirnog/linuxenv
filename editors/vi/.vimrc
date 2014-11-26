@@ -65,8 +65,8 @@ map <F6>  : tabp <CR>
 map <F7>  : tabn <CR>
 
 " map keyboard to toggle paste mode
+map <F8> :set nopaste<CR>
 map <F9> :set paste<CR> 
-map <F10> :set nopaste<CR>
 
 " show status line
 set laststatus=2

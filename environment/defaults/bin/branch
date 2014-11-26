@@ -209,6 +209,8 @@ check_deleteBranch()
 deleteBranch()
 {
     git branch -d ${1}
+    rm -rf ~/deploy/${1}
+    rm -rf ~/build/${1}
 }
 
 #----------------------------------------------

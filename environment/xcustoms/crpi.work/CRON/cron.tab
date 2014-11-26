@@ -1,0 +1,12 @@
+# -*- mode: sh -*- #
+
+# All times UTC (In Sommer time: CET - 2 hours)
+
+MAILTO=pirnog@gmail.com
+
+# Set this variable for running X-based applications
+#DISPLAY=:0
+
+# Each weekday, check for rolling for the next few days
+15 12 * * Mon-Fri bash --login -c "~/CRON/checkRolling.sh" > /dev/null 2>&1
+
