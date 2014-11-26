@@ -91,7 +91,7 @@ cp -r ${strategyConfigDir} ${historicalLogDir}
 ###############################
 bkpDirOnNAS=${arbyteLiveBkpDir}/${date}/$(hostname --short)
 ssh ${arbyteNAS} "mkdir -p ${bkpDirOnNAS}"
-rsync -azvh ${historicalLogDir}/${date}/ ${arbyteNAS}:${bkpDirOnNAS}
+rsync -azvh ${historicalLogDir} ${arbyteNAS}:${bkpDirOnNAS}
 
 
 ###############################
