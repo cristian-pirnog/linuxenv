@@ -139,3 +139,6 @@ fi
 mail -s "${USER}@${HOST}: binary stopped" ${recipientsList} << EOF
 ${message}
 EOF
+
+# At the end, run the shutdown script
+$(dirname ${0})/shutdown.sh
