@@ -13,7 +13,7 @@ getHistoricalLogDir()
             mkdir -p ${histLogDir}
 	    
             # Make a symlink to the latest log dir
-            latestLog=${histLogDir}/latest
+            latestLog=${histLogDir}/../latest
             if [[ -h ${latestLog} ]]; then rm ${latestLog}; fi
             ln -s ${dir} ${latestLog}
             break
