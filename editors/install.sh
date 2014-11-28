@@ -26,7 +26,7 @@ SaveConfigValueToCache INSTALL_EDITORS ${INSTALL_EDITORS}
 SaveConfigValueToCache INSTALL_ALL_EDITORS ${INSTALL_ALL_EDITORS}
 
 CEDET="cedet-1.1"
-if [ ${INSTALL_EDITORS} -eq 1 ]; then
+if [[ ${INSTALL_EDITORS} -eq 1 ]] || [[ ${INSTALL_ALL_EDITORS} -eq 1 ]]; then
     cd vi
     source install.vi.sh $INSTALL_ALL_EDITORS
     cd - > /dev/null

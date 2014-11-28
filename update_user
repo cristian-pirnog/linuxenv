@@ -111,6 +111,15 @@ if [[ ${BASE_DIRECTORY} != "./" ]]; then
    exit 1
 fi
 
+printf "\nWarning!!! This will overwrite the existing user customizations.'\n"
+printf "Are you sure you want to continue? [Y/N] "
+read answer
+
+case $answer in
+    y| Y | yes | Yes | YES) ;;
+    *) echo "Aborting at user request" & exit 0
+esac
+
 XCUSTOMS_USER=$(GetCachedConfigValue XCUSTOMS_USER)
 if [[ -z ${XCUSTOMS_USER} ]]; then
     XCUSTOMS_USER=$USER
@@ -128,15 +137,6 @@ if [[ -z ${XCUSTOMS_USER} ]]; then
            ;;
     esac
 fi
-
-printf "Warning!!! This will overwrite any existing customizations for the user '${XCUSTOMS_USER}'\n"
-printf "Are you sure you want to continue? [Y/N] "
-read answer
-
-case $answer in
-    y| Y | yes | Yes | YES) ;;
-    *) echo "Aborting at user request" & exit 0
-esac
 
 printf "Enter user name (default ${XCUSTOMS_USER}): "
 read answer
