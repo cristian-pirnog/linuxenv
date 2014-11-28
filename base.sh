@@ -12,8 +12,12 @@ printErrorMessage()
 #----------------------------------------------
 GetCachedConfigValue()
 {
-    if [[ ! -f $HOME/.${USER}_config/.config_cache ]]; then return 1; fi
-    grep "${1}" $HOME/.${USER}_config/.config_cache | awk -F '=' '{print $NF}' | head -1
+    # MUST KEEP SYNCHRONIZED WITH THE ONE FROM SaveCachedConfigValue
+    local lCacheFile=$HOME/.${USER}_config/.config_cache
+
+    # If no cache file, return
+    if [[ ! -f ${lCacheFile} ]]; then return 1; fi
+    grep "${1}" ${lCacheFile} | awk -F '=' '{print $NF}' | head -1
 }
 
 #----------------------------------------------
@@ -21,11 +25,22 @@ GetCachedConfigValue()
 #----------------------------------------------
 SaveConfigValueToCache()
 {
-    if [[ -f $HOME/.${USER}_config/.config_cache ]]; then
-	sed -i "/^${1}/d" $HOME/.${USER}_config/.config_cache
+    # MUST KEEP SYNCHRONIZED WITH THE ONE FROM GetCachedConfigValue
+    local lCacheFile=$HOME/.${USER}_config/.config_cache
+    
+    local lTag=${1}
+    local lValue=${2}
+
+    # If the value is empty, don't write it
+    if [[ -z ${lValue} ]]; then return 1; fi
+
+    # Remove the old entry in the cache file, if present...
+    if [[ -f ${lCacheFile} ]]; then
+        sed -i "/^${1}/d" ${lCacheFile}
     fi
 
-    echo "${1}=${2}" >> $HOME/.${USER}_config/.config_cache
+    # ... and add the new one
+    echo "${1}=${2}" >> ${lCacheFile}
 }
 
 ##

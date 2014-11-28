@@ -21,11 +21,11 @@ if [[ ${INSTALL_ALL} -ne 1 ]]; then
 		INSTALL_XEMACS=0
 		;;
 	esac
-    else
-	INSTALL_XEMACS=1
+    SaveConfigValueToCache INSTALL_XEMACS ${INSTALL_XEMACS}
     fi
+else
+	INSTALL_XEMACS=1
 fi
-SaveConfigValueToCache INSTALL_XEMACS ${INSTALL_XEMACS}
 
 if [[ ${INSTALL_XEMACS} -eq 1 ]]; then
     CWD=`pwd`
