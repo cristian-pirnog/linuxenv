@@ -1,6 +1,30 @@
 #!/bin/bash
 
-# Script to be run by the cron job at the end of trading
+
+# Script to be run from the runVPStratLauncher.sh, after the binary stops
+
+
+#----------------------------------------------
+printUsage()
+{
+    cat << %%USAGE%%
+         Usage: $(basename ${0}) [-h]
+
+    Description:
+        Run the shutdown procedure, after the VPStratLauncher binary exits.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       --afterRun
+             Signals that the script is called after the binary has stopped.
+             Consequantly the script does not check if the binary is still 
+             running, but just proceeds with the task.
+%%USAGE%%
+}
+
 
 #----------------------------------------------
 getHistoricalLogDir()
@@ -48,11 +72,47 @@ resetSequenceNumbers()
 # Main script
 #----------------------------------
 
+ARGS=$(getopt -o h -l "help,afterRun" -n "$(basename ${0})" -- "$@")
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+## Parse options
+afterRun=0
+while true; do
+    case ${1} in
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    --afterRun)
+        afterRun=1
+        shift
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # This is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
+
+
 # If the binary still runs, exit
-processId=$(findVPStratLauncherInstances)
-if [[ -n "${processId}" ]]; then 
-    printf "Binary still running (process id: ${processId}). Aborting."
-    exit 1
+if [[ ${afterRun} -ne 1 ]]; then
+    processId=$(findVPStratLauncherInstances)
+    if [[ -n "${processId}" ]]; then 
+        printf "Binary still running (process id: ${processId}). Aborting.\n"
+        exit 1
+    fi
 fi
 
 baseScript=${HOME}/CRON/base.sh
