@@ -74,11 +74,15 @@ do
 done
 
 # Update the crontab, if a cron.$USER.tab exists
-CRONTAB_FILE=$HOME/CRON/cron.tab
-if [ -f $CRONTAB_FILE ]; then
-    echo "--- Updated cron jobs from file: $CRONTAB_FILE."
-    crontab $CRONTAB_FILE
-else
-    echo "--- No crontab file ($CRONTAB_FILE) found. Will not update cron jobs."
-fi
+host=$(hostname -s)
+CRONTAB_FILES="$HOME/CRON/cron.tab.${host} $HOME/CRON/cron.tab"
+for ctf in ${CRONTAB_FILES}; do
+    if [ -f ${ctf} ]; then
+        echo "--- Updated cron jobs from file: ${ctf}."
+        crontab ${ctf}
+        break
+    else
+        echo "--- No crontab file ($ctf) found."
+    fi
+done
 
