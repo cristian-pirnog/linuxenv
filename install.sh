@@ -24,7 +24,8 @@ myOriginalDir=`pwd`
 
 # Remove all symlinks that point to the current dir
 cd ${HOME}
-rm $(ls -AFl | awk '{print $(NF-2), $NF}' | grep ${myOriginalDir} | awk '{print $1}')
+symlinksToRemove=$(ls -AFl | awk '{print $(NF-2), $NF}' | grep ${myOriginalDir} | awk '{print $1}')
+test -n "${symlinksToRemove}" && rm ${symlinksToRemove}
 cd $myOriginalDir
 
 for myDir in $ALL_DIRS

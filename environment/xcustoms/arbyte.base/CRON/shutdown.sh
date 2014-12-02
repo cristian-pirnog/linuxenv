@@ -13,7 +13,7 @@ getHistoricalLogDir()
             mkdir -p ${histLogDir}
 	    
             # Make a symlink to the latest log dir
-            latestLog=${logDir}/latest
+            latestLog=${histLogDir}/../latest
             if [[ -h ${latestLog} ]]; then rm ${latestLog}; fi
             ln -s ${dir} ${latestLog}
             break
@@ -91,7 +91,7 @@ cp -r ${strategyConfigDir} ${historicalLogDir}
 ###############################
 bkpDirOnNAS=${arbyteLiveBkpDir}/${date}/$(hostname --short)
 ssh ${arbyteNAS} "mkdir -p ${bkpDirOnNAS}"
-rsync -azvh ${logDir}/${date}/ ${arbyteNAS}:${bkpDirOnNAS}
+rsync -azvh ${historicalLogDir} ${arbyteNAS}:${bkpDirOnNAS}
 
 
 ###############################

@@ -111,7 +111,7 @@ if [[ ${BASE_DIRECTORY} != "./" ]]; then
    exit 1
 fi
 
-printf "Warning!!! This will overwrite any existing customizations for the user ${XCUSTOMS_USER}\n"
+printf "\nWarning!!! This will overwrite the existing user customizations.'\n"
 printf "Are you sure you want to continue? [Y/N] "
 read answer
 
@@ -123,6 +123,19 @@ esac
 XCUSTOMS_USER=$(GetCachedConfigValue XCUSTOMS_USER)
 if [[ -z ${XCUSTOMS_USER} ]]; then
     XCUSTOMS_USER=$USER
+
+    case ${XCUSTOMS_USER} in
+       arbyteprod)
+           XCUSTOMS_USER=arbyte
+           DEFAULT_CUSTOM_DIR=arbyte.prod
+           SaveConfigValueToCache DEFAULT_CUSTOM_DIR ${DEFAULT_CUSTOM_DIR}
+           ;;
+       arbytetest)
+           XCUSTOMS_USER=arbyte
+           DEFAULT_CUSTOM_DIR=arbyte.test
+           SaveConfigValueToCache DEFAULT_CUSTOM_DIR ${DEFAULT_CUSTOM_DIR}
+           ;;
+    esac
 fi
 
 printf "Enter user name (default ${XCUSTOMS_USER}): "

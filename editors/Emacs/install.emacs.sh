@@ -21,11 +21,11 @@ if [[ ${INSTALL_ALL} -ne 1 ]]; then
 		INSTALL_EMACS=0
 		;;
 	esac
-    else
-	INSTALL_EMACS=1
+    SaveConfigValueToCache INSTALL_EMACS ${INSTALL_EMACS}
     fi
+else
+	INSTALL_EMACS=1
 fi
-SaveConfigValueToCache INSTALL_EMACS ${INSTALL_EMACS}
 
 if [ ${INSTALL_EMACS} -eq 1 ]; then
     CWD=`pwd`
