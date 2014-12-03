@@ -20,6 +20,11 @@
 ;; default to unified diffs
 (setq diff-switches "-u")
 
+;; Mapping of back-space key when run in termina, such that we can delete properly
+;; (define-key key-translation-map [?\C-h] [?\C-?])
+;; (keyboard-translate ?\C-h ?\C-?)
+(global-set-key [(control c)] 'delete-backward-char)
+
 ;; Enable syntax highlighting
 (global-font-lock-mode t)
 (setq font-lock-maximum-decoration t)
