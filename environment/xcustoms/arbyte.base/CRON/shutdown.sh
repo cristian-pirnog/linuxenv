@@ -7,20 +7,20 @@ getHistoricalLogDir()
 {
     local histLogDir=""
     for i in `seq 1 50`; do
-	local dir=${date}/${i}
+        local dir=${date}/${i}
         histLogDir=${liveDir}/log/${dir}
-	if [[ ! -d ${histLogDir} ]]; then
-            mkdir -p ${histLogDir}
+	    if [[ ! -d ${histLogDir} ]]; then
+           mkdir -p ${histLogDir}
 	    
-            # Make a symlink to the latest log dir
-            latestLog=${histLogDir}/../latest
-            if [[ -h ${latestLog} ]]; then rm ${latestLog}; fi
-            ln -s ${dir} ${latestLog}
-            break
-	fi
+           # Make a symlink to the latest log dir
+           latestLog=${histLogDir}/../../latest
+           if [[ -h ${latestLog} ]]; then rm ${latestLog}; fi
+           ln -s ${dir} ${latestLog}
+           break
+        fi
     done
 
-    echo ${histLogDir}
+echo ${histLogDir}
 }
 
 #----------------------------------------------
