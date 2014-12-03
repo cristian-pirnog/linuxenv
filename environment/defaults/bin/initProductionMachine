@@ -75,6 +75,10 @@ setupAccount()
     touch ${lSshDir}/authorized_keys
     chmod 600 ${lSshDir}/authorized_keys
 
+    # Give the group read permissions
+    chmod -R g+r ${lHomeDir}
+    chmod -R g+X ${lHomeDir}
+
     # Create the live dir
     mkdir -p ${lHomeDir}/live/bin
     mkdir -p ${lHomeDir}/live/log

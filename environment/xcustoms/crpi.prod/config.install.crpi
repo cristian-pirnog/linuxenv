@@ -6,6 +6,4 @@
 #
 # Files from 'CRON' directory
 #
-CRON/cron.tab.baar ${HOME}/CRON/cron.tab.baar
-CRON/checkRolling.sh ${HOME}/CRON/checkRolling.sh
 
