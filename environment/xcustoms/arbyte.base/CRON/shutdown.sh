@@ -125,7 +125,6 @@ fi
 source ${baseScript}
 source ${HOME}/CRON/email.sh
 
-
 ###############################
 # Copy/Move all relevant files to the historicalLogDir
 ###############################
