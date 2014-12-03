@@ -85,11 +85,11 @@ for ctf in ${CRONTAB_FILES}; do
         echo "--- No crontab file ($ctf) found."
 
         if [[ -n "$(crontab -l | grep -v '^#' | sed '/^ *$/d')" ]]; then
-            print "\n\nFound scheduled cron jobs\n"
+            printf "\n\nFound scheduled cron jobs\n"
             echo "------------------------------------------"
-            crontab-l
+            crontab -l
             echo "------------------------------------------"
-            print "Would you like to remove them? [y/n] "
+            printf "Would you like to remove them? [y/n] "
    
             read answer
 
