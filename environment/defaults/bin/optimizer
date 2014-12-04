@@ -29,6 +29,9 @@ cat << %%USAGE%%
        --rocardian
              Runs the rocardian binary. If not specified, it runs the ronin binary.
 
+       --options list,of,options
+             Passes the list of options to the optimizer.
+
 %%USAGE%%
 }
 
