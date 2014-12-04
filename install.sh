@@ -83,6 +83,25 @@ for ctf in ${CRONTAB_FILES}; do
         break
     else
         echo "--- No crontab file ($ctf) found."
+
+        if [[ -n "$(crontab -l | grep -v '^#' | sed '/^ *$/d')" ]]; then
+            printf "\n\nFound scheduled cron jobs\n"
+            echo "------------------------------------------"
+            crontab -l
+            echo "------------------------------------------"
+            printf "Would you like to remove them? [y/n] "
+   
+            read answer
+
+          case $answer in
+              y| Y | yes | Yes | YES)
+                  crontab -r
+                  ;;
+              *)
+                  echo "Keeping CRON jobs"
+                  ;;
+          esac
+       fi
     fi
 done
 

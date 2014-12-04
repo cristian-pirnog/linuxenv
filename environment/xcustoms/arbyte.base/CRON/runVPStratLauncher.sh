@@ -141,4 +141,4 @@ ${message}
 EOF
 
 # At the end, run the shutdown script
-$(dirname ${0})/shutdown.sh
+$(dirname ${0})/shutdown.sh --afterRun
