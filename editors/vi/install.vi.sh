@@ -5,7 +5,7 @@ INSTALL_VI=$(GetCachedConfigValue INSTALL_VI)
 
 source "$HOME/.${USER}_config/base.sh"
 
-if [[ $1 -ne 1 ]]; then
+if [[ ${1} -ne 1 ]]; then
     if [[ -z ${INSTALL_VI} ]]; then
 	printf "Would you like to install default settings for VI? [Y/N] "
 	read answer
@@ -17,11 +17,11 @@ if [[ $1 -ne 1 ]]; then
 		INSTALL_VI=0
 		;;
 	esac
-    else
-	INSTALL_VI=1
     fi
-fi
 SaveConfigValueToCache INSTALL_VI ${INSTALL_VI}
+else
+   INSTALL_VI=1
+fi
 
 if [[ ${INSTALL_VI} -eq 1 ]]; then
     CWD=`pwd`

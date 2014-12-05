@@ -61,6 +61,7 @@ printUsage()
 wafBuild()
 {
     COMPILER=g++-4.8.2
+    waf clean
     CXX=${COMPILER} waf configure build install $@
 }
 
@@ -201,14 +202,14 @@ case ${option} in
     "clean"|"fresh")
 	remove=1
 	if [[ ${scriptMode} -eq 0 ]]; then
-	    getAnswer "About to remove directory ${buildType}. Continue?" || remove=0
+	    getAnswer "About to remove directory ${buildDir}. Continue?" || remove=0
 	fi
 
 	if [[ ${remove} -eq 1 ]]; then
 	    if [[ -f wscript ]]; then
 		waf configure distclean -o ${buildDirRoot}/${buildDir}
 	    else
-		rm -rf ${buildType}
+		rm -rf ${buildDir}
 	    fi
 	fi
 

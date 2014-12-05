@@ -29,13 +29,16 @@ cat << %%USAGE%%
        --rocardian
              Runs the rocardian binary. If not specified, it runs the ronin binary.
 
+       --options list,of,options
+             Passes the list of options to the optimizer.
+
 %%USAGE%%
 }
 
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hb:d -l "help,branch:,roc,rocardian,debug" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o hb:d -l "help,branch:,roc,rocardian,debug,options:" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -67,6 +70,10 @@ while true; do
 	    client=rocardian
 	    shift
 	    ;;
+    --options)
+        options=$(echo ,${2} | sed 's/,/ --/g')
+        shift 2
+        ;;
 	--)
 	    shift
 	    break
@@ -94,5 +101,5 @@ if [[ ! -f ${binary} ]]; then
 fi
 
 printf "\n[%s %s %s]\n\n" ${client} ${branch} ${buildType} 
-LD_LIBRARY_PATH=${libPath} ${binary} $@
+LD_LIBRARY_PATH=${libPath} ${binary} $@ ${options}
 

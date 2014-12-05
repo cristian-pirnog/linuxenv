@@ -44,9 +44,6 @@ set smartindent
 "ab reg Registry.instance().get( ).stringValue();
 "ab sop  System.out.println("");<LEFT><LEFT><LEFT>
 
-ab svnsplit MatlabInfo:split; branch:XXX; in_revision:XXX; base:XXX
-ab svnmerge MatlabInfo:merge; origin:XXX; target:XXX; range:XXX:YYY;
-
 "ab tr <ESC>ma?(<CR>:.,/{/!/home/developer/bin/TraceFilter.pl<ESC>`a<ESC>i
 "ab tra <ESC>ma?(<CR>:.,/{/!/home/developer/bin/TraceAssertFilter.pl<ESC>`a<ESC>i
 "ab cpc <ESC>ma?(<CR>:.,/{/!/home/developer/bin/CopyConstructor.pl<ESC>`a<ESC>i
@@ -65,8 +62,8 @@ map <F6>  : tabp <CR>
 map <F7>  : tabn <CR>
 
 " map keyboard to toggle paste mode
+map <F8> :set nopaste<CR>
 map <F9> :set paste<CR> 
-map <F10> :set nopaste<CR>
 
 " show status line
 set laststatus=2

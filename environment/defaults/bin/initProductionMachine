@@ -75,22 +75,27 @@ setupAccount()
     touch ${lSshDir}/authorized_keys
     chmod 600 ${lSshDir}/authorized_keys
 
+    # Give the group read permissions
+    chmod -R g+r ${lHomeDir}
+    chmod -R g+X ${lHomeDir}
+
     # Create the live dir
     mkdir -p ${lHomeDir}/live/bin
     mkdir -p ${lHomeDir}/live/log
     mkdir -p ${lHomeDir}/live/dat
 
     # Clone/update the git repo
-    targetGitDir=/home/${user}/.${user}_config
-    if [[ ! -d /home/${user}/.${user}_config ]]; then
-	git clone arbyte@10.199.10.104:/volume1/repository/environment ${targetGitDir} || return 1
+    targetGitDir=${lHomeDir}/.${lAccountName}_config
+    if [[ ! -d ${targetGitDir} ]]; then
+	git clone crpi@10.199.10.104:/volume1/repository/environment ${targetGitDir} || return 1
     fi
-    cd ${targetGitDir} && ./update_user --nopull
+    cd ${targetGitDir} && sudo -u ${lAccountName} ./update_user --nopull
 
     # Make user owner of all the files in his home directory
     chown ${lAccountName}:prod -R ${lHomeDir}
 
-    # Deploy the ssh keys for the production user
+    # TODO: Deploy the authorized keys for the production user
+
 
 }
 

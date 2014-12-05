@@ -24,7 +24,8 @@ myOriginalDir=`pwd`
 
 # Remove all symlinks that point to the current dir
 cd ${HOME}
-rm $(ls -AFl | awk '{print $(NF-2), $NF}' | grep ${myOriginalDir} | awk '{print $1}')
+symlinksToRemove=$(ls -AFl | awk '{print $(NF-2), $NF}' | grep ${myOriginalDir} | awk '{print $1}')
+test -n "${symlinksToRemove}" && rm ${symlinksToRemove}
 cd $myOriginalDir
 
 for myDir in $ALL_DIRS
@@ -73,11 +74,34 @@ do
 done
 
 # Update the crontab, if a cron.$USER.tab exists
-CRONTAB_FILE=$HOME/CRON/cron.tab
-if [ -f $CRONTAB_FILE ]; then
-    echo "--- Updated cron jobs from file: $CRONTAB_FILE."
-    crontab $CRONTAB_FILE
-else
-    echo "--- No crontab file ($CRONTAB_FILE) found. Will not update cron jobs."
-fi
+host=$(hostname -s)
+CRONTAB_FILES="$HOME/CRON/cron.tab.${host} $HOME/CRON/cron.tab"
+for ctf in ${CRONTAB_FILES}; do
+    if [ -f ${ctf} ]; then
+        echo "--- Updated cron jobs from file: ${ctf}."
+        crontab ${ctf}
+        break
+    else
+        echo "--- No crontab file ($ctf) found."
+
+        if [[ -n "$(crontab -l | grep -v '^#' | sed '/^ *$/d')" ]]; then
+            printf "\n\nFound scheduled cron jobs\n"
+            echo "------------------------------------------"
+            crontab -l
+            echo "------------------------------------------"
+            printf "Would you like to remove them? [y/n] "
+   
+            read answer
+
+          case $answer in
+              y| Y | yes | Yes | YES)
+                  crontab -r
+                  ;;
+              *)
+                  echo "Keeping CRON jobs"
+                  ;;
+          esac
+       fi
+    fi
+done
 
