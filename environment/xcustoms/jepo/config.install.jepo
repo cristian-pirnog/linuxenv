@@ -4,3 +4,6 @@ bin/optimizer.sh $HOME/bin/optimizer.sh
 bin/findMbbaFile.sh $HOME/bin/findMbbaFile.sh
 bin/rsyncScript.sh $HOME/bin/rsyncScript.sh
 bin/runGuis.sh $HOME/bin/runGuis.sh
+bin/createMBBAdata.sh $HOME/bin/createMBBAdata.sh
+bin/getYesterdaysData.sh $HOME/bin/getYesterdaysData.sh
+CRON/cron.tab.DARB-HAN-APP1 $HOME/CRON/cron.tab.DARB-HAN-APP1
