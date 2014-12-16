@@ -21,6 +21,7 @@ then
 fi
 
 YYYYMMDD=$(date +"%Y%m%d")
+YYYYMMDD_hhmm=$(date +"%Y%m%d_%H%M")
 
 didRunForDay=$(ls $outputDir | grep missingData_$YYYYMMDD | wc -l)
 #echo "didRunForDay = $didRunForDay"
@@ -48,7 +49,6 @@ oldFilesNames="missingData_"$YYYYMMDD"_*.csv"
 rm -f $outputDir/$oldFilesNames
 
 # Rename missingData.csv file to missingData_YYYYMMDD_hhmm.csv
-YYYYMMDD_hhmm=$(date +"%Y%m%d_%H%M")
 newFileName="missingData_"$YYYYMMDD_hhmm".csv"
 #echo $newFileName
 
