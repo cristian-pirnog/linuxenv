@@ -1,0 +1,96 @@
+#!/bin/bash
+
+
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) [-h]
+            $(basename ${0}) [options] -- [job command and params]
+
+     Options
+       -h
+       --help
+             Print this help message and exit.
+
+       --roc
+             Run a ROCARDIAN job, instead of the default RONIN one.
+
+       -b branchName
+       --branch branchName
+             Run the code from the specified branch instead of master. This applies
+	     to both the C++ and the Python code.
+
+       --pythonPath path
+             Specifies additional directories to be added to the PYTHONPATH 
+             environment variable.
+
+%%USAGE%%
+}
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+ARGS=$(getopt -o hb: -l "help,roc,branch:,pythonPath:" -n "$(basename ${0})" -- "$@")
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+## Parse options
+client=ronin
+branchName=master
+pythonPath=''
+while true; do
+    case ${1} in
+	-h|--help)
+	    printUsage
+	    exit 0
+	    ;;
+	--roc)
+	    client=rocardian
+	    shift
+	    ;;
+	-b|--branch)
+	    branchName=${2}
+	    shift 2
+	    ;;
+    --pythonPath)
+        pythonPath=${2}
+        shift 2
+        ;;
+	--)
+	    shift
+	    break
+	    ;;
+	"")
+	    # This is necessary for processing missing optional arguments 
+	    shift
+	    ;;
+    esac
+done
+
+# Create and check the lib path
+libPath=${HOME}/deploy/${branchName}/Release/lib
+if [[ ! -d ${libPath} ]]; then
+   printf "Library path not found: ${libPath}"
+   exit 1
+fi
+
+codePath=${HOME}/code/drogon
+if [[ ! -d ${codePath} ]]; then
+   printf "Code path not found: ${codePath}\n"
+   exit 1
+fi
+
+codeBranch=$(cd ${codePath} && branch -ls | awk '{print $2}')
+if [[ ${codeBranch} != ${branchName} ]]; then
+    printf "Branch of the code is %s, different than %s\n" ${codeBranch} ${branchName}
+    exit 1
+fi
+
+LD_LIBRARY_PATH=${libPath}:${codePath}/lib/portfolio/lib PYTHONPATH=${codePath}/src/python:${codePath}/src/C/marketdata_CME/python:${codePath}/lib/cvxopt-1.1.6/python:${codePath}/lib/python-bindings:${libPath}:${codePath}/lib/portfolio/lib:${pythonPath} PYCLIENT=${client} $@ || exit $?

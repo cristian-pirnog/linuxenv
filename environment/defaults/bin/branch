@@ -63,8 +63,7 @@ cat << %%USAGE%%
        --merge fromBranch [toBranch]
              Merge the changes in fromBranch to toBranch
 
-       -l [all]
-       --list [s] [all]
+       -l[s|all]
              List the current branch for each project. 
 
 	     If option 's' is provided, the output will be formatted for use 
@@ -82,7 +81,7 @@ cat << %%USAGE%%
 #----------------------------------------------
 printCurrentBranch()
 {
-    branch -l s | awk '{print $NF}' | sort | uniq
+    branch -ls | awk '{print $NF}' | sort | uniq
 }
 
 
@@ -332,7 +331,7 @@ mergeBranch()
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hx:c:d:D:fs:t:m:l -l "help,exclude:,create:,delete:,deleteRemote:,DELETE:,fetch,switch:,track:,merge:,list::" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o hx:c:d:D:fs:t:m:l:: -l "help,exclude:,create:,delete:,deleteRemote:,DELETE:,fetch,switch:,track:,merge:" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -398,9 +397,9 @@ while true; do
 	    arguments=${2}
 	    shift 2
 	    ;;
-	-l|--list)
-	    shift
+	-l)
 	    listBranches ${2}
+	    shift 2
 	    exit 0
 	    ;;
 	--)
