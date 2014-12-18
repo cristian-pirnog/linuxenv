@@ -8,6 +8,6 @@ MAILTO=pirnog@gmail.com
 #DISPLAY=:0
 
 # Each weekday, start the binaries
-50 05 * * Mon-Fri bash --login -c "cd ~/live.forRecording/bin && ./runLauncherForRecording.sh" > /dev/null 2>&1
-45 05 * * Mon-Fri bash --login -c "cd ~/live/bin && ~/CRON/runVPStratLauncher.sh" > /dev/null 2>&1
+50 06 * * Mon-Fri bash --login -c "cd ~/live.forRecording/bin && ./runLauncherForRecording.sh" > /dev/null 2>&1
+45 06 * * Mon-Fri bash --login -c "cd ~/live/bin && ~/CRON/runVPStratLauncher.sh" > /dev/null 2>&1
 
