@@ -31,7 +31,7 @@ nrOfFiles=$4
 filesFound=0
 while [ $filesFound -lt $nrOfFiles ]
 do
-	rsync -az -e "ssh -q" --timeout=2 --bwlimit=20000 $fromDir/* $toDir
+	rsync -az -e "ssh -q" --timeout=9 --bwlimit=20000 $fromDir/* $toDir
 	filesFound=$(nrOfFilesFound $toDir $extension)
 	echo -e "FILES WITH EXTENSION $extension FOUND IN DIR $toDir IS $filesFound \t NR OF FILES TO BE FOUND: $nrOfFiles"
 done

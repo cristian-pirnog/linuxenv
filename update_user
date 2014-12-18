@@ -111,7 +111,7 @@ if [[ ${BASE_DIRECTORY} != "./" ]]; then
    exit 1
 fi
 
-printf "\nWarning!!! This will overwrite the existing user customizations.'\n"
+printf "\nWarning!!! This will overwrite the existing user customizations.\n"
 printf "Are you sure you want to continue? [Y/N] "
 read answer
 

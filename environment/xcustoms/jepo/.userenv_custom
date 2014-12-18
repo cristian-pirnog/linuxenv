@@ -3,3 +3,4 @@ export PYTHONPATH=$PYTHONPATH:/home/jepo/code/drogon/src/python:/home/jepo/code/
 #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/jepo/deploy/master/Release/lib:/usr/local/lib64:/usr/local/lib:/home/jepo/code/ronin/libs/support/lib
 export SKIP_PORTFOLIO_BUILD=1
 export PROJECTS_TO_BUILD="katania balerion/strategy balerion/live balerion/optimizer __client__/support __client__/optimizer unit_tests/katania __client__/live"
+export JAVA_HOME=/usr/java/latest

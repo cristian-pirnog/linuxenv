@@ -7,7 +7,7 @@ source ~/.userfunctions
 gitDirs=$(listRepos)
 alignSize=$(getAlignSize ${gitDirs})
 
-branches=$(branch -l s | awk '{print $NF}' | sort | uniq | tr '\n' ' ')
+branches=$(branch -ls | awk '{print $NF}' | sort | uniq | tr '\n' ' ')
 msg="On branch: "
 if [[ $(echo ${branches} | wc -w) -gt 1 ]]; then
     msg="Mixed branches:"
