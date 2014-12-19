@@ -12,7 +12,6 @@ synergy.conf $HOME/.synergy.conf
 bin/from_unixtime_ms $HOME/bin/from_unixtime_ms
 bin/myXterm $HOME/bin/myXterm
 bin/twoTerms $HOME/bin/twoTerms
-bin/runPy $HOME/bin/runPy
 bin/coolSsh $HOME/bin/coolSsh
 #
 # Files from 'useful' directory

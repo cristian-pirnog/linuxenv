@@ -24,3 +24,4 @@ bin/updateProductionMachine ${HOME}/bin/updateProductionMachine
 bin/deployToProduction ${HOME}/bin/deployToProduction
 bin/optimizer ${HOME}/bin/optimizer
 bin/distributeSSHKeys ${HOME}/bin/distributeSSHKeys
+bin/runPy $HOME/bin/runPy

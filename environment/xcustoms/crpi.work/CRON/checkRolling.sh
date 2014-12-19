@@ -135,7 +135,7 @@ for p in ${products}; do
     rollDate=$(optimizer staticInfo ${p} ${fromDate} ${untilDate} | awk '{if($4 == 1) print $1}')
     if [[ -n ${rollDate} ]]; then
 	message=${message}"
-The product %s must be rolled on %s\n" $p $(dateOfNextWeekDay ${rollDate})
+"$(printf "The product %s must be rolled on %s\n" $p $(dateOfNextWeekDay ${rollDate}))
     fi
 done
 

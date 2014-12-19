@@ -61,6 +61,7 @@ printUsage()
 wafBuild()
 {
     COMPILER=g++-4.8.2
+    waf clean
     CXX=${COMPILER} waf configure build install $@
 }
 
