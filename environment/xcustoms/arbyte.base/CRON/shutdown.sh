@@ -178,6 +178,7 @@ rm -f ${datDir}/*
 resetSequenceNumbers EUX 
 resetSequenceNumbers ICE
 resetSequenceNumbers ICL
+resetSequenceNumbers LIF
 #     ... at the end of the week on CME
 if [[ $(date +%w) -eq 5 ]]; then
     resetSequenceNumbers CME
