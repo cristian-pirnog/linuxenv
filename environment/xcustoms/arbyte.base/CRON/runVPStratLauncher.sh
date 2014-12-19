@@ -73,8 +73,15 @@ recipientsList="${CRISTIAN} ${JENS} ${GIULIANO}"
 ###############################
 configFile="arbyte.xml"
 xmllint --noout ${configFile}
+
+if [[ ! -f ${configFile} ]]; then
+    printf "\n No ${configFile} found. Will not start the binary.\n\n
+    exit 0"
+fi
+
 if [[ $? -ne 0 ]]; then
     printf "\nError in the config file %s. Will not start the binary.\n\n" ${configFile}
+    exit 1
 fi
 
 ###############################
@@ -104,9 +111,6 @@ fi
 ###############################
 # Prepare the environment
 ###############################
-# Touch the cmeRecoverFile (do not clear, in case of restart)
-cmeRecoverFile='../dat/cmearbp1_recover.csv'
-touch ${cmeRecoverFile}
 
 
 ###############################
