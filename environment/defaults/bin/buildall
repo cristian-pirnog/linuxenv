@@ -113,7 +113,7 @@ fi
 
 # Get the active branch name, if not provided as input
 if [[ -z ${branchName} ]]; then
-    branchName=$(branch -l s | awk '{print $NF}' | sort | uniq)
+    branchName=$(branch -ls | awk '{print $NF}' | sort | uniq)
     if [[ $(echo ${branchName} | wc -w) -gt 1 ]]; then
 	if [[ ${forceBuild} ]]; then
 	    echo "Warning!!! Mixed branches found. Forcing build."
