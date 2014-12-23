@@ -74,7 +74,9 @@ fi
 
 baseDir="/home/$USER/deploy/master/Release"
 libDir="${baseDir}/lib"
-binaryFile="${baseDir}/bin/rocardian.optimizer.exe"
+binaryFile="${baseDir}/bin/ronin.optimizer.exe"
+
+#echo $binaryFile
 
 # Default break start/stop times 
 breakStartTime=80000
@@ -165,8 +167,8 @@ do
 	fi
 
 	# If you are here, then it means job has finished (i.e. is not running at the moment, but might have failed; tested below)
-	if [ "$exch1" == "CME" -a "$exch2" == "CME" ]
-    	then
+	#if [ "$exch1" == "CME" -a "$exch2" == "CME" ]
+    	#then
 		jobSucceeded=$(test_job_succeeded $dirName)
 		#echo -e "JOB: $dirName SUCC: $jobSucceeded\n"
 		#continue
@@ -187,13 +189,13 @@ do
 					continue
 				fi
 			fi
-		else
-			#echo "$dirName SUCCEEDED!"
-			continue
+	#else
+	#		#echo "$dirName SUCCEEDED!"
+	#		continue
 		fi
-	else
-		continue
-	fi
+	#else
+	#	continue
+	#fi
     fi
 
     # Check again whether this job is running, because I am trying to avoid a race condition
@@ -224,19 +226,19 @@ do
     chmod 777 $dirName
     cd $dirName
 
-    if [ "$exch1" != "CME" -o "$exch2" != "CME" ]
-    then
-	echo "One of the products is not a CME product (prod1: $prod1, prod2: $prod2). Skipping optimization!" > $dirName/screenOutput.txt
-    	rm .isRunning
-	continue;
-    fi
+    #if [ "$exch1" != "CME" -o "$exch2" != "CME" ]
+    #then
+	#echo "One of the products is not a CME product (prod1: $prod1, prod2: $prod2). Skipping optimization!" > $dirName/screenOutput.txt
+    	#rm .isRunning
+	#continue;
+    #fi
 
-    if [ "$prod1" == "CME.HRWHT" -o "$prod2" == "CME.HRWHT" ]
-    then
-	echo "One of the products is CME.HRWHT (prod1: $prod1, prod2: $prod2). No data for this product. Skipping optimization!" > $dirName/screenOutput.txt
-    	rm .isRunning
-	continue
-    fi
+    #if [ "$prod1" == "CME.HRWHT" -o "$prod2" == "CME.HRWHT" ]
+    #then
+	#echo "One of the products is CME.HRWHT (prod1: $prod1, prod2: $prod2). No data for this product. Skipping optimization!" > $dirName/screenOutput.txt
+    	#rm .isRunning
+	#continue
+    #fi
 
     startT=$(echo $line | awk '{print "T"$3}')
     stopT=$(echo $line | awk '{print "T"$4}')

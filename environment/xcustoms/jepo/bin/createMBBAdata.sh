@@ -9,11 +9,11 @@ function createMBBA
 
 	a=$(optimizer.sh ronin master Release printData $prodLoc $dateLoc f q useDB:1 &>/dev/null)
 
-        fileExists2=$(find /data01/RONIN/MBBA/$prodLoc* -name "$dateLoc*.mbba" | awk -F '/' '{if(length($5)==(length("'$prodLoc'")+2)){print $5}}' | wc -l)
+        fileExists2=$(find /home/$USER/scratch/cluster/MBBA/$prodLoc* -name "$dateLoc*.mbba" | awk -F '/' '{if(length($7)==(length("'$prodLoc'")+2)){print $7}}' | wc -l)
         if [ $fileExists2 -ge 1 ]
         then
         	#echo "NEW FILE FOUND: $prodLoc $dateLoc"
-		fileName2=$(find /data01/RONIN/MBBA/$prodLoc* -name "$dateLoc*.mbba" | awk -F '/' '{if(length($5)==(length("'$prodLoc'")+2)){print $1"/"$2"/"$3"/"$4"/"$5"/"$6}}' | xargs ls -l | awk '{if($5>maxFsz){maxFsz=$5;file=$9}}END{print file}')
+		fileName2=$(find /home/$USER/scratch/cluster/MBBA/$prodLoc* -name "$dateLoc*.mbba" | awk -F '/' '{if(length($7)==(length("'$prodLoc'")+2)){print $1"/"$2"/"$3"/"$4"/"$5"/"$6"/"$7"/"$8}}' | xargs ls -l | awk '{if($5>maxFsz){maxFsz=$5;file=$9}}END{print file}')
                 fileSize2=$(ls -l $fileName2 | awk '{print $5}')
 
                 if [ $fileSize2 -le 250 ]
@@ -76,11 +76,11 @@ do
         echo -e "PROD: $prod \t DATE: $date"
 	totalDays=$((totalDays+1))
 
-	fileExists=$(find /data01/RONIN/MBBA/$prod* -name "$date*.mbba" | awk -F '/' '{if(length($5)==(length("'$prod'")+2)){print $5}}' | wc -l)
+	fileExists=$(find /home/$USER/scratch/cluster/MBBA/$prod* -name "$date*.mbba" | awk -F '/' '{if(length($7)==(length("'$prod'")+2)){print $7}}' | wc -l)
 	if [ $fileExists -ge 1 ]
         then
 		#echo "FILE FOUND: $prod $date"
-		fileName=$(find /data01/RONIN/MBBA/$prod* -name "$date*.mbba" | awk -F '/' '{if(length($5)==(length("'$prod'")+2)){print $1"/"$2"/"$3"/"$4"/"$5"/"$6}}' | xargs ls -l | awk '{if($5>maxFsz){maxFsz=$5;file=$9}}END{print file}')
+		fileName=$(find /home/$USER/scratch/cluster/MBBA/$prod* -name "$date*.mbba" | awk -F '/' '{if(length($7)==(length("'$prod'")+2)){print $1"/"$2"/"$3"/"$4"/"$5"/"$6"/"$7"/"$8}}' | xargs ls -l | awk '{if($5>maxFsz){maxFsz=$5;file=$9}}END{print file}')
 		fileSize=$(ls -l $fileName | awk '{print $5}')
 
 		alias=$(grep ",$prod," /mnt/config/RONIN/products.csv | awk -F ',' '{print $3}')
