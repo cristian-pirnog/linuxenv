@@ -72,13 +72,12 @@ recipientsList="${CRISTIAN} ${JENS} ${GIULIANO}"
 # Test the config file
 ###############################
 configFile="arbyte.xml"
-xmllint --noout ${configFile}
-
 if [[ ! -f ${configFile} ]]; then
     printf "\n No ${configFile} found. Will not start the binary.\n\n
     exit 0"
 fi
 
+xmllint --noout ${configFile}
 if [[ $? -ne 0 ]]; then
     printf "\nError in the config file %s. Will not start the binary.\n\n" ${configFile}
     exit 1
