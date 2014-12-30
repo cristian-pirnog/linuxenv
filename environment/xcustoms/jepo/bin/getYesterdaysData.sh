@@ -28,7 +28,7 @@ didRunForDay=$(ls $outputDir | grep missingData_$YYYYMMDD | wc -l)
 if [ $didRunForDay -ge 1 ]
 then
 	latestMissingDataFile=$(ls $outputDir | grep missingData_$YYYYMMDD | tail -1)
-	isDataMissing=$(wc -l $latestMissingDataFile | awk '{print $1}')
+	isDataMissing=$(wc -l $outputDir/$latestMissingDataFile | awk '{print $1}')
 	#echo "latestMissingDataFile= $latestMissingDataFile , isDataMissing= $isDataMissing"
 	if [ $isDataMissing -eq 0 ]
 	then
