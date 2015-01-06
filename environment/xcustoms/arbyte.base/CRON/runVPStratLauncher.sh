@@ -1,10 +1,12 @@
-#/bin/bash
+#!/bin/bash
 
 #----------------------------------------------
 printUsage()
 {
     cat << %%USAGE%%
-         Usage: $(basename ${0}) [-h]
+
+    Usage: $(basename ${0}) [-h]
+           $(basename ${0}) [--noYang]
 
     Description:
         Run the VPStratLauncher binary.
@@ -14,13 +16,48 @@ printUsage()
        --help
              Print this help message and exit.
 
+       --noYang
+             Do not start the Yang monitoring tool.
+
 %%USAGE%%
 }
+
+
+#----------------------------------------------
+startYang()
+{
+    local lConfigFile=${1}
+    local lLogDir=${2}
+    local lRecipientsList=${3}
+
+    local lRunType=PROD
+    local lReceivingHost="10.194.77.90"
+    local lReceivingPort=7303
+    if [[ ${USER} == arbytetest ]]; then
+       lRunType=DEV
+       lReceivingHost="10.194.77.51"
+       lReceivingPort=17303
+    fi
+
+    local monitoringCommandStart="/usr/local/bin/python2.7 ./Yang/YangDbDealBookerStartup.py --h ${lReceivingHost} --p ${lReceivingPort} --l  ./Yang/kfc2_brand.so --hd OrderID,StrategyID,ExchangeID,OrderType,Side,Symbol,Size,Price,TIF,ExchangeTime,Status,ExeID,FillQty,FillPrice,PreviousOrderID,PreviousPrice --f ${lConfigFile} --w Y --hb 5 --ld ${lLogDir} --mail_to ${lRecipientsList} --e ${lRunType}"
+
+    echo "Starting Yang using command: ${monitoringCommandStart}" >> ${outputFile}
+    monitoringCommandStart
+}
+
+#----------------------------------------------
+stopYang()
+{
+    echo "Stopping Yang" >> ${outputFile}
+    /usr/local/bin/python2.7 ./Yang/StopYangDbDealBooker.py --i all
+}
+
+
 
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o h -l "help" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o h -l "help,noYang" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -31,12 +68,17 @@ fi
 eval set -- "$ARGS"
 
 ## Parse options
+noYang=0
 while true; do
     case ${1} in
     -h|--help)
         printUsage
         exit 0
         ;;
+    --noYang)
+	noYang=1
+	shift
+	;;
     --)
         shift
         break
@@ -51,11 +93,6 @@ done
 ###############################
 # Define some variables/constants
 ###############################
-runType=PROD
-if [[ ${USER} == arbytetest ]]; then
-   runType=DEV
-fi
-
 date=$(date +%Y%m%d)
 timeStamp=$(date +%Y%m%dT%H%M%S)
 outputFile=output_${timeStamp}.log
@@ -84,18 +121,10 @@ if [[ $? -ne 0 ]]; then
 fi
 
 ###############################
-# Prepare the commands to execute
-###############################
-productionHost="10.194.77.90"
-productionPort=7303
-monitoringCommandStart="/usr/local/bin/python2.7 ./Yang/YangDbDealBookerStartup.py --h ${productionHost} --p ${productionPort} --l  ./Yang/kfc2_brand.so --hd OrderID,StrategyID,ExchangeID,OrderType,Side,Symbol,Size,Price,TIF,ExchangeTime,Status,ExeID,FillQty,FillPrice,PreviousOrderID,PreviousPrice --f ${configFile} --w Y --hb 5 --ld ${logDir} --mail_to ${recipientsList} --e ${runType}"
-monitoringCommandStop='/usr/local/bin/python2.7 ./Yang/StopYangDbDealBooker.py --i all'
-binaryName=$(ls | grep VPStratLauncher | grep -v RWDI_unstripped | tail -1)
-strategyCommand="./${binaryName} --stratname ArByte --config ${configFile}"
-
-###############################
 # Perform some checks
 ###############################
+binaryName=$(ls | grep VPStratLauncher | grep -v RWDI_unstripped | tail -1)
+strategyCommand="./${binaryName} --stratname ArByte --config ${configFile}"
 if [[ -z ${binaryName} ]]; then
     echo "Could not find a binary to run. Exiting" >> ${outputFile}
     exit 1
@@ -108,21 +137,28 @@ if [[ -n $(fp "${strategyCommand} ") ]]; then
 fi
 
 ###############################
-# Prepare the environment
+# Start Yang
 ###############################
+if [[ ${noYang} != 1 ]]; then 
+    startYang ${configFile} ${logDir} "${recipientsList}"
+else
+    echo "Not starting Yang" >> ${outputFile}
+fi
 
-
 ###############################
-# Start Yang and VPStratLauncher
+# Start the binary
 ###############################
+echo "Starting the binary using command: ${strategyCommand}" >> ${outputFile}
 export LD_LIBRARY_PATH=../lib:../3p_libs/ums/UMS_6.7/Linux-glibc-2.5-x86_64/lib:../3p_libs/lbm/LBM_4.2.6/lib/linux/x64:../3p_libs/tbb/tbb42_20130725oss/lib/intel64/gcc4.4:../3p_libs/poco/poco-1.4.6:../3p_libs/fix8/fix8-1.3.1/lib:/usr/local/lib64:/usr/local/lib
 export LBM_LICENSE_INFO='Product=UME:Organization=SAC:Expiration-Date=never:License-Key=F7D4 6786 455F DAAA'
-
-echo "Starting monitoring using command: ${monitoringCommandStart}" > ${outputFile}
-${monitoringCommandStart}
-echo "Starting the binary using command: ${strategyCommand}" >> ${outputFile}
 ${strategyCommand} | tee -a ${outputFile}
-${monitoringCommandStop}
+
+###############################
+# Stop Yang
+###############################
+if [[ ${noYang} != 1 ]]; then 
+    stopYang
+fi
 
 #-------------- At this point the binary is stopped ----------------#
 
