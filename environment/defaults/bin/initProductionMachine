@@ -121,7 +121,7 @@ prepare_software()
 {
     echo "Updating the software files on the target machine"
     ssh -A ${userAtHost} "mkdir -p ${tmpDir}" || exit 1
-    ${rsyncNoTimeUpdate} '/mnt/config/RONIN/production_env/' ${userAtHost}:${tmpDir} || exit 1
+    ${rsyncNoTimeUpdate} ${HOME}'/production/framework/software/environment/' ${userAtHost}:${tmpDir} || exit 1
     return 0
 }
 
