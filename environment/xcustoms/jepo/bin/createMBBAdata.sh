@@ -13,15 +13,25 @@ function createMBBA
         if [ $fileExists2 -ge 1 ]
         then
         	#echo "NEW FILE FOUND: $prodLoc $dateLoc"
-		fileName2=$(find /home/$USER/scratch/cluster/MBBA/$prodLoc* -name "$dateLoc*.mbba" | awk -F '/' '{if(length($7)==(length("'$prodLoc'")+2)){print $1"/"$2"/"$3"/"$4"/"$5"/"$6"/"$7"/"$8}}' | xargs ls -l | awk '{if($5>maxFsz){maxFsz=$5;file=$9}}END{print file}')
+		fileName2=$(find /home/$USER/scratch/cluster/MBBA/$prodLoc* -name "$dateLoc*.mbba" | awk -F '/' '{if(length($7)==(length("'$prodLoc'")+2)){print $1"/"$2"/"$3"/"$4"/"$5"/"$6"/"$7"/"$8}}' | xargs ls -l | awk 'BEGIN{maxFsz=-1}{if($5>maxFsz){maxFsz=$5;file=$9}}END{print file}')
                 fileSize2=$(ls -l $fileName2 | awk '{print $5}')
 
                 if [ $fileSize2 -le 250 ]
                 then
-                	#echo "NEW FILE TOO SMALL: $prodLoc $dateLoc"
-                        #echo "DATA MISSING: $prodLoc $dateLoc"
-                        noDataDays=$((noDataDays+1))
-                        echo "$dateLoc,$prodLoc,Missing data" >> $outputDir/missingData.csv
+			aliasLoc=$(grep ",$prodLoc," /mnt/config/RONIN/products.csv | awk -F ',' '{print $3}')
+			isHolidayLoc=$(grep ",$aliasLoc," /mnt/config/RONIN/holidays.csv | grep $dateLoc | grep -v "Missing data" | wc -l)
+                        if [ $isHolidayLoc -ge 1 ]
+                        then # SMALL FILE IN DB BECAUSE THERE IS A HOLIDAY FOR THIS PROD AND DATE; DON'T TRY TO FETCH THIS FILE
+				#echo "NO DATA BECAUSE OF HOLIDAY: $prod $date"
+                                holidayDays=$((holidayDays+1))
+                                reasonLoc=$(cat /mnt/config/RONIN/holidays.csv | grep ",$aliasLoc," | grep $dateLoc | awk -F ',' '{print $3}')
+                                echo "$dateLoc,$prodLoc,No data because of holiday,$reasonLoc" >> $outputDir/missingData.csv
+                        else
+                		#echo "NEW FILE TOO SMALL: $prodLoc $dateLoc"
+                        	#echo "DATA MISSING: $prodLoc $dateLoc"
+                        	noDataDays=$((noDataDays+1))
+                        	echo "$dateLoc,$prodLoc,Missing data" >> $outputDir/missingData.csv
+			fi
                 else # FILE EXISTS AND IS FILE SIZE IS LARGE ENOUGH
                 	echo "NEW FILE FOUND AND LARGE ENOUGH: $prodLoc $dateLoc"
                         dataDays=$((dataDays+1))
@@ -80,7 +90,7 @@ do
 	if [ $fileExists -ge 1 ]
         then
 		#echo "FILE FOUND: $prod $date"
-		fileName=$(find /home/$USER/scratch/cluster/MBBA/$prod* -name "$date*.mbba" | awk -F '/' '{if(length($7)==(length("'$prod'")+2)){print $1"/"$2"/"$3"/"$4"/"$5"/"$6"/"$7"/"$8}}' | xargs ls -l | awk '{if($5>maxFsz){maxFsz=$5;file=$9}}END{print file}')
+		fileName=$(find /home/$USER/scratch/cluster/MBBA/$prod* -name "$date*.mbba" | awk -F '/' '{if(length($7)==(length("'$prod'")+2)){print $1"/"$2"/"$3"/"$4"/"$5"/"$6"/"$7"/"$8}}' | xargs ls -l | awk 'BEGIN{maxFsz=-1}{if($5>maxFsz){maxFsz=$5;file=$9}}END{print file}')
 		fileSize=$(ls -l $fileName | awk '{print $5}')
 
 		alias=$(grep ",$prod," /mnt/config/RONIN/products.csv | awk -F ',' '{print $3}')
@@ -93,19 +103,8 @@ do
                         #echo "$date,$prod,No data because of holiday,$reason" >> $outputDir/missingData.csv
 		elif [ $fileSize -le 250 ]
                 then
-			isHoliday2=$(grep ",$alias," /mnt/config/RONIN/holidays.csv | grep $date | grep -v "Missing data" | wc -l)
-			if [ $isHoliday2 -ge 1 ]
-                	then # SMALL FILE IN DB BECAUSE THERE IS A HOLIDAY FOR THIS PROD AND DATE; DON'T TRY TO FETCH THIS FILE
-                        	#echo "NO DATA BECAUSE OF HOLIDAY: $prod $date"
-                        	holidayDays=$((holidayDays+1))
-                        	#reason2=$(cat /mnt/config/RONIN/holidays.csv | grep ",$alias," | grep $date | awk -F ',' '{print $3}')
-                        	#echo "$date,$prod,No data because of holiday,$reason2" >> $outputDir/missingData.csv
-			else
-				#echo "FILE TOO SMALL: $prod $date"
-				rm -f $fileName
-				#echo "DELETED FILE: $fileName"
-				createMBBA $prod $date
-			fi
+			rm -f $fileName
+			createMBBA $prod $date
                 else # FILE EXISTS AND IS FILE SIZE IS LARGE ENOUGH
 			#echo "FILE FOUND AND LARGE ENOUGH: $prod $date"
 			dataDays=$((dataDays+1))
