@@ -49,12 +49,14 @@ set TAR_FILENAME = "$FILENAME:r.tar"
 set TAR_GZ_FILENAME = "$FILENAME:r.tar.gz"
 
 # If is a directory
+set FILE_TYPE = 'file'
 if ( -d "$FILENAME" ) then
     # Compress the directory
     set ACTION = 0
     # Make sure the ending "/" from directory name is not included
     set TAR_FILENAME = "$FILENAME:h.tar"
     set TAR_GZ_FILENAME = "$FILENAME:h.tar.gz"
+    set FILE_TYPE = 'directory'
 else if( "$FILENAME:e" == "zip") then
     # EXTRACT ZIP
     unzip "$FILENAME"
@@ -75,7 +77,7 @@ endif
 
 # IF the action is COMPRESS...
 if ( $ACTION == 0 ) then
-    echo "Compressing the file "$FILENAME""
+    echo "Compressing the" $FILE_TYPE $FILENAME
 
     tar czf "$TAR_GZ_FILENAME" "$FILENAME"
 endif

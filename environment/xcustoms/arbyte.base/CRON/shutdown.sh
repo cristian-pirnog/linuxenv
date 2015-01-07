@@ -147,24 +147,28 @@ cp -r ${strategyConfigDir} ${historicalLogDir}
 
 # ... [TODO] copy log files for other protocols
 
-
 ###############################
 # Copy the historicalLogDir to the NAS
 ###############################
-bkpDirOnNAS=${arbyteLiveBkpDir}/${date}/$(hostname --short)
-ssh ${arbyteNAS} "mkdir -p ${bkpDirOnNAS}"
-rsync -azvh ${historicalLogDir} ${arbyteNAS}:${bkpDirOnNAS}
-
+#if [[ ${USER} == arbyteprod ]]; then
+    bkpDirOnNAS=${arbyteLiveBkpDir}/${date}/$(hostname --short)
+    identityFile="${HOME}/.ssh/id_rsa"
+    if [[ -f ${identityFile} ]]; then
+        ssh -i ${identityFile} ${arbyteNAS} "mkdir -p ${bkpDirOnNAS}" && \
+        rsync -azvh ${historicalLogDir} ${arbyteNAS}:${bkpDirOnNAS}
+    fi
+#fi
 
 ###############################
 # Copy files to the compliance shared dir
 ###############################
 # ... the fix8 log files
-complianceLogDir=${complianceLogDir}/${date}/$(hostname --short)
-mkdir -p ${complianceLogDir}
+if [[ -d ${complianceLogDir} ]]; then
+   complianceLogDir=${complianceLogDir}/${date}/$(hostname --short)
+   mkdir -p ${complianceLogDir}
 
-cp -r ${historicalLogDir}/fix8/* ${complianceLogDir}
-
+   cp -r ${historicalLogDir}/fix8/* ${complianceLogDir}
+fi
 
 ###############################
 # Clean-up for the next day
