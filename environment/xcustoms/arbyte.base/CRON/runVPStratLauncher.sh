@@ -42,7 +42,8 @@ startYang()
     local monitoringCommandStart="/usr/local/bin/python2.7 ./Yang/YangDbDealBookerStartup.py --h ${lReceivingHost} --p ${lReceivingPort} --l  ./Yang/kfc2_brand.so --hd OrderID,StrategyID,ExchangeID,OrderType,Side,Symbol,Size,Price,TIF,ExchangeTime,Status,ExeID,FillQty,FillPrice,PreviousOrderID,PreviousPrice --f ${lConfigFile} --w Y --hb 5 --ld ${lLogDir} --mail_to ${lRecipientsList} --e ${lRunType}"
 
     echo "Starting Yang using command: ${monitoringCommandStart}" >> ${outputFile}
-    ${monitoringCommandStart}
+    echo "" >> ${outputFile}
+    ${monitoringCommandStart} >> ${outputFile} 2>>${outputFile}
 }
 
 #----------------------------------------------
@@ -110,13 +111,13 @@ recipientsList="${CRISTIAN} ${JENS} ${GIULIANO}"
 ###############################
 configFile="arbyte.xml"
 if [[ ! -f ${configFile} ]]; then
-    printf "\n No ${configFile} found. Will not start the binary.\n\n
-    exit 0"
+    printf "\n No ${configFile} found. Will not start the binary.\n\n" >> ${outputFile}
+    exit 0
 fi
 
 xmllint --noout ${configFile}
 if [[ $? -ne 0 ]]; then
-    printf "\nError in the config file %s. Will not start the binary.\n\n" ${configFile}
+    printf "\nError in the config file %s. Will not start the binary.\n\n" ${configFile} >> ${outputFile}
     exit 1
 fi
 
