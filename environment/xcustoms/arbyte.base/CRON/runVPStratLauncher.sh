@@ -96,7 +96,7 @@ done
 date=$(date +%Y%m%d)
 timeStamp=$(date +%Y%m%dT%H%M%S)
 outputFile=output_${timeStamp}.log
-logDir='../log'
+liveLogDir='/dev/shm/log'
 
 CRISTIAN='pirnog@gmail.com'
 GIULIANO='giuliano.tirenni@gmail.com'
@@ -136,11 +136,25 @@ if [[ -n $(fp "${strategyCommand} ") ]]; then
     exit 1
 fi
 
+# Check that the live log directory exists
+if [[ ! -d ${liveLogDir} ]]; then
+    msg="\nLog directory does not exist ${liveLogDir}. Exiting."
+    echo ${msg} mail -s "${USER}@${HOST}: binary stopped" ${recipientsList}
+    printf ${msg} >> ${outputFile}
+    exit 1
+elif [[ ! -w ${liveLogDir} ]]; then
+    msg="\nLog directory is not writable by user. Exiting." 
+    echo ${msg} mail -s "${USER}@${HOST}: binary stopped" ${recipientsList}
+    printf ${msg} >> ${outputFile}
+    exit 1
+fi
+
+
 ###############################
 # Start Yang
 ###############################
 if [[ ${noYang} != 1 ]]; then 
-    startYang ${configFile} ${logDir} "${recipientsList}"
+    startYang ${configFile} ${liveLogDir} "${recipientsList}"
 else
     echo "Not starting Yang" >> ${outputFile}
 fi
@@ -149,7 +163,7 @@ fi
 # Start the binary
 ###############################
 echo "Starting the binary using command: ${strategyCommand}" >> ${outputFile}
-export LD_LIBRARY_PATH=../lib:../3p_libs/ums/UMS_6.7/Linux-glibc-2.5-x86_64/lib:../3p_libs/lbm/LBM_4.2.6/lib/linux/x64:../3p_libs/tbb/tbb42_20130725oss/lib/intel64/gcc4.4:../3p_libs/poco/poco-1.4.6:../3p_libs/fix8/fix8-1.3.1/lib:/usr/local/lib64:/usr/local/lib
+export LD_LIBRARY_PATH=../lib:../3p_libs/ums/UMS_6.7/Linux-glibc-2.5-x86_64/lib:../3p_libs/lbm/LBM_4.2.6/lib/linux/x64:../3p_libs/tbb/tbb42_20130725oss/lib/intel64/gcc4.4:../3p_libs/poco/poco-1.4.6:/usr/local/lib64:/usr/local/lib
 export LBM_LICENSE_INFO='Product=UME:Organization=SAC:Expiration-Date=never:License-Key=F7D4 6786 455F DAAA'
 ${strategyCommand} | tee -a ${outputFile}
 
