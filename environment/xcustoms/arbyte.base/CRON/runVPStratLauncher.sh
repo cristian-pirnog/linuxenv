@@ -35,7 +35,7 @@ startYang()
     local lReceivingPort=7303
     if [[ ${USER} == arbytetest ]]; then
        lRunType=DEV
-       lReceivingHost="10.194.77.51"
+       lReceivingHost="10.192.77.47"
        lReceivingPort=17303
     fi
 
@@ -90,13 +90,13 @@ while true; do
     esac
 done
 
+
+
 ###############################
 # Define some variables/constants
 ###############################
-date=$(date +%Y%m%d)
 timeStamp=$(date +%Y%m%dT%H%M%S)
 outputFile=output_${timeStamp}.log
-liveLogDir='/dev/shm/log'
 
 CRISTIAN='pirnog@gmail.com'
 GIULIANO='giuliano.tirenni@gmail.com'
@@ -104,6 +104,17 @@ JENS='jens.poepjes@gmail.com'
 BRANDON='bleung@vitessetech.com'
 recipientsList="${CRISTIAN} ${JENS} ${GIULIANO}"
 
+###############################
+# Source the base script
+###############################
+scriptDir=$(dirname ${0})
+baseScript=${scriptDir}/base.sh
+if [[ ! -f ${baseScript} ]]; then
+    printf "Could not find base script %s" ${baseScript} >> ${outputFile}
+    exit 1
+fi
+
+source ${baseScript}
 
 ###############################
 # Test the config file
@@ -137,24 +148,29 @@ if [[ -n $(fp "${strategyCommand} ") ]]; then
 fi
 
 # Check that the live log directory exists
-if [[ ! -d ${liveLogDir} ]]; then
-    msg="\nLog directory does not exist ${liveLogDir}. Exiting."
+if [[ ! -d ${logDir} ]]; then
+    msg="\nLog directory does not exist ${logDir}. Exiting."
     echo ${msg} mail -s "${USER}@${HOST}: binary stopped" ${recipientsList}
     printf ${msg} >> ${outputFile}
     exit 1
-elif [[ ! -w ${liveLogDir} ]]; then
+elif [[ ! -w ${logDir} ]]; then
     msg="\nLog directory is not writable by user. Exiting." 
     echo ${msg} mail -s "${USER}@${HOST}: binary stopped" ${recipientsList}
     printf ${msg} >> ${outputFile}
     exit 1
 fi
 
+###############################
+# Run the startup procedure
+###############################
+${scriptDir}/startup.sh >> ${outputFile} || exit 1
+
 
 ###############################
 # Start Yang
 ###############################
 if [[ ${noYang} != 1 ]]; then 
-    startYang ${configFile} ${liveLogDir} "${recipientsList}"
+    startYang ${configFile} ${logDir} "${recipientsList}"
 else
     echo "Not starting Yang" >> ${outputFile}
 fi

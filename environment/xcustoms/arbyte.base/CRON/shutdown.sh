@@ -47,29 +47,6 @@ getHistoricalLogDir()
 echo ${histLogDir}
 }
 
-#----------------------------------------------
-resetSequenceNumbers()
-{
-    local lExchange=${1}
-
-    if [[ ! -f ${cfgDir}/${lExchange}_client.xml ]]; then
-      return 0
-    fi
-
-    local lSenderTag=$(grep sender_comp_id ${cfgDir}/${lExchange}_client.xml | awk -F'=' '{print $2}' | sed 's/"//g')
-    local lTargetTag=$(grep target_comp_id ${cfgDir}/${lExchange}_client.xml | awk -F'=' '{print $2}' | sed 's/"//g')
-    echo lTargetTag=$lTargetTag
-
-    if [[ -z ${lTargetTag} ]]; then
-      sendMail "Error!!! Failed to reset sequence numbers" "Failed to reset sequence numbers for exchange ${lExchange}" ${CRISTIAN}
-      exit 1
-    fi
-
-    local lFilePattern=${fixDir}/client.${lSenderTag}.${lTargetTag}
-    echo lFilePattern=${lFilePattern}
-    seqedit -S 1 ${lFilePattern}
-    seqedit -R 1 ${lFilePattern}
-}
 
 #----------------------------------
 # Main script
@@ -169,31 +146,4 @@ if [[ -d ${complianceLogDir} ]]; then
 
    cp -r ${historicalLogDir}/fix8/* ${complianceLogDir}
 fi
-
-###############################
-# Clean-up for the next day
-###############################
-# ... remove all fix log files
-rm -f ${fixDir}/*.log.*
-rm -f ${datDir}/*
-
-# ... reset sequence numbers
-#     ... daily on EUX and ICE
-resetSequenceNumbers EUX 
-resetSequenceNumbers ICE
-resetSequenceNumbers ICL
-resetSequenceNumbers LIF
-#     ... at the end of the week on CME
-if [[ $(date +%w) -eq 5 ]]; then
-    resetSequenceNumbers CME
-fi
-
-
-###############################
-# Update environment from then nas
-###############################
-# ... libraries
-# rsync -azvh ${arbyteNAS}:${libraryDirOnNAS}/ ${libraryDir}
-
-
 
