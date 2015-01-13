@@ -147,3 +147,10 @@ if [[ -d ${complianceLogDir} ]]; then
    cp -r ${historicalLogDir}/fix8/* ${complianceLogDir}
 fi
 
+###############################
+# Cleanup for the next day
+###############################
+# ... remove all fix log files
+rm -f ${fixDir}/*.log.*
+rm -f ${datDir}/*
+
