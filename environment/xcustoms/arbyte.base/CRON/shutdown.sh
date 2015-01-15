@@ -152,5 +152,8 @@ fi
 ###############################
 # ... remove all fix log files
 rm -f ${fixDir}/*.log.*
-rm -f ${datDir}/*
+# ... remove old recovery files
+rm ${datDir}/*_recovery.csv.*
+# ... append the date to the current recovery file
+rename '_recover.csv' "_recover.csv.${date}" ${datDir}/*
 

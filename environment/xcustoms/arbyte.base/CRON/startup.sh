@@ -121,3 +121,6 @@ resetSequenceNumbers ICE
 resetSequenceNumbers ICL
 resetSequenceNumbers LIF
 
+# Restore any renamed recovery files
+rename "_recovery.csv.${date}" '_recovery.csv' ${datDir}/*
+
