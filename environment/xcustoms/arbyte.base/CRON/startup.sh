@@ -112,8 +112,13 @@ fi
 echo ${date} > ${lastResetFile}
 
 # ... at the startof the week on CME
-if [[ $(date +%w) -eq 5 ]]; then
+currentWeekNo=$(date +%V)
+lastResetWeekNo=$(date +%V -d ${lastResetDate})
+if [[ ${lastResetWeekNo} -ne ${currentWeekNo} ]]; then
+    printf "\nResetting CME seq numbers for week %s\n\n" ${currentWeekNo}
     resetSequenceNumbers CME
+else
+    printf "\nCME seq numbers were already reset for week %s on %s.\n\n" ${currentWeekNo} ${lastResetDate}
 fi
 # ... daily on all other exchanges
 resetSequenceNumbers EUX 
