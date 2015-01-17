@@ -237,6 +237,7 @@ else
 	exit 1
     fi
 
+    mkdir -p ${buildDirRoot} || exit 1
     cd ${buildDirRoot} || exit 1
     cmakeBuild ${buildDir} ${buildType} ${branchName} ${libraryType} ${sourceDir} ${option} ${compilerFlags} ${moreOptions} $@
 fi
