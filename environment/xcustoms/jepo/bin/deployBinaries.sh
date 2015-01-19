@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ $# -ne 1 ]
+if [ $# -ne 2 ]
 then
-    echo "$0 serversToDeployTo [dev/cluster/both] buildServer"
+    echo "$0 serversToDeployTo [dev/cluster/both] buildServer [london / chicago]"
     exit 1
 fi
 
@@ -15,6 +15,7 @@ then
 	exit 1
 fi
 
+date
 if [ "$servers" == "dev" ]
 then
 	runBuild -p code --nocheck --upload dev -bs $buildServer --skip --post 1 &>/dev/null
@@ -27,3 +28,4 @@ then
 else
 	echo "Argument serversToDeployTo unknown: $servers (should be either dev, cluster or both)"
 fi
+date
