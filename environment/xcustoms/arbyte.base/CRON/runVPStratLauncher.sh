@@ -35,14 +35,13 @@ startYang()
     local lReceivingPort=7303
     if [[ ${USER} == arbytetest ]]; then
        lRunType=DEV
-       lReceivingHost="10.194.77.51"
+       lReceivingHost="10.192.77.47"
        lReceivingPort=17303
     fi
 
     local monitoringCommandStart="/usr/local/bin/python2.7 ./Yang/YangDbDealBookerStartup.py --h ${lReceivingHost} --p ${lReceivingPort} --l  ./Yang/kfc2_brand.so --hd OrderID,StrategyID,ExchangeID,OrderType,Side,Symbol,Size,Price,TIF,ExchangeTime,Status,ExeID,FillQty,FillPrice,PreviousOrderID,PreviousPrice --f ${lConfigFile} --w Y --hb 5 --ld ${lLogDir} --mail_to ${lRecipientsList} --e ${lRunType}"
 
     echo "Starting Yang using command: ${monitoringCommandStart}" >> ${outputFile}
-    echo "" >> ${outputFile}
     ${monitoringCommandStart} >> ${outputFile} 2>>${outputFile}
 }
 
@@ -91,13 +90,13 @@ while true; do
     esac
 done
 
+
+
 ###############################
 # Define some variables/constants
 ###############################
-date=$(date +%Y%m%d)
 timeStamp=$(date +%Y%m%dT%H%M%S)
 outputFile=output_${timeStamp}.log
-logDir='../log'
 
 CRISTIAN='pirnog@gmail.com'
 GIULIANO='giuliano.tirenni@gmail.com'
@@ -105,6 +104,17 @@ JENS='jens.poepjes@gmail.com'
 BRANDON='bleung@vitessetech.com'
 recipientsList="${CRISTIAN} ${JENS} ${GIULIANO}"
 
+###############################
+# Source the base script
+###############################
+scriptDir=$(dirname ${0})
+baseScript=${scriptDir}/base.sh
+if [[ ! -f ${baseScript} ]]; then
+    printf "Could not find base script %s" ${baseScript} >> ${outputFile}
+    exit 1
+fi
+
+source ${baseScript}
 
 ###############################
 # Test the config file
@@ -125,7 +135,7 @@ fi
 # Perform some checks
 ###############################
 binaryName=$(ls | grep VPStratLauncher | grep -v RWDI_unstripped | tail -1)
-strategyCommand="./${binaryName} --stratname ArByte --config ${configFile}"
+strategyCommand="/usr/bin/onload ./${binaryName} --stratname ArByte --config ${configFile}"
 if [[ -z ${binaryName} ]]; then
     echo "Could not find a binary to run. Exiting" >> ${outputFile}
     exit 1
@@ -136,6 +146,25 @@ if [[ -n $(fp "${strategyCommand} ") ]]; then
     echo "StrategyCommand ${strategyCommand} already running. Exiting" >> ${outputFile}
     exit 1
 fi
+
+# Check that the live log directory exists
+if [[ ! -d ${logDir} ]]; then
+    msg="\nLog directory does not exist ${logDir}. Exiting."
+    echo ${msg} mail -s "${USER}@${HOST}: binary stopped" ${recipientsList}
+    printf ${msg} >> ${outputFile}
+    exit 1
+elif [[ ! -w ${logDir} ]]; then
+    msg="\nLog directory is not writable by user. Exiting." 
+    echo ${msg} mail -s "${USER}@${HOST}: binary stopped" ${recipientsList}
+    printf ${msg} >> ${outputFile}
+    exit 1
+fi
+
+###############################
+# Run the startup procedure
+###############################
+${scriptDir}/startup.sh >> ${outputFile} || exit 1
+
 
 ###############################
 # Start Yang
@@ -150,7 +179,7 @@ fi
 # Start the binary
 ###############################
 echo "Starting the binary using command: ${strategyCommand}" >> ${outputFile}
-export LD_LIBRARY_PATH=../lib:../3p_libs/ums/UMS_6.7/Linux-glibc-2.5-x86_64/lib:../3p_libs/lbm/LBM_4.2.6/lib/linux/x64:../3p_libs/tbb/tbb42_20130725oss/lib/intel64/gcc4.4:../3p_libs/poco/poco-1.4.6:../3p_libs/fix8/fix8-1.3.1/lib:/usr/local/lib64:/usr/local/lib
+export LD_LIBRARY_PATH=../lib:../3p_libs/ums/UMS_6.7/Linux-glibc-2.5-x86_64/lib:../3p_libs/lbm/LBM_4.2.6/lib/linux/x64:../3p_libs/tbb/tbb42_20130725oss/lib/intel64/gcc4.4:../3p_libs/poco/poco-1.4.6:/usr/local/lib64:/usr/local/lib
 export LBM_LICENSE_INFO='Product=UME:Organization=SAC:Expiration-Date=never:License-Key=F7D4 6786 455F DAAA'
 ${strategyCommand} | tee -a ${outputFile}
 

@@ -1,0 +1,7 @@
+# Stuff in the bin dir
+bin/keepUpToDate.sh ${HOME}/bin/keepUpToDate.sh
+
+# Stuff in the CRON dir
+CRON/cron.tab.baar ${HOME}/CRON/cron.tab.baar
+CRON/cron.tab.luzern ${HOME}/CRON/cron.tab.luzern
+CRON/cron.tab.zurich ${HOME}/CRON/cron.tab.zurich

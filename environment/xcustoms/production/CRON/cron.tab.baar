@@ -1,0 +1,14 @@
+# -*- mode: sh -*- #
+
+# All times UTC (In Sommer time: CET - 2 hours)
+
+MAILTO=pirnog@gmail.com
+
+# Set this variable for running X-based applications
+#DISPLAY=:0
+
+# Each weekday, check for rolling for the next few days
+30 22 * * Sun-Thu bash --login -c '~/production/framework/scripts/bash/createBookConfigs.sh --production --deploy' > /dev/null 2>&1
+
+# Each day keep production stuff updated
+0 */2 * * * bash --login -c '~/bin/keepUpToDate.sh' > /dev/null
