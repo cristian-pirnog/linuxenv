@@ -85,7 +85,7 @@ done
 # Create and check the lib path
 libPath=${HOME}/deploy/${branchName}/Release/lib
 if [[ ! -d ${libPath} ]]; then
-   printf "Library path not found: ${libPath}"
+   printf "Library path not found: ${libPath}\n"
    exit 1
 fi
 

@@ -135,7 +135,7 @@ fi
 # Perform some checks
 ###############################
 binaryName=$(ls | grep VPStratLauncher | grep -v RWDI_unstripped | tail -1)
-strategyCommand="./${binaryName} --stratname ArByte --config ${configFile}"
+strategyCommand="/usr/bin/onload ./${binaryName} --stratname ArByte --config ${configFile}"
 if [[ -z ${binaryName} ]]; then
     echo "Could not find a binary to run. Exiting" >> ${outputFile}
     exit 1

@@ -12,6 +12,7 @@ software_arbyte $HOME/.software_custom
 bin/killVPStratLauncher ${HOME}/bin/killVPStratLauncher
 bin/findVPStratLauncherInstances ${HOME}/bin/findVPStratLauncherInstances
 bin/seqedit ${HOME}/bin/seqedit
+bin/restartYang.sh ${HOME}/bin/restartYang.sh
 
 #
 # Files from the CRON directory

@@ -96,7 +96,7 @@ shift 1
 
 # Specify which projects we want to build
 if [[ -z ${PROJECTS_TO_BUILD} ]]; then
-    PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer ${client}/support ${client}/optimizer  ${client}/live" # unit_tests/katania"
+    PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live ${client}/support ${client}/optimizer  ${client}/live" # unit_tests/katania"
 else
     PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace '__client__' "${client}")
 fi

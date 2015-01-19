@@ -7,5 +7,9 @@ if [[ -z ${processIds} ]]; then
     exit 0
 fi
 
+source ~/.userfunctions
+printf "\n\t\tThis is %s\n\n" $(hostname|tr '[:lower:]' '[:upper:]')
+getAnswer "Are you sure you want to kill the VPStratLauncher?" || exit 0
+
 echo "Killing process with id: ${processIds}"
 kill $@ ${processIds}
