@@ -165,6 +165,7 @@ pizda()
 
     echo -e "About to push changes to the following repos:\n"
     st -p | grep ' ' | awk '{first=$1; $1=""; print first":"$0" "}' | column -t -s ":"
+    echo ""
     ! getAnswer && return 0
 
     for d in ${gitDirs}; do

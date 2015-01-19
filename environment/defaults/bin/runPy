@@ -25,13 +25,16 @@ cat << %%USAGE%%
              Specifies additional directories to be added to the PYTHONPATH 
              environment variable.
 
+       --printPaths
+             Prints the paths that are set before calling the python script and exits.
+
 %%USAGE%%
 }
 
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hb: -l "help,roc,branch:,pythonPath:" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o hb: -l "help,roc,branch:,pythonPath:,printPaths" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -45,6 +48,7 @@ eval set -- "$ARGS"
 client=ronin
 branchName=master
 pythonPath=''
+printPath=0
 while true; do
     case ${1} in
 	-h|--help)
@@ -59,10 +63,14 @@ while true; do
 	    branchName=${2}
 	    shift 2
 	    ;;
-    --pythonPath)
-        pythonPath=${2}
-        shift 2
-        ;;
+	--pythonPath)
+            pythonPath=${2}
+            shift 2
+            ;;
+	--printPaths)
+	    printPaths=1
+	    shift
+	    ;;
 	--)
 	    shift
 	    break
@@ -93,4 +101,16 @@ if [[ ${codeBranch} != ${branchName} ]]; then
     exit 1
 fi
 
-LD_LIBRARY_PATH=${libPath}:${codePath}/lib/portfolio/lib PYTHONPATH=${codePath}/src/python:${codePath}/src/C/marketdata_CME/python:${codePath}/lib/cvxopt-1.1.6/python:${codePath}/lib/python-bindings:${libPath}:${codePath}/lib/portfolio/lib:${pythonPath} PYCLIENT=${client} $@ || exit $?
+ldLibPath=${libPath}:${codePath}/lib/portfolio/lib
+pyPath=${codePath}/src/python:${codePath}/src/C/marketdata_CME/python:${codePath}/lib/cvxopt-1.1.6/python:${codePath}/lib/python-bindings:${libPath}:${codePath}/lib/portfolio/lib:${pythonPath}
+
+if [[ ${printPaths} == 1 ]]; then
+    echo "Printing paths:"
+    echo export LD_LIBRARY_PATH=${ldLibPath} 
+    echo export PYTHONPATH=${pyPath} 
+    echo export PYCLIENT=${client}
+    exit 0
+fi
+
+
+LD_LIBRARY_PATH=${ldLibPath} PYTHONPATH=${pyPath} PYCLIENT=${client} $@ || exit $?
