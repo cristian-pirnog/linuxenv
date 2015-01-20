@@ -5,4 +5,5 @@
 # Each weekday, start the binaries
 #50 05 * * Mon-Fri bash --login -c "cd ~/live.forRecording/bin && ./runLauncherForRecording.sh" > /dev/null 2>&1
 #45 05 * * Mon-Fri bash --login -c "cd ~/live/bin && ~/CRON/runVPStratLauncher.sh" > /dev/null 2>&1
-0,30 13,14,15,16,17,18,19,20,21,22 * * Tue-Sat bash --login -c "getYesterdaysData.sh /mnt/data/work/prods.txt /mnt/data/dataStatus/" > /dev/null 2>&1 
+0,30 13,14,15,16,17,18,19,20,21,22 * * Tue-Sat bash --login -c "getYesterdaysData.sh /mnt/data/work/prods.txt /mnt/data/dataStatus/" > /dev/null 2>&1
+0 12 * * Tue-Sat bash --login -c "getLastTwoWeeksData.sh /mnt/data/work/prods.txt /mnt/data/dataStatus/" > /dev/null 2>&1
