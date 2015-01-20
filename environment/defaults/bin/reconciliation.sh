@@ -161,13 +161,13 @@ do
                 mkdir -p $baseSimDir/$date/$baseName
                 cd $baseSimDir/$date/$baseName
 
-		echo -e "\tanalyzing production order log files"
+		#echo -e "\tanalyzing production order log files"
                 ORDER_LOG_FILES=$(ls $directory | grep "_Orders.log" | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep $date)
                 for k in $ORDER_LOG_FILES
                 do
                         #echo -e "\tORDER LOG FILE: $k"
                         orderLogFileTmp=$(echo $k | sed "s/-spread//g")
-                        tradedProd=$(echo $orderLogFileTmp | awk -F '_|-' '{print $9}')
+                        tradedProd=$(echo $orderLogFileTmp | awk -F '_|-' '{if($9=="Orders.log"){print $8}else{print $9}}')
                         newFileName="OrderLog_"$baseName"_"$tradedProd"_"$date".log"
                         #echo "$baseName $tradedProd $date $newFileName"
                         cp $directory/$k ./$newFileName
@@ -175,18 +175,18 @@ do
                         nrOfLinesOrderLog=$(grep -v "No orders to log" $newFileName | wc -l)
                         if [ $nrOfLinesOrderLog -lt 2 ]
                         then
-                                echo -e "\t\tignoring $newFileName ($tradedProd not traded; order log file empty)"
+                                #echo -e "\t\tignoring $newFileName ($tradedProd not traded; order log file empty)"
                                 continue
                         else
 				nrOfExecutionsOrderLog=$(grep OrderExecution $newFileName | wc -l)
 				if [ $nrOfExecutionsOrderLog -eq 0 ]
 				then
-					echo -e "\t\tignoring $newFileName ($tradedProd not traded; no executions found for this product)"
+					#echo -e "\t\tignoring $newFileName ($tradedProd not traded; no executions found for this product)"
 					continue
 				fi
 			fi
 
-                        echo -e "\t\tconstructing order log summary for $newFileName and traded product $tradedProd"
+                        #echo -e "\t\tconstructing order log summary for $newFileName and traded product $tradedProd"
 			summFileName2=$(optimizer.sh ronin master Release OrderLogParser $newFileName $timeShift | grep "Saving order log statistics to file" | awk '{print $7}')
                         tail -1 $summFileName2 >> $baseSimDir/$date/$summaryFileName
                 done
@@ -203,7 +203,7 @@ do
 		grep $strToGrep $fileName | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $6, $7, $8, $11, $13, $16, $17, $20, $22, $25}' > ./$stage3ProdFile
 
 		#echo "PRODS: $prod1 $prod2 $fileName"
-		echo -e "\tdetermining start time for simulation"
+		#echo -e "\tdetermining start time for simulation"
 		timeStamp1=$(getMbbaTime $fileName $prod1 1)
 		timeStamp2=$(getMbbaTime $fileName $prod2 2)
 
@@ -240,16 +240,16 @@ do
 		# Edit the config file
 		newCfgFileName=$baseName".cfg"
 		#echo "NEW CFG FILE: $newCfgFileName"
-		echo -e "\tchanging start time of config"
+		#echo -e "\tchanging start time of config"
 		optimizer.sh ronin master Release edit $directory/configs/$cfgFile StartTime $latestTimeStampMbba $newCfgFileName &>/dev/null
 
 		# Run a simulation
-		echo -e "\trunning single simulation with server location $servLoc"
+		#echo -e "\trunning single simulation with server location $servLoc"
 		optimizer.sh ronin master Release simulate $newCfgFileName $date $date serverLocation:$servLoc logTrades:1 logInternals:1 logExecution:1 > screen.txt
 		
 		# Translating .sim into csv
 		simOutputFile=$(ls *.sim)
-		echo -e "\ttranslating sim output file to csv"
+		#echo -e "\ttranslating sim output file to csv"
 		optimizer.sh ronin master Release translate $simOutputFile &>/dev/null
 		csvFile=$(ls *.sim | awk '{print substr($1,1,length($1)-3)"csv"}')
 		#echo "CSV FILE: $csvFile"
@@ -259,7 +259,7 @@ do
                 grep $strToGrep $fileNameSim | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $6, $7, $8, $11, $13, $16, $17, $20, $22, $25}' > ./$stage3SimFile
 
 		# Check that 1st update is the same; otherwise crossings will never be the same
-		echo -e "\tcomparing 1st update lines between production and simulation"
+		#echo -e "\tcomparing 1st update lines between production and simulation"
 		firstUpdateProdLine=$(grep "1st update" $fileName | awk -F ',' '{print $1, $4, $5, $8, $9, $11}')
 		firstUpdateSimLine=$(grep "1st update" $fileNameSim | awk -F ',' '{print $1, $4, $5, $8, $9, $11}')
 		firstUpdatesSame=0
@@ -273,7 +273,7 @@ do
 		fi
 
 		# first check nr of lines of crossings files
-		echo -e "\tcomparing crossings between production and simulation"
+		#echo -e "\tcomparing crossings between production and simulation"
 		nrLinesCrossProd=$(wc -l $stage3ProdFile | awk '{print $1}')
 		nrLinesCrossSim=$(wc -l $stage3SimFile | awk '{print $1}')
 		if [ $firstUpdatesSame -eq 1 -a $nrLinesCrossProd -ne $nrLinesCrossSim ]
@@ -311,11 +311,11 @@ done
 
 yangFileName="Yang_"$date".txt"
 yangDate=$(echo $date | awk '{print substr($1,1,4)"."substr($1,5,2)"."substr($1,7,2)}')
-echo -e "\nGetting Yang P&L for $yangDate"
+#echo -e "\nGetting Yang P&L for $yangDate"
 /home/$USER/code/ronin/libs/yang/getYangReportPerDate.py $yangDate $baseSimDir/$date/$yangFileName &>/dev/null
 
 # Creating a per prod view
-echo -e "Creating P&L overview per product"
+#echo -e "Creating P&L overview per product"
 sumPnlFile="Reconciliation_Yang_vs_OrderLog_"$date".txt"
 echo "DATE ALIAS SYMBOL PNLYNGLOC FEEYNGLOC PNLLOGLOC FEELOGLOC FXRATE" > $baseSimDir/$date/$sumPnlFile
 
@@ -329,7 +329,7 @@ do
         symbol=$(grep ",$i," /mnt/config/RONIN/products.csv | awk -F ',' '{print $4}')
         pnlPerProd=$(awk '{if($2=="'$i'"){pnlLoc+=$9;feesLoc+=$10}}END{print pnlLoc, feesLoc}' $baseSimDir/$date/$summaryFileName)
         pnlYang=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($15,1,9)*1, $3/$1}')
-        fxRate=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($1,1,9)*1}')
+        fxRate=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($6,1,9)*1}')
 	matchPerProd=$(echo $pnlPerProd $pnlYang | awk '{if($1==$3 && $2==$4){print 1}else{print 0}}')
 	
 	if [ $matchPerProd -eq 0 ]
@@ -345,7 +345,7 @@ done
 
 if [ $isMatching -eq 1 ]
 then
-	echo "Yang P&L and OrderLog P&L are matching 100%!"
+	echo "Yang P&L and OrderLog P&L match 100%"
 fi
 
 echo "Total Yang P&L for $date is $yangTotPnl"
