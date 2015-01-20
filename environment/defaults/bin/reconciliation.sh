@@ -71,8 +71,7 @@ then
 	exit 1
 fi
 
-baseSimDir="/mnt/sandbox/reconciliation/"
-
+baseSimDir="/mnt/sandbox/reconciliation"
 if [ -d $baseSimDir/$date ]
 then
 	echo "Reconciliation directory for $date already exists ($baseSimDir/$date); remove first!"
@@ -300,7 +299,7 @@ do
                 grep -A1 Pnl $csvFile | grep -v Pnl | awk -F ',' '{if($27>0.00001 || $27<-0.00001){print "'$date'", "'$baseName'", "'$prod1'", $27, $29, $27-$29, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'"};if($28>0.00001 || $28<-0.00001){ print "'$date'", "'$baseName'", "'$prod2'", $28, $30, $28-$30, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'"}}' >> $baseSimDir/$date/$summFileNameSim
 
 		# SUMMARY OF SUMMARY
-		paste $baseSimDir/$date/$summaryFileName $baseSimDir/$date/$summFileNameSim | awk 'BEGIN{print "DATE", "TRADED", "ID", "ROC_PL_USD", "SIM_PL_USD", "1ST_SAME", "%CROSSDIF"}NR>1{print $1, $2, $3, $7, $25, $26, $27/$28}' > $baseSimDir/$date/$recSumFileName
+		paste $baseSimDir/$date/$summaryFileName $baseSimDir/$date/$summFileNameSim | awk 'BEGIN{print "DATE", "TRADED", "ID", "ROC_PL_USD", "SIM_PL_USD", "1ST_SAME", "CROSSDIF", "TOTCROSS"}NR>1{print $1, $2, $3, $7, $25, $26, $27, $28}' > $baseSimDir/$date/$recSumFileName
 	done
 done
 
@@ -324,7 +323,7 @@ do
         symbol=$(grep ",$i," /mnt/config/RONIN/products.csv | awk -F ',' '{print $4}')
         pnlPerProd=$(awk '{if($2=="'$i'"){pnlLoc+=$9;feesLoc+=$10}}END{print pnlLoc, feesLoc}' $baseSimDir/$date/$summaryFileName)
         pnlYang=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($15,1,9)*1, $3/$1}')
-        fxRate=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print $1}')
+        fxRate=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($1,1,9)*1}')
 	matchPerProd=$(echo $pnlPerProd $pnlYang | awk '{if($1==$3 && $2==$4){print 1}else{print 0}}')
 	
 	if [ $matchPerProd -eq 0 ]
