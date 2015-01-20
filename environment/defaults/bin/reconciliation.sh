@@ -143,6 +143,12 @@ do
 		stopT=$(echo $nameTmp | awk -F '_|-' '{print substr($6,2,6)}')
 		servLoc=$(echo $nameTmp | awk -F '_|-' '{print $7}')
 		gridId=$(echo $nameTmp | awk -F '_|-' '{print substr($8,1,length($8)-4)}')
+
+		if [ "$gridId" == "" ]
+		then
+			servLoc=$(echo $prod1 | awk '{print substr($1,1,3)}')
+			gridId=$(echo $nameTmp | awk -F '_|-' '{print substr($7,1,length($7)-4)}')
+		fi
 	
 		#echo "$prod1 $prod2 $startT $stopT $servLoc $gridId"	
 		cfgFile=$(ls $directory/configs | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId)
