@@ -348,4 +348,4 @@ then
 	echo "Yang P&L and OrderLog P&L match 100%"
 fi
 
-echo "Total Yang P&L for $date is $yangTotPnl"
+echo "Total Yang P&L for $date is $yangTotPnl USD"
