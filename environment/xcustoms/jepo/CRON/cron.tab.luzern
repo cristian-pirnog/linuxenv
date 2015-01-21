@@ -3,4 +3,4 @@
 # All times UTC (In Sommer time: CET - 2 hours)
 
 # Each weekday, start the binaries
-15,45 13,14,15,16,17,18,19,20,21,22 * * Tue-Sat bash --login -c "syncNRecon.sh /data01/RONIN/MBBA /mnt/data/dataStatus" > /dev/null 2>&1 
+15,45 14,15,16,17,18,19,20,21,22,23 * * Tue-Sat bash --login -c "syncNRecon.sh /data01/RONIN/MBBA /mnt/data/dataStatus" > /dev/null 2>&1 
