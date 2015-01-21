@@ -105,26 +105,25 @@ lastResetFile=${fixDir}/last_reset.date
 lastResetDate=$(cat ${lastResetFile})
 if [[ ${date} == ${lastResetDate} ]]; then
     printf "Sequence numbers were already reseted today (${date}). Skipping reset.\n"
-    exit 0
-fi
-
-# Write the date of the last reset
-echo ${date} > ${lastResetFile}
-
-# ... at the startof the week on CME
-currentWeekNo=$(date +%V)
-lastResetWeekNo=$(date +%V -d ${lastResetDate})
-if [[ ${lastResetWeekNo} -ne ${currentWeekNo} ]]; then
-    printf "\nResetting CME seq numbers for week %s\n\n" ${currentWeekNo}
-    resetSequenceNumbers CME
 else
-    printf "\nCME seq numbers were already reset for week %s on %s.\n\n" ${currentWeekNo} ${lastResetDate}
+    # Write the date of the last reset
+    echo ${date} > ${lastResetFile}
+
+    # ... at the startof the week on CME
+    currentWeekNo=$(date +%V)
+    lastResetWeekNo=$(date +%V -d ${lastResetDate})
+    if [[ ${lastResetWeekNo} -ne ${currentWeekNo} ]]; then
+        printf "\nResetting CME seq numbers for week %s\n\n" ${currentWeekNo}
+        resetSequenceNumbers CME
+    else
+        printf "\nCME seq numbers were already reset for week %s on %s.\n\n" ${currentWeekNo} ${lastResetDate}
+    fi
+    # ... daily on all other exchanges
+    resetSequenceNumbers EUX 
+    resetSequenceNumbers ICE
+    resetSequenceNumbers ICL
+    resetSequenceNumbers LIF
 fi
-# ... daily on all other exchanges
-resetSequenceNumbers EUX 
-resetSequenceNumbers ICE
-resetSequenceNumbers ICL
-resetSequenceNumbers LIF
 
 # Restore any renamed recovery files
 rename "_recover.csv.${date}" '_recover.csv' ${datDir}/*
