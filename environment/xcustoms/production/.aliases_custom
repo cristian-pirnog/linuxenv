@@ -1,0 +1,3 @@
+source ~/.aliases_functions
+
+MakeCDAlias cdf ${HOME}/production/framework
