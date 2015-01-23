@@ -6,7 +6,7 @@ fi
 
 # User specific environment and startup programs
 
-PATH=$HOME/bin:/home/env/bin:$PATH
+PATH=$HOME/bin:$PATH
 
 export PATH
 unset USERNAME
