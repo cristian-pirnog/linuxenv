@@ -94,6 +94,8 @@ fi
 
 recSumFileName="Reconciliation_OrderLog_vs_Simulation_"$date".txt"
 
+echo ""
+
 for i in $(ls -d $baseDir/$date/*)
 do
 	#echo "DIR: $i"
@@ -315,37 +317,63 @@ yangDate=$(echo $date | awk '{print substr($1,1,4)"."substr($1,5,2)"."substr($1,
 /home/$USER/code/ronin/libs/yang/getYangReportPerDate.py $yangDate $baseSimDir/$date/$yangFileName &>/dev/null
 
 # Creating a per prod view
-#echo -e "Creating P&L overview per product"
+echo -e "\nCreating P&L overview per product"
 sumPnlFile="Reconciliation_Yang_vs_OrderLog_"$date".txt"
-echo "DATE ALIAS SYMBOL PNLYNGLOC FEEYNGLOC PNLLOGLOC FEELOGLOC FXRATE" > $baseSimDir/$date/$sumPnlFile
+echo "DATE ALIAS SYMBOL PNLYNGLOC PNLLOGLOC PNLCURR PNLFX FEEYNGLOC FEELOGLOC FEECURR FEEFX" > $baseSimDir/$date/$sumPnlFile
 
-yangTotPnl=0
+sumReconFile="Reconciliation_"$date".txt"
+echo "DATE ALIAS SYMBOL CATEGORY PNLYNGUSD PNLLOGUSD PNLSIMUSD" > $baseSimDir/$date/$sumReconFile
+
 isMatching=1
 
 PRODS=$(awk 'NR>1{print $2}' $baseSimDir/$date/$summaryFileName | sort -u)
 for i in $PRODS
 do
 	#echo -e "\t$i"
-        symbol=$(grep ",$i," /mnt/config/RONIN/products.csv | awk -F ',' '{print $4}')
-        pnlPerProd=$(awk '{if($2=="'$i'"){pnlLoc+=$9;feesLoc+=$10}}END{print pnlLoc, feesLoc}' $baseSimDir/$date/$summaryFileName)
-        pnlYang=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($15,1,9)*1, $3/$1}')
-        fxRate=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($6,1,9)*1}')
-	matchPerProd=$(echo $pnlPerProd $pnlYang | awk '{if($1==$3 && $2==$4){print 1}else{print 0}}')
-	
-	if [ $matchPerProd -eq 0 ]
-	then
-		echo -e "\tYang P&L is different from OrderLog P&L for $i (Yang (p&l, fees): $pnlYang, Log (p&l, fees): $pnlPerProd)"
-	fi
 
-	isMatching=$(echo $isMatching $matchPerProd | awk '{if($1==1 && $2==1){print 1}else{print 0}}')
-	yangTotPnl=$(echo $pnlYang $yangTotPnl $fxRate | awk '{print $3+($1*$4)-($2*$4)}')
-	#echo "$i $pnlPerProd $pnlYang $isMatching $yangTotPnl"
-        echo "$date $i $symbol $pnlYang $pnlPerProd $fxRate" >> $baseSimDir/$date/$sumPnlFile
+	symbol=$(grep ",$i," /mnt/config/RONIN/products.csv | awk -F ',' '{print $4}')
+	categ=$(grep ",$i," /mnt/config/RONIN/products.csv | awk -F ',' '{print $2}')
+
+        pnlPerProd=$(awk '{if($2=="'$i'"){pnlLoc+=$9}}END{print pnlLoc}' $baseSimDir/$date/$summaryFileName)
+        feePerProd=$(awk '{if($2=="'$i'"){feesLoc+=$10}}END{print feesLoc}' $baseSimDir/$date/$summaryFileName)
+        pnlYang=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($15,1,11)*1}')
+        feeYang=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print $3/$1}')
+        fxRateFee=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($1,1,11)*1}')
+        currFee=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print $2}')
+        fxRate=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($6,1,11)*1}')
+        currProd=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print $16}')
+        matchPerProd=$(echo $pnlPerProd $pnlYang $feePerProd $feeYang | awk '{if($1==$2 && $3==$4){print 1}else{print 0}}')
+
+	# get simulated local pnl & fees
+	#echo "GETTING SIM PNL & FEE FOR $i"
+	strToFetch="_"$i".log"
+	find $baseSimDir/$date -name "*_Trades_*" | grep $strToFetch | xargs cat > $baseSimDir/$date/allTrades.tmp
+	optimizer.sh ronin master Release PnlFromTrades $baseSimDir/$date/allTrades.tmp 1 > $baseSimDir/$date/screen.tmp
+	pnlSim=$(grep local $baseSimDir/$date/screen.tmp | grep "P&L" | awk '{print $6}')
+	feeSim=$(grep local $baseSimDir/$date/screen.tmp | grep "Fee" | awk '{print $4}')
+	rm -f $baseSimDir/$date/allTrades.tmp $baseSimDir/$date/screen.tmp
+	#echo "PROD: $i, SIM PNL: $pnlSim, SIM FEE: $feeSim"
+
+        if [ $matchPerProd -eq 0 ]
+        then
+                echo -e "\tYang P&L is different from OrderLog P&L for $i (Yang (p&l, fees): $pnlYang, $feeYang, Log (p&l, fees): $pnlPerProd, $feePerProd)"
+        fi
+
+        isMatching=$(echo $isMatching $matchPerProd | awk '{if($1==1 && $2==1){print 1}else{print 0}}')
+        #echo "$i $pnlPerProd $pnlYang $isMatching"
+        echo "$date $i $symbol $pnlYang $pnlPerProd $currProd $fxRate $feeYang $feePerProd $currFee $fxRateFee" >> $baseSimDir/$date/$sumPnlFile
+	
+	echo "$date $i $symbol $categ $pnlYang $feeYang $pnlPerProd $feePerProd $pnlSim $feeSim $fxRate $fxRateFee" | awk '{print $1, $2, $3, $4, ($5*$11 - $6*$12), ($7*$11 - $8*$12), ($9*$11 - $10*$12)}' >> $baseSimDir/$date/$sumReconFile
 done
 
 if [ $isMatching -eq 1 ]
 then
-	echo "Yang P&L and OrderLog P&L match 100%"
+	echo -e "\tYang P&L and OrderLog P&L match 100%"
 fi
 
-echo "Total Yang P&L for $date is $yangTotPnl USD"
+# calculate total P&Ls
+awk '{date=$1;yngPl+=$5;logPl+=$6;simPl+=$7}END{print date, "TOTAL", "ALL", "ALL", yngPl, logPl, simPl}' $baseSimDir/$date/$sumReconFile >> $baseSimDir/$date/$sumReconFile
+
+echo -e "\nDATE\t\tTOTAL_YANG_PL\tTOTAL_ORDERLOG_PL\tTOTAL_SIM_PL"
+grep TOTAL $baseSimDir/$date/$sumReconFile | awk '{print $1"\t"$5"\t\t"$6"\t\t\t"$7}'
+echo ""
