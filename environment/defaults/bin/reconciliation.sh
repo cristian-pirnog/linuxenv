@@ -9,6 +9,7 @@ function getMbbaTime
 	local fileName1=$1
 	local prodLoc=$2
 	local index=$3
+	local inputDate=$4
 	
 	timeStamp=$(grep "1st update" $fileName1 | awk -F ',' '{print $2}')
         bidSize=$(grep "1st update" $fileName1 | awk -F ',' '{print $3}')
@@ -25,6 +26,15 @@ function getMbbaTime
         	askPrice=$(grep "1st update" $fileName1 | awk -F ',' '{print $9}')
         	askSize=$(grep "1st update" $fileName1 | awk -F ',' '{print $10}')
 	fi
+
+	dateFromTs=$(echo $timeStamp | awk '{print substr($1,1,8)}')
+	if [ $dateFromTs -ne $inputDate ]
+	then
+		#echo "Timestamp found for 1st update has different date than date you're analyzing (TS: $timeStamp, dateTs: $dateFromTs, input date: $inputDate)"
+		timeStamp=$(grep "Received first tick" $fileName1 | grep -v $timeStamp | tail -1 | awk -F ',' '{print $3}')
+		#echo "Adapted timestamp: $timeStamp"
+	fi
+	
 
 	#echo "TS: $timeStamp, BSZ: $bidSize, BP: $bidPrice, AP: $askPrice, ASZ: $askSize"
 	#echo "COMMAND: optimizer.sh ronin master Release findTick $prodLoc $timeStamp $bidSize $bidPrice $askPrice $askSize 1 | grep TIMESTAMP | awk '{print $2}'"
@@ -213,8 +223,8 @@ do
 
 		#echo "PRODS: $prod1 $prod2 $fileName"
 		#echo -e "\tdetermining start time for simulation"
-		timeStamp1=$(getMbbaTime $fileName $prod1 1)
-		timeStamp2=$(getMbbaTime $fileName $prod2 2)
+		timeStamp1=$(getMbbaTime $fileName $prod1 1 $date)
+		timeStamp2=$(getMbbaTime $fileName $prod2 2 $date)
 
 		#echo "TS1: $timeStamp1, TS2: $timeStamp2"
 		#exit 1
