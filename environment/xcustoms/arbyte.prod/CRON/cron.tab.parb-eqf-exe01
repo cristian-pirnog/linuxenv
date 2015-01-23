@@ -9,7 +9,7 @@ MAILTO=pirnog@gmail.com
 
 # Each weekday, start the binaries
 # 50 06 * * Mon-Fri bash --login -c "cd ~/live.forRecording/bin && ./runLauncherForRecording.sh" > /dev/null 2>&1
-15 06 * * Mon-Fri bash --login -c "cd ~/live/bin && ~/CRON/runVPStratLauncher.sh" > /dev/null 2>&1
+15 06 * * Mon-Fri bash --login -c ". ~/.bash_profile; cd ~/live/bin && ~/CRON/runVPStratLauncher.sh" > /dev/null 2>&1
 
 # Each day (including week-end) update configs for the next day
-30 23 * * Sun-Sat bash --login -c '~/CRON/updateConfigsForTomorrow.sh' > /dev/null 2>&1
+30 23 * * Sun-Sat bash --login -c '. ~/.bash_profile; ~/CRON/updateConfigsForTomorrow.sh' > /dev/null 2>&1
