@@ -2,7 +2,11 @@
 
 source ~/.bash_profile
 mkdir -p ~/log
-logFile="${HOME}/log/keepUpToDate.$(date +%Y%m%d-%H%M%S).log"
+logDir=${HOME}/log/
+logFile="${logDir}/keepUpToDate.$(date +%Y%m%d-%H%M%S).log"
+
+# Clean-up old log files
+find ${logDir} -type f -mtime +3 -exec rm {} \;
 
 # The code
 cd ~/code 
@@ -12,4 +16,7 @@ buildall ron Release install >> ${logFile} 2>&1
 # The production stuff
 cd ~/production
 pula >> ${logFile} 2>&1
+
+
+
 
