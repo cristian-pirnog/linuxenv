@@ -27,6 +27,8 @@ MakeCDAlias()
 
 MakeCDAlias cod "${HOME}/code"
 MakeCDAlias codm "${HOME}/code.master"
+MakeCDAlias cdf "${HOME}/production/framework"
+
 
 #alias cod='cd ${HOME}/code'
 alias n='next'
