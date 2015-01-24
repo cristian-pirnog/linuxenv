@@ -155,7 +155,7 @@ fi
 
 if [[ noPull -eq 0 ]]; then
     echo "Updating from the GIT repository"
-    git pull
+    git pull || exit 1
 fi
 
 # Run the install script 

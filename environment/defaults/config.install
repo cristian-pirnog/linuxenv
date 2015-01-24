@@ -4,6 +4,7 @@
 #   SOURCE_FILE TARGET_FILE_WITH_PATH
 #
 .aliases $HOME/.aliases
+.aliases_functions ${HOME}/.aliases_functions
 .astylerc $HOME/.astylerc
 .bashrc $HOME/.bashrc
 .bashrc_default $HOME/.bashrc_default
@@ -25,3 +26,5 @@ bin/deployToProduction ${HOME}/bin/deployToProduction
 bin/optimizer ${HOME}/bin/optimizer
 bin/distributeSSHKeys ${HOME}/bin/distributeSSHKeys
 bin/runPy $HOME/bin/runPy
+bin/syncNRecon.sh $HOME/bin/syncNRecon.sh
+bin/reconciliation.sh $HOME/bin/reconciliation.sh
