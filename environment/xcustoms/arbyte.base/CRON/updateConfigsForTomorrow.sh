@@ -48,7 +48,7 @@ for d in $(ls ${sourceDir}); do
         fi
 
     printf '\tRemoving file: %s\n' ${tf}
-    rm ${tf}
+    rm -f ${tf}
     done
 done
 
