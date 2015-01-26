@@ -4,6 +4,7 @@
 #   SOURCE_FILE TARGET_FILE_WITH_PATH
 #
 .aliases $HOME/.aliases
+.aliases_functions ${HOME}/.aliases_functions
 .astylerc $HOME/.astylerc
 .bashrc $HOME/.bashrc
 .bashrc_default $HOME/.bashrc_default
