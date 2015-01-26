@@ -1,0 +1,25 @@
+# -*- mode: sh -*- #
+
+##
+# File to be sourced by all custom aliases files
+##
+
+# ----------------------------------------------
+# Procedure "MakeCDAlias"
+# ----------------------------------------------
+#
+# Arguments: $1 = ALIAS_NAME
+#            $2 = PATH
+#
+MakeCDAlias()
+{
+    local ALIAS_NAME=$1
+    local PATH=$2
+
+    if [ -d "$PATH" ]; then
+        alias ${ALIAS_NAME}="cd \"$PATH\""
+    else
+        alias ${ALIAS_NAME}="echo \"Directory $PATH does not exist.\""
+    fi
+}
+

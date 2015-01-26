@@ -4,29 +4,12 @@
 # Aliases file for user 'crpi'
 ##
 
-# ----------------------------------------------
-# Procedure "MakeCDAlias"
-# ----------------------------------------------
-#
-# Arguments: $1 = ALIAS_NAME
-#            $2 = PATH
-#
-MakeCDAlias()
-{
-    local ALIAS_NAME=$1
-    local PATH=$2
-
-    if [ -d "$PATH" ]; then
-        alias ${ALIAS_NAME}="cd \"$PATH\""
-    else
-        alias ${ALIAS_NAME}="echo \"Directory $PATH does not exist.\""
-    fi
-}
-
-
+source ~/.aliases_functions
 
 MakeCDAlias cod "${HOME}/code"
 MakeCDAlias codm "${HOME}/code.master"
+MakeCDAlias cdf "${HOME}/production/framework"
+
 
 #alias cod='cd ${HOME}/code'
 alias n='next'
