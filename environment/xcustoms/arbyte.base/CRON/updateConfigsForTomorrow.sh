@@ -1,17 +1,84 @@
 #!/bin/bash
 
+
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) [-h]
+            $(basename ${0}) --nowait
+
+     Options
+       -h
+       --help
+             Print this help message and exit.
+
+       --nowait
+             If a binary is running, do not wait for it to stop, but exit.
+
+%%USAGE%%
+}
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+ARGS=$(getopt -o hb: -l "help,nowait," -n "$(basename ${0})" -- "$@")
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+noWait=0
+while true; do
+    case ${1} in
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    --nowait)
+        noWait=1
+        shift
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # This is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
+
+
+
 sourceDir=${HOME}/forTomorrow
 targetDir=${HOME}/live
 
 sleepTime='10m'
-while true; do
+iterations=0
+while true; do    
     instances=$(findVPStratLauncherInstances)
     if [[ -z ${instances} ]]; then
         break
+    elif [[ ${noWait} == 1 ]]; then
+        printf 'Found instances running: %s. Exiting.\n' ${instances}
+        exit 1
     fi
 
-    printf 'Found instances running: %s. Sleeping ${sleepTime}.\n' ${instances}
+    printf 'Found instances running: %s. Sleeping %s.\n' ${instances} ${sleepTime}
     sleep ${sleepTime}
+    iterations=$((iterations+1))
+
+    if [[ ${iterations} -gt 6 ]]; then
+        Printf "Binary still running after waiting ${iterations} x ${sleepTime}"
+        exit 1
+    fi
 done
 
 # If no source directory, exit
