@@ -33,6 +33,10 @@ function createMBBA
                         	echo "$dateLoc,$prodLoc,Missing data" >> $outputDir/missingData.csv
 			fi
                 else # FILE EXISTS AND IS FILE SIZE IS LARGE ENOUGH
+
+			# also create sample file in this case
+			optimizer.sh ronin master Release printData $prodLoc $dateLoc s q &>/dev/null
+
                 	echo "NEW FILE FOUND AND LARGE ENOUGH: $prodLoc $dateLoc"
                         dataDays=$((dataDays+1))
                 fi
@@ -106,6 +110,15 @@ do
 			rm -f $fileName
 			createMBBA $prod $date
                 else # FILE EXISTS AND IS FILE SIZE IS LARGE ENOUGH
+
+			# Create sample file if not existing
+			sampleFileExists=$(find /home/$USER/scratch/cluster/MBBA/$prod* -name "$date*.smpl" | awk -F '/' '{if(length($7)==(length("'$prod'")+2)){print $7}}' | wc -l)
+			if [ $sampleFileExists -ne 1 ]
+			then
+				#echo -e "\t creating sample for $prod and $date"
+                        	optimizer.sh ronin master Release printData $prod $date s q &>/dev/null
+			fi
+
 			#echo "FILE FOUND AND LARGE ENOUGH: $prod $date"
 			dataDays=$((dataDays+1))
 		fi
