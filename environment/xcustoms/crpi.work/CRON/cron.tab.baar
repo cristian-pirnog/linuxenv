@@ -8,5 +8,5 @@ MAILTO=pirnog@gmail.com
 #DISPLAY=:0
 
 # Each weekday, check for rolling for the next few days
-15 12 * * Mon-Fri bash --login -c "~/CRON/checkRolling.sh" > /dev/null 2>&1
-45 22 * * Sun-Thu bash --login -c "~/production/framework/scripts/bash/createBookConfigs.sh `date +%Y%m%d -d tomorrow` --production --deploy" > /dev/null 2>&1
+#15 12 * * Mon-Fri bash --login -c "~/CRON/checkRolling.sh" > /dev/null 2>&1
+#45 22 * * Sun-Thu bash --login -c "~/production/framework/scripts/bash/createBookConfigs.sh `date +%Y%m%d -d tomorrow` --production --deploy" > /dev/null 2>&1
