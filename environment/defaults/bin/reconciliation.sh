@@ -10,6 +10,7 @@ function getMbbaTime
 	local prodLoc=$2
 	local index=$3
 	local inputDate=$4
+	local serverLoc=$5
 	
 	timeStamp=$(grep "1st update" $fileName1 | awk -F ',' '{print $2}')
         bidSize=$(grep "1st update" $fileName1 | awk -F ',' '{print $3}')
@@ -40,7 +41,7 @@ function getMbbaTime
 	#echo "COMMAND: optimizer.sh ronin master Release findTick $prodLoc $timeStamp $bidSize $bidPrice $askPrice $askSize 1 | grep TIMESTAMP | awk '{print $2}'"
 
 	# Printing the timestamp that is closest to the one from the production log file
-        timeStampMbba=$(optimizer.sh ronin master Release findTick $prodLoc $timeStamp $bidSize $bidPrice $askPrice $askSize 1 | grep TIMESTAMP | awk '{print $2}')
+        timeStampMbba=$(optimizer.sh ronin master Release findTick $prodLoc $timeStamp $bidSize $bidPrice $askPrice $askSize $serverLoc 1 | grep TIMESTAMP | awk '{print $2}')
 	
 	echo "$timeStampMbba"
 }
@@ -99,10 +100,8 @@ rm -f $summFileNameSim
 
 if [ $skipSim -eq 0 ]
 then
-	echo "DATE TRAD_ID TRAD_PROD ZPNL MHPNL TOTPNL 1STEQ DIFFCROSS TOTCROSS" > $baseSimDir/$date/$summFileNameSim
+	echo "DATE TRAD_ID TRAD_PROD ZPNL MHPNL TOTPNL 1STEQ DIFFCROSS TOTCROSS HITRAT" > $baseSimDir/$date/$summFileNameSim
 fi
-
-recSumFileName="Reconciliation_OrderLog_vs_Simulation_"$date".txt"
 
 echo ""
 
@@ -174,7 +173,7 @@ do
                 cd $baseSimDir/$date/$baseName
 
 		#echo -e "\tanalyzing production order log files"
-                ORDER_LOG_FILES=$(ls $directory | grep "_Orders.log" | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep $date)
+                ORDER_LOG_FILES=$(ls $directory | grep "_Orders.log" | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep $date | sort)
 		slotTraded=0
                 for k in $ORDER_LOG_FILES
                 do
@@ -223,8 +222,8 @@ do
 
 		#echo "PRODS: $prod1 $prod2 $fileName"
 		#echo -e "\tdetermining start time for simulation"
-		timeStamp1=$(getMbbaTime $fileName $prod1 1 $date)
-		timeStamp2=$(getMbbaTime $fileName $prod2 2 $date)
+		timeStamp1=$(getMbbaTime $fileName $prod1 1 $date $servLoc)
+		timeStamp2=$(getMbbaTime $fileName $prod2 2 $date $servLoc)
 
 		#echo "TS1: $timeStamp1, TS2: $timeStamp2"
 		#exit 1
@@ -266,6 +265,13 @@ do
 		# Run a simulation
 		#echo -e "\trunning single simulation with server location $servLoc"
 		optimizer.sh ronin master Release simulate $newCfgFileName $date $date serverLocation:$servLoc logTrades:1 logInternals:1 logExecution:1 > screen.txt
+
+		# Calculating hitratio's in simulation
+		fileTmp=$(ls | grep _Trades_ | grep $prod1)
+		hitRatio1=$(awk -F ',' 'BEGIN{tradVol=0;ordVol=0}{if($1=="O" && $6==0){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1=="T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{hr=0;if(ordVol>0){hr=tradVol/ordVol};print hr}' $fileTmp)
+		fileTmp=$(ls | grep _Trades_ | grep $prod2)
+		hitRatio2=$(awk -F ',' 'BEGIN{tradVol=0;ordVol=0}{if($1=="O" && $6==0){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1=="T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{hr=0;if(ordVol>0){hr=tradVol/ordVol};print hr}' $fileTmp)
+		#echo "HR1: $hitRatio1, HR2: $hitRatio2"
 		
 		# Translating .sim into csv
 		simOutputFile=$(ls *.sim)
@@ -322,12 +328,25 @@ do
 		fi
 
 		# Grepping simulation P&L numbers
-                grep -A1 Pnl $csvFile | grep -v Pnl | awk -F ',' '{if($27>0.00001 || $27<-0.00001){print "'$date'", "'$baseName'", "'$prod1'", $27, $29, $27-$29, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'"};if($28>0.00001 || $28<-0.00001){ print "'$date'", "'$baseName'", "'$prod2'", $28, $30, $28-$30, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'"}}' >> $baseSimDir/$date/$summFileNameSim
+                grep -A1 Pnl $csvFile | grep -v Pnl | awk -F ',' '{if($27>0.00001 || $27<-0.00001){print "'$date'", "'$baseName'", "'$prod1'", $27, $29, $27-$29, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'", "'$hitRatio1'"};if($28>0.00001 || $28<-0.00001){ print "'$date'", "'$baseName'", "'$prod2'", $28, $30, $28-$30, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'", "'$hitRatio2'"}}' >> $baseSimDir/$date/$summFileNameSim
 
-		# SUMMARY OF SUMMARY
-		paste $baseSimDir/$date/$summaryFileName $baseSimDir/$date/$summFileNameSim | awk 'BEGIN{print "DATE", "TRADED", "ID", "ROC_PL_USD", "SIM_PL_USD", "1ST_SAME", "CROSSDIF", "TOTCROSS"}NR>1{print $1, $2, $3, $7, $25, $26, $27, $28}' > $baseSimDir/$date/$recSumFileName
 	done
 done
+
+# sort summary file such that it is in the same order as the simulation results file
+sort -k1,1 -k3,3 -k2,2 $baseSimDir/$date/$summaryFileName | grep -v "DATE TRADED" | awk 'BEGIN{print "DATE TRADED ID START STOP SIMLOC PNLUSD FEESUSD PNLLOC FEESLOC AVGRTT MEDRTT MINRTT MAXRTT NRORD ORDVOL NRTRD TRDVOL HITRT"}{print $0}' > $baseSimDir/$date/tmp.txt
+mv $baseSimDir/$date/tmp.txt $baseSimDir/$date/$summaryFileName
+
+# sort such that it is in the same order as the orderLogSummary file
+sort -k1,1 -k2,2 -k3,3 $baseSimDir/$date/$summFileNameSim | grep -v "DATE TRAD_ID" | awk 'BEGIN{print "DATE TRAD_ID TRAD_PROD ZPNL MHPNL TOTPNL 1STEQ DIFFCROSS TOTCROSS HITRATIO"}{print $0}' > $baseSimDir/$date/tmp.txt
+mv $baseSimDir/$date/tmp.txt $baseSimDir/$date/$summFileNameSim
+
+# SUMMARY OF SUMMARY
+recSumFileName="Reconciliation_OrderLog_vs_Simulation_"$date".txt"
+paste $baseSimDir/$date/$summaryFileName $baseSimDir/$date/$summFileNameSim | awk 'BEGIN{print "DATE TRADED ID LOG_PL_USD SIM_PL_USD 1ST_SAME CROSSDIF TOTCROSS HR_LOG HR_SIM"}NR>1{print $1, $2, $3, $7, $25, $26, $27, $28, $19, $29}' > $baseSimDir/$date/$recSumFileName
+
+# print hitratio's for sim and prod into the simulation summary file
+#awk -F ',' '{if($1=="O" && $6==0){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1=="T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{print ordVol, tradVol, tradVol/ordVol}' 1065_Trades_LIF.CAC.log
 
 yangFileName="Yang_"$date".txt"
 yangDate=$(echo $date | awk '{print substr($1,1,4)"."substr($1,5,2)"."substr($1,7,2)}')
