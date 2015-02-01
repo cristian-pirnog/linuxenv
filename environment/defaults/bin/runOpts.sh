@@ -31,7 +31,7 @@ function test_job_succeeded
     if [ $found -eq 1 ]
     then
 	nrOfFiles=$(ls $dirName1 | wc -l)
-	if [ $nrOfFiles -lt 4 ]
+	if [ $nrOfFiles -lt 3 ]
 	then
 		echo "0"
 	else
@@ -159,16 +159,13 @@ do
     then
 	#echo "FOUND $dirName"
 	
-	# Check whether the job is finished or not or whether 1 of the 2 products is CME.HRWHT
-	if [ -f $dirName/.isRunning -o "$prod1" == "CME.HRWHT" -o "$prod2" == "CME.HRWHT" ]
+	# Check whether the job is finished or not
+	if [ -f $dirName/.isRunning ]
 	then
-		#echo "Directory $dirName exists, but job is running or 1 of the products is CME.HRWHT; continuing!"
+		#echo "Directory $dirName exists, but job is running; continuing!"
 		continue
 	fi
 
-	# If you are here, then it means job has finished (i.e. is not running at the moment, but might have failed; tested below)
-	#if [ "$exch1" == "CME" -a "$exch2" == "CME" ]
-    	#then
 		jobSucceeded=$(test_job_succeeded $dirName)
 		#echo -e "JOB: $dirName SUCC: $jobSucceeded\n"
 		#continue
@@ -189,13 +186,7 @@ do
 					continue
 				fi
 			fi
-	#else
-	#		#echo "$dirName SUCCEEDED!"
-	#		continue
 		fi
-	#else
-	#	continue
-	#fi
     fi
 
     # Check again whether this job is running, because I am trying to avoid a race condition
@@ -225,20 +216,6 @@ do
     touch $dirName/.isRunning
     chmod 777 $dirName
     cd $dirName
-
-    #if [ "$exch1" != "CME" -o "$exch2" != "CME" ]
-    #then
-	#echo "One of the products is not a CME product (prod1: $prod1, prod2: $prod2). Skipping optimization!" > $dirName/screenOutput.txt
-    	#rm .isRunning
-	#continue;
-    #fi
-
-    #if [ "$prod1" == "CME.HRWHT" -o "$prod2" == "CME.HRWHT" ]
-    #then
-	#echo "One of the products is CME.HRWHT (prod1: $prod1, prod2: $prod2). No data for this product. Skipping optimization!" > $dirName/screenOutput.txt
-    	#rm .isRunning
-	#continue
-    #fi
 
     startT=$(echo $line | awk '{print "T"$3}')
     stopT=$(echo $line | awk '{print "T"$4}')
@@ -313,9 +290,3 @@ cd $currentPath
 
 theDate=$(date +"%Y%m%d %H:%M:%S")
 echo -e "\n\tOptimization finished at $theDate\n"
-
-# NAME1      NAME2       START   STOP    SIMLOC  SPREAD  ID	FULLNAME
-#CME.AUDUSD  CME.CADUSD  000000  090000  CME     0       1	CME.AUDUSD_CME.CADUSD_000000_090000_CME_0
-#CME.AUDUSD  CME.CADUSD  000000  090000  CME     1       1	CME.AUDUSD_CME.CADUSD_000000_090000_CME_1
-
-# rocardian.optimizer optimize instr1 instr2 configFile startTime stopTime isIntraday beginDate endDate [settings]

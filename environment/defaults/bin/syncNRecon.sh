@@ -62,7 +62,8 @@ then
 	fi
 	
 	dataStatusDate=$(date -d "$reconDate +1 day" +%Y%m%d)
-	isDataThere=$(/usr/bin/ssh -i /home/jepo/.ssh/id_rsa_cron -X jpoepjes@DARB-HAN-APP1 ls -ltra $statusDir | grep "missingData_$dataStatusDate"| awk 'BEGIN{dataIsThere=0}{if($5==0){dataIsThere=1}}END{print dataIsThere}')
+	strToGrep="missingData_"$dataStatusDate"_"
+	isDataThere=$(/usr/bin/ssh -i /home/jepo/.ssh/id_rsa_cron -X jpoepjes@DARB-HAN-APP1 ls -ltra $statusDir | grep $strToGrep | awk 'BEGIN{dataIsThere=0}{if($5==0){dataIsThere=1}}END{print dataIsThere}')
 
 	#echo "dataStatusDate: $dataStatusDate, IS DATA THERE: $isDataThere"
 	

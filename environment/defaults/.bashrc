@@ -1,6 +1,9 @@
 # -*- mode: sh -*- #
 # .bashrc
 
+# User specific environment and startup programs
+export PATH=$HOME/bin:$PATH
+
 # Source .bashrc_default, if present
 test -f ${HOME}/.bashrc_default && . ${HOME}/.bashrc_default
 

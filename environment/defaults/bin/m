@@ -19,4 +19,4 @@ else
     geometryOption='-geometry 117x39'
 fi
 
-emacs ${geometryOption} ${*} #"$OFFSET" $OTHER_OPTS
+emacs ${geometryOption} "$@" #"$OFFSET" $OTHER_OPTS

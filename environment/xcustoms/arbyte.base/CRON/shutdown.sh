@@ -27,24 +27,36 @@ printUsage()
 
 
 #----------------------------------------------
-getHistoricalLogDir()
+getNextNuberedDir()
 {
-    local histLogDir=""
+    local lBaseDir="${1}"
+
+    local lNextNumberedDir=""
     for i in `seq 1 50`; do
-        local dir=${date}/${i}
-        histLogDir=${liveDir}/log/${dir}
-	    if [[ ! -d ${histLogDir} ]]; then
-           mkdir -p ${histLogDir}
-	    
-           # Make a symlink to the latest log dir
-           latestLog=${histLogDir}/../../latest
-           if [[ -h ${latestLog} ]]; then rm ${latestLog}; fi
-           ln -s ${dir} ${latestLog}
-           break
+        local lNextNumber=${i}
+        lNextNumberedDir=${lBaseDir}/${lNextNumber}
+        if [[ ! -d ${lNextNumberedDir} ]]; then
+            mkdir -p ${lNextNumberedDir}
+            break
         fi
     done
+    echo ${lNextNumberedDir}
+}
 
-echo ${histLogDir}
+
+#----------------------------------------------
+getHistoricalLogDir()
+{
+    local lDateDir=log/${date}
+    local lHistLogDirBase=${liveDir}/${lDateDir}
+    local lHistLogDir=$(getNextNuberedDir ${lHistLogDirBase})
+
+    # Make a symlink to the latest log dir
+    latestLog=${lHistLogDirBase}/latest
+    if [[ -h ${latestLog} ]]; then rm ${latestLog}; fi
+    ln -s ${lDateDir}$(basename ${lHistLogDir}) ${latestLog}
+
+    echo ${lHistLogDir}
 }
 
 
@@ -144,7 +156,9 @@ if [[ -d ${complianceLogDir} ]]; then
    complianceLogDir=${complianceLogDir}/${date}/$(hostname --short)
    mkdir -p ${complianceLogDir}
 
-   cp -r ${historicalLogDir}/fix8/* ${complianceLogDir}
+   complianceNumberedLogDir=$(getNextNuberedDir ${complianceLogDir})
+   echo complianceNumberedLogDir=${complianceNumberedLogDir}
+   cp -r ${historicalLogDir}/fix8/* ${complianceNumberedLogDir}
 fi
 
 ###############################

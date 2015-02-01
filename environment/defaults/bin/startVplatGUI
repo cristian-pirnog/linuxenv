@@ -1,15 +1,41 @@
 #!/bin/bash
 
+#----------------------------------------------
+printUsage()
+{
+    cat << %%USAGE%%
+    
+    Usage: $(basename ${0}) [-h|--help]
+           $(basename ${0}) prod
+           $(basename ${0}) [cme|eux|liffe|uat]
+ 
+    Description:
+       Builds all the code using CMake configurations.
 
+    Arguments:
+       prod
+           Starts all production GUIs (currently: cme, eux,liffe). 
 
+       cme
+       eux
+       liffe
+       uat
+           Starts the GUI for the specified venue.
 
-monitoringDir="${HOME}/code/ronin/libs/monitoring/VplatGUI/"
+    Options:
+       -h
+       --help
+           Prints this help message and exits.
+
+%%USAGE%%
+}
+
+source ~/.userfunctions
 
 #----------------------------------------------
 # Main script
 #----------------------------------------------
 ARGS=$(getopt -o h -l "help" -n "$(basename ${0})" -- "$@")
-scriptOptions=$(echo ${ARGS} | awk -F ' -- ' '{print $1}')
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -41,11 +67,24 @@ if [[ $# -lt 1 ]]; then
     exit 1
 fi
 
+monitoringDir="${HOME}/code/ronin/libs/monitoring/VplatGUI/"
+
+# Fetch the venues for which to start the GUI's
 venues=${1}
 if [[ ${venues} == 'prod' ]]; then
     venues=$(ls ${monitoringDir} | grep -v uat)
+elif [[ ! -d ${monitoringDir}/${venues} ]]; then
+    printf "\nUnsuported venue: %s.\n\n" ${venues}
+    printUsage && exit 1
 fi
 
+# Check for running instances
+processIds=$(fp com.bbl.gui.StartVplatGui | awk '{print $1}')
+if [[ -n "${processIds}" ]]; then
+    getAnswer "Found running GUIs. Would you like to kill them?" && kill ${processIds}
+fi
+
+# Start the new instances
 outfile="output.$(date +%Y%m%d-%H%M%S).log"
 for v in ${venues}; do
     echo v=${v}

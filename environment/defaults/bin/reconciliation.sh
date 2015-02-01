@@ -9,6 +9,8 @@ function getMbbaTime
 	local fileName1=$1
 	local prodLoc=$2
 	local index=$3
+	local inputDate=$4
+	local serverLoc=$5
 	
 	timeStamp=$(grep "1st update" $fileName1 | awk -F ',' '{print $2}')
         bidSize=$(grep "1st update" $fileName1 | awk -F ',' '{print $3}')
@@ -26,11 +28,20 @@ function getMbbaTime
         	askSize=$(grep "1st update" $fileName1 | awk -F ',' '{print $10}')
 	fi
 
+	dateFromTs=$(echo $timeStamp | awk '{print substr($1,1,8)}')
+	if [ $dateFromTs -ne $inputDate ]
+	then
+		#echo "Timestamp found for 1st update has different date than date you're analyzing (TS: $timeStamp, dateTs: $dateFromTs, input date: $inputDate)"
+		timeStamp=$(grep "Received first tick" $fileName1 | grep -v $timeStamp | tail -1 | awk -F ',' '{print $3}')
+		#echo "Adapted timestamp: $timeStamp"
+	fi
+	
+
 	#echo "TS: $timeStamp, BSZ: $bidSize, BP: $bidPrice, AP: $askPrice, ASZ: $askSize"
 	#echo "COMMAND: optimizer.sh ronin master Release findTick $prodLoc $timeStamp $bidSize $bidPrice $askPrice $askSize 1 | grep TIMESTAMP | awk '{print $2}'"
 
 	# Printing the timestamp that is closest to the one from the production log file
-        timeStampMbba=$(optimizer.sh ronin master Release findTick $prodLoc $timeStamp $bidSize $bidPrice $askPrice $askSize 1 | grep TIMESTAMP | awk '{print $2}')
+        timeStampMbba=$(optimizer.sh ronin master Release findTick $prodLoc $timeStamp $bidSize $bidPrice $askPrice $askSize $serverLoc 1 | grep TIMESTAMP | awk '{print $2}')
 	
 	echo "$timeStampMbba"
 }
@@ -89,10 +100,8 @@ rm -f $summFileNameSim
 
 if [ $skipSim -eq 0 ]
 then
-	echo "DATE TRAD_ID TRAD_PROD ZPNL MHPNL TOTPNL 1STEQ DIFFCROSS TOTCROSS" > $baseSimDir/$date/$summFileNameSim
+	echo "DATE TRAD_ID TRAD_PROD ZPNL MHPNL TOTPNL 1STEQ DIFFCROSS TOTCROSS HITRAT" > $baseSimDir/$date/$summFileNameSim
 fi
-
-recSumFileName="Reconciliation_OrderLog_vs_Simulation_"$date".txt"
 
 echo ""
 
@@ -122,7 +131,7 @@ do
 			if [ $nrOfFiles2 -gt 1 ]
 			then
 				fileName=$(find $i -name $j | xargs grep stage3 | grep -v "stage3,TimeStamp,TriggeredProd" | awk -F ':' '{print $1}' | sort -u | tail -1)
-				echo "FOUND MULTIPLE $j FILES IN $i (ONLY USING LAST ONE: $fileName)!"
+				#echo "FOUND MULTIPLE $j FILES IN $i (ONLY USING LAST ONE: $fileName)!"
 			else
 				fileName=$(find $i -name $j | xargs grep stage3 | grep -v "stage3,TimeStamp,TriggeredProd" | awk -F ':' '{print $1}' | sort -u)
 			fi
@@ -164,7 +173,8 @@ do
                 cd $baseSimDir/$date/$baseName
 
 		#echo -e "\tanalyzing production order log files"
-                ORDER_LOG_FILES=$(ls $directory | grep "_Orders.log" | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep $date)
+                ORDER_LOG_FILES=$(ls $directory | grep "_Orders.log" | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep $date | sort)
+		slotTraded=0
                 for k in $ORDER_LOG_FILES
                 do
                         #echo -e "\tORDER LOG FILE: $k"
@@ -191,6 +201,7 @@ do
                         #echo -e "\t\tconstructing order log summary for $newFileName and traded product $tradedProd"
 			summFileName2=$(optimizer.sh ronin master Release OrderLogParser $newFileName $timeShift | grep "Saving order log statistics to file" | awk '{print $7}')
                         tail -1 $summFileName2 >> $baseSimDir/$date/$summaryFileName
+			slotTraded=1
                 done
 
 		if [ $skipSim -eq 1 ]
@@ -199,15 +210,20 @@ do
 			continue
 		fi
 
+		if [ $slotTraded -eq 0 ]
+                then
+                        echo -e "\t\tSlot $baseName did not trade in production; skipping simulation for this slot"
+                        continue
+                fi
+
 		stage3ProdFile="Crossings_prod_"$nameTmp
 		strToGrep="stage3,"$date"T"
-		#grep $strToGrep $fileName | sed "s/,/ /g" | awk '{print substr($2,1,19), $3, $4, $5, $6, $7, $8, substr($9,1,19), $10, $11, $12, $13, $14, $15, $16, $17, substr($18,1,19), $19, $20, $21, $22, $23, $24, $25}' > ./$stage3ProdFile
 		grep $strToGrep $fileName | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $6, $7, $8, $11, $13, $16, $17, $20, $22, $25}' > ./$stage3ProdFile
 
 		#echo "PRODS: $prod1 $prod2 $fileName"
 		#echo -e "\tdetermining start time for simulation"
-		timeStamp1=$(getMbbaTime $fileName $prod1 1)
-		timeStamp2=$(getMbbaTime $fileName $prod2 2)
+		timeStamp1=$(getMbbaTime $fileName $prod1 1 $date $servLoc)
+		timeStamp2=$(getMbbaTime $fileName $prod2 2 $date $servLoc)
 
 		#echo "TS1: $timeStamp1, TS2: $timeStamp2"
 		#exit 1
@@ -243,11 +259,19 @@ do
 		newCfgFileName=$baseName".cfg"
 		#echo "NEW CFG FILE: $newCfgFileName"
 		#echo -e "\tchanging start time of config"
+		#echo "$directory/configs/$cfgFile"
 		optimizer.sh ronin master Release edit $directory/configs/$cfgFile StartTime $latestTimeStampMbba $newCfgFileName &>/dev/null
 
 		# Run a simulation
 		#echo -e "\trunning single simulation with server location $servLoc"
 		optimizer.sh ronin master Release simulate $newCfgFileName $date $date serverLocation:$servLoc logTrades:1 logInternals:1 logExecution:1 > screen.txt
+
+		# Calculating hitratio's in simulation
+		fileTmp=$(ls | grep _Trades_ | grep $prod1)
+		hitRatio1=$(awk -F ',' 'BEGIN{tradVol=0;ordVol=0}{if($1=="O" && $6==0){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1=="T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{hr=0;if(ordVol>0){hr=tradVol/ordVol};print hr}' $fileTmp)
+		fileTmp=$(ls | grep _Trades_ | grep $prod2)
+		hitRatio2=$(awk -F ',' 'BEGIN{tradVol=0;ordVol=0}{if($1=="O" && $6==0){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1=="T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{hr=0;if(ordVol>0){hr=tradVol/ordVol};print hr}' $fileTmp)
+		#echo "HR1: $hitRatio1, HR2: $hitRatio2"
 		
 		# Translating .sim into csv
 		simOutputFile=$(ls *.sim)
@@ -304,12 +328,25 @@ do
 		fi
 
 		# Grepping simulation P&L numbers
-                grep -A1 Pnl $csvFile | grep -v Pnl | awk -F ',' '{if($27>0.00001 || $27<-0.00001){print "'$date'", "'$baseName'", "'$prod1'", $27, $29, $27-$29, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'"};if($28>0.00001 || $28<-0.00001){ print "'$date'", "'$baseName'", "'$prod2'", $28, $30, $28-$30, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'"}}' >> $baseSimDir/$date/$summFileNameSim
+                grep -A1 Pnl $csvFile | grep -v Pnl | awk -F ',' '{if($27>0.00001 || $27<-0.00001){print "'$date'", "'$baseName'", "'$prod1'", $27, $29, $27-$29, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'", "'$hitRatio1'"};if($28>0.00001 || $28<-0.00001){ print "'$date'", "'$baseName'", "'$prod2'", $28, $30, $28-$30, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'", "'$hitRatio2'"}}' >> $baseSimDir/$date/$summFileNameSim
 
-		# SUMMARY OF SUMMARY
-		paste $baseSimDir/$date/$summaryFileName $baseSimDir/$date/$summFileNameSim | awk 'BEGIN{print "DATE", "TRADED", "ID", "ROC_PL_USD", "SIM_PL_USD", "1ST_SAME", "CROSSDIF", "TOTCROSS"}NR>1{print $1, $2, $3, $7, $25, $26, $27, $28}' > $baseSimDir/$date/$recSumFileName
 	done
 done
+
+# sort summary file such that it is in the same order as the simulation results file
+sort -k1,1 -k3,3 -k2,2 $baseSimDir/$date/$summaryFileName | grep -v "DATE TRADED" | awk 'BEGIN{print "DATE TRADED ID START STOP SIMLOC PNLUSD FEESUSD PNLLOC FEESLOC AVGRTT MEDRTT MINRTT MAXRTT NRORD ORDVOL NRTRD TRDVOL HITRT"}{print $0}' > $baseSimDir/$date/tmp.txt
+mv $baseSimDir/$date/tmp.txt $baseSimDir/$date/$summaryFileName
+
+# sort such that it is in the same order as the orderLogSummary file
+sort -k1,1 -k2,2 -k3,3 $baseSimDir/$date/$summFileNameSim | grep -v "DATE TRAD_ID" | awk 'BEGIN{print "DATE TRAD_ID TRAD_PROD ZPNL MHPNL TOTPNL 1STEQ DIFFCROSS TOTCROSS HITRATIO"}{print $0}' > $baseSimDir/$date/tmp.txt
+mv $baseSimDir/$date/tmp.txt $baseSimDir/$date/$summFileNameSim
+
+# SUMMARY OF SUMMARY
+recSumFileName="Reconciliation_OrderLog_vs_Simulation_"$date".txt"
+paste $baseSimDir/$date/$summaryFileName $baseSimDir/$date/$summFileNameSim | awk 'BEGIN{print "DATE TRADED ID LOG_PL_USD SIM_PL_USD 1ST_SAME CROSSDIF TOTCROSS HR_LOG HR_SIM"}NR>1{print $1, $2, $3, $7, $25, $26, $27, $28, $19, $29}' > $baseSimDir/$date/$recSumFileName
+
+# print hitratio's for sim and prod into the simulation summary file
+#awk -F ',' '{if($1=="O" && $6==0){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1=="T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{print ordVol, tradVol, tradVol/ordVol}' 1065_Trades_LIF.CAC.log
 
 yangFileName="Yang_"$date".txt"
 yangDate=$(echo $date | awk '{print substr($1,1,4)"."substr($1,5,2)"."substr($1,7,2)}')
@@ -326,16 +363,17 @@ echo "DATE ALIAS SYMBOL CATEGORY PNLYNGUSD PNLLOGUSD PNLSIMUSD" > $baseSimDir/$d
 
 isMatching=1
 
-PRODS=$(awk 'NR>1{print $2}' $baseSimDir/$date/$summaryFileName | sort -u)
+PRODS=$(awk -F ',' 'NR>1{print $11}' $baseSimDir/$date/$yangFileName | sort -u)
 for i in $PRODS
 do
 	#echo -e "\t$i"
 
+	alias=$(grep ",$i," /mnt/config/RONIN/products.csv | awk -F ',' '{print $3}')
 	symbol=$(grep ",$i," /mnt/config/RONIN/products.csv | awk -F ',' '{print $4}')
 	categ=$(grep ",$i," /mnt/config/RONIN/products.csv | awk -F ',' '{print $2}')
 
-        pnlPerProd=$(awk '{if($2=="'$i'"){pnlLoc+=$9}}END{print pnlLoc}' $baseSimDir/$date/$summaryFileName)
-        feePerProd=$(awk '{if($2=="'$i'"){feesLoc+=$10}}END{print feesLoc}' $baseSimDir/$date/$summaryFileName)
+        pnlPerProd=$(awk 'BEGIN{pnlLoc=0}{if($2=="'$alias'"){pnlLoc+=$9}}END{print pnlLoc}' $baseSimDir/$date/$summaryFileName)
+        feePerProd=$(awk 'BEGIN{feesLoc=0}{if($2=="'$alias'"){feesLoc+=$10}}END{print feesLoc}' $baseSimDir/$date/$summaryFileName)
         pnlYang=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($15,1,11)*1}')
         feeYang=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print $3/$1}')
         fxRateFee=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($1,1,11)*1}')
@@ -345,25 +383,33 @@ do
         matchPerProd=$(echo $pnlPerProd $pnlYang $feePerProd $feeYang | awk '{if($1==$2 && $3==$4){print 1}else{print 0}}')
 
 	# get simulated local pnl & fees
-	#echo "GETTING SIM PNL & FEE FOR $i"
-	strToFetch="_"$i".log"
+	#echo "GETTING SIM PNL & FEE FOR $alias"
+	strToFetch="_"$alias".log"
 	find $baseSimDir/$date -name "*_Trades_*" | grep $strToFetch | xargs cat > $baseSimDir/$date/allTrades.tmp
-	optimizer.sh ronin master Release PnlFromTrades $baseSimDir/$date/allTrades.tmp 1 > $baseSimDir/$date/screen.tmp
-	pnlSim=$(grep local $baseSimDir/$date/screen.tmp | grep "P&L" | awk '{print $6}')
-	feeSim=$(grep local $baseSimDir/$date/screen.tmp | grep "Fee" | awk '{print $4}')
+	
+	nrOfSimTrades=$(wc -l $baseSimDir/$date/allTrades.tmp | awk '{print $1}')
+	pnlSim=0
+	feeSim=0
+	if [ $nrOfSimTrades -gt 0 ]
+	then
+		optimizer.sh ronin master Release PnlFromTrades $baseSimDir/$date/allTrades.tmp 1 > $baseSimDir/$date/screen.tmp
+		pnlSim=$(grep local $baseSimDir/$date/screen.tmp | grep "P&L" | awk '{print $6}')
+		feeSim=$(grep local $baseSimDir/$date/screen.tmp | grep "Fee" | awk '{print $4}')
+	fi
+
 	rm -f $baseSimDir/$date/allTrades.tmp $baseSimDir/$date/screen.tmp
-	#echo "PROD: $i, SIM PNL: $pnlSim, SIM FEE: $feeSim"
+	#echo "PROD: $alias, SIM PNL: $pnlSim, SIM FEE: $feeSim"
 
         if [ $matchPerProd -eq 0 ]
         then
-                echo -e "\tYang P&L is different from OrderLog P&L for $i (Yang (p&l, fees): $pnlYang, $feeYang, Log (p&l, fees): $pnlPerProd, $feePerProd)"
+                echo -e "\tYang P&L is different from OrderLog P&L for $alias (Yang (p&l, fees): $pnlYang, $feeYang, Log (p&l, fees): $pnlPerProd, $feePerProd)"
         fi
 
         isMatching=$(echo $isMatching $matchPerProd | awk '{if($1==1 && $2==1){print 1}else{print 0}}')
-        #echo "$i $pnlPerProd $pnlYang $isMatching"
-        echo "$date $i $symbol $pnlYang $pnlPerProd $currProd $fxRate $feeYang $feePerProd $currFee $fxRateFee" >> $baseSimDir/$date/$sumPnlFile
+        #echo "$alias $pnlPerProd $pnlYang $isMatching"
+        echo "$date $alias $symbol $pnlYang $pnlPerProd $currProd $fxRate $feeYang $feePerProd $currFee $fxRateFee" >> $baseSimDir/$date/$sumPnlFile
 	
-	echo "$date $i $symbol $categ $pnlYang $feeYang $pnlPerProd $feePerProd $pnlSim $feeSim $fxRate $fxRateFee" | awk '{print $1, $2, $3, $4, ($5*$11 - $6*$12), ($7*$11 - $8*$12), ($9*$11 - $10*$12)}' >> $baseSimDir/$date/$sumReconFile
+	echo "$date $alias $symbol $categ $pnlYang $feeYang $pnlPerProd $feePerProd $pnlSim $feeSim $fxRate $fxRateFee" | awk '{print $1, $2, $3, $4, ($5*$11 - $6*$12), ($7*$11 - $8*$12), ($9*$11 - $10*$12)}' >> $baseSimDir/$date/$sumReconFile
 done
 
 if [ $isMatching -eq 1 ]
@@ -375,5 +421,5 @@ fi
 awk '{date=$1;yngPl+=$5;logPl+=$6;simPl+=$7}END{print date, "TOTAL", "ALL", "ALL", yngPl, logPl, simPl}' $baseSimDir/$date/$sumReconFile >> $baseSimDir/$date/$sumReconFile
 
 echo -e "\nDATE\t\tTOTAL_YANG_PL\tTOTAL_ORDERLOG_PL\tTOTAL_SIM_PL"
-grep TOTAL $baseSimDir/$date/$sumReconFile | awk '{print $1"\t"$5"\t\t"$6"\t\t\t"$7}'
+grep TOTAL $baseSimDir/$date/$sumReconFile | awk '{tabs1="\t\t";if(length($5)>7){tabs1="\t"};tabs2="\t\t\t";if(length($6)>7){tabs2="\t\t"};print $1"\t"$5tabs1$6tabs2$7}'
 echo ""

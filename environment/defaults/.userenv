@@ -1,6 +1,6 @@
 # -*- mode: sh -*- #
 
-export PATH=$PATH:/${HOME}/code/drogon/src/scripts:/usr/local/bin
+export PATH=$PATH:${HOME}/code/drogon/src/scripts:/usr/local/bin
 export PYTHONPATH=${PYTHONPATH}:/home/${USER}/code/drogon/src/python
 
 export HISTIGNORE="&:l:[bf]g:exit"
