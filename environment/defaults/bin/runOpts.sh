@@ -31,7 +31,7 @@ function test_job_succeeded
     if [ $found -eq 1 ]
     then
 	nrOfFiles=$(ls $dirName1 | wc -l)
-	if [ $nrOfFiles -lt 4 ]
+	if [ $nrOfFiles -lt 3 ]
 	then
 		echo "0"
 	else
