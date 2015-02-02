@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LinkStandarFile()
+LinkStandardFile()
 {
     local lFileName=${1}
 
@@ -80,8 +80,8 @@ if [[ -d ${userBaseDir} ]]; then
     fullDir=$(pwd)/${userBaseDir}
     InstallFromDir ${fullDir}
 
-    LinkStandarFile ${fullDir}/.userenv_custom.base
-    LinkStandarFile ${fullDir}/.aliases_custom.base
+    LinkStandardFile ${fullDir}/.userenv_custom.base
+    LinkStandardFile ${fullDir}/.aliases_custom.base
 else
     echo "+++ Base dir not found ${userBaseDir}"
 fi
@@ -91,5 +91,5 @@ fi
 fullDir=$(pwd)/${userCustomDir}
 InstallFromDir ${fullDir}
 
-LinkStandarFile ${fullDir}/.userenv_custom
-LinkStandarFile ${fullDir}/.aliases_custom
+LinkStandardFile ${fullDir}/.userenv_custom
+LinkStandardFile ${fullDir}/.aliases_custom
