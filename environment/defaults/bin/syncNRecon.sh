@@ -33,7 +33,7 @@ fi
 mbbaDir=$1
 statusDir=$2
 
-reconBaseDir="/mnt/sandbox/reconciliation"
+reconBaseDir="/mnt/reconciliation"
 
 reconDate=$(prevBusDay)
 if [ $# -eq 3 ]
