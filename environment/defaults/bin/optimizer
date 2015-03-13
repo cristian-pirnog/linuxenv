@@ -100,7 +100,11 @@ if [[ ! -f ${binary} ]]; then
     exit 1
 fi
 
+if [[ -n $(lsb_release -d | grep CentOS) ]]; then
+    systemLibPath=/usr/local/lib64:/usr/local/lib:
+fi
+
 printf "\n[%s %s %s]\n\n" ${client} ${branch} ${buildType} 
-#echo LD_LIBRARY_PATH=${libPath}
-LD_LIBRARY_PATH=${libPath} ${binary} $@ ${options}
+#echo LD_LIBRARY_PATH=${systemLibPath}${libPath}
+LD_LIBRARY_PATH=${systemLibPath}${libPath} ${binary} $@ ${options}
 
