@@ -82,7 +82,7 @@ then
 	exit 1
 fi
 
-baseSimDir="/mnt/sandbox/reconciliation"
+baseSimDir="/mnt/reconciliation"
 if [ -d $baseSimDir/$date ]
 then
 	echo "Reconciliation directory for $date already exists ($baseSimDir/$date); remove first!"

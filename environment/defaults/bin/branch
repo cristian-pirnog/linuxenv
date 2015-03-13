@@ -63,7 +63,7 @@ cat << %%USAGE%%
        --merge fromBranch [toBranch]
              Merge the changes in fromBranch to toBranch
 
-       -l[s|all]
+       -l[s|all|uniq]
              List the current branch for each project. 
 
 	     If option 's' is provided, the output will be formatted for use 
@@ -71,6 +71,9 @@ cat << %%USAGE%%
 
 	     If option 'all' is provided, lists all the branches for each 
 	     project.
+
+             If option 'unique' is provided, lists only the unique branch names,
+	     without the projects.
 
        <x|y>:
              One of the arguments in the brackets must be provided
@@ -398,7 +401,11 @@ while true; do
 	    shift 2
 	    ;;
 	-l)
-	    listBranches ${2}
+	    if [[ ${2} == 'uniq' ]]; then
+		listBranches s | awk '{print $NF}' | uniq
+	    else
+		listBranches ${2}
+	    fi
 	    shift 2
 	    exit 0
 	    ;;
