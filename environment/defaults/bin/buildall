@@ -88,6 +88,10 @@ case ${1} in
 esac
 
 buildType=${1}
+supportedBuildTypes=' Release Debug -'
+if [[ -z $(echo ${supportedBuildTypes} | grep " ${buildType} ") ]]; then
+    echo "Build type '${buildType}' not supported"
+fi
 shift 1
 
 #if [[ $(pwd) != "${HOME}/code" ]]; then
