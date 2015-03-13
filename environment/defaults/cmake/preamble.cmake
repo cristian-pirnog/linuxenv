@@ -30,7 +30,7 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 endif(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
 # Compiler options
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -MMD -MP -DVPL_PLATFORM_LINUX")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -MMD -MP -DVPL_PLATFORM_LINUX") #-Wall -Wextra -Werror")
 
 # Make lists with the files to use for building
 file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.h)

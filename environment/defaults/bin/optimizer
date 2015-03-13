@@ -101,5 +101,6 @@ if [[ ! -f ${binary} ]]; then
 fi
 
 printf "\n[%s %s %s]\n\n" ${client} ${branch} ${buildType} 
+#echo LD_LIBRARY_PATH=${libPath}
 LD_LIBRARY_PATH=${libPath} ${binary} $@ ${options}
 
