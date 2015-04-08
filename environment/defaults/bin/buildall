@@ -156,5 +156,7 @@ for d in ${PROJECTS_TO_BUILD}; do
 done
 
 if [[ -n $(echo $@|grep 'install') ]]; then
-    cp -r ~/code/ronin/libs/kfc/lib/libkfcData.so ~/deploy/${branchName}/${buildType}/lib/
+    libDir=~/deploy/${branchName}/${buildType}/lib/
+    cp -r ~/code/ronin/libs/kfc/lib/libkfcData.so ${libDir}
+    touch ~/deploy/${branchName}/${buildType}/lib/${client}/__init__.py
 fi
