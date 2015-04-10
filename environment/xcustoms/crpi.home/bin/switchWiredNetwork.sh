@@ -53,7 +53,10 @@ if [[ ${wasConnected} -eq 1 ]]; then
 fi
 
 # Change the config file accordingly
-sudo cp ${configFile} /etc/sysconfig/network-scripts/
+sudo cp ${configFile} /etc/sysconfig/network-scripts/ || exit 1
+
+# Disconnect the wireless
+nmcli device disconnect wlp11s0
 
 # Bring the wired connection back up
 if [[ ${wasConnected} -eq 1 ]]; then
