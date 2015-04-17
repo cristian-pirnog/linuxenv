@@ -116,6 +116,11 @@ fi
 
 source ${baseScript}
 
+if [[ -z $(ls ${strategyConfigDir} | grep '.cfg$') ]]; then
+    printf "No configs found in directory %s' ${strategyConfigDir}" >> ${outputFile}
+    exit 1
+fi
+
 ###############################
 # Test the config file
 ###############################
