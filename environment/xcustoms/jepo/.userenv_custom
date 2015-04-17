@@ -1,6 +1,5 @@
 export PATH=$PATH:/home/jepo/code/drogon/src/scripts
 export PYTHONPATH=$PYTHONPATH:/home/jepo/code/drogon/src/python:/home/jepo/code/drogon/lib/python-bindings:/home/jepo/deploy/master/Release/lib:/home/jepo/code/drogon/src/python:/home/jepo/code/drogon/src/C/marketdata_CME/python
-#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/jepo/deploy/master/Release/lib:/usr/local/lib64:/usr/local/lib:/home/jepo/code/ronin/libs/support/lib
-export SKIP_PORTFOLIO_BUILD=1
+export SKIP_PORTFOLIO_BUILD=0
 export PROJECTS_TO_BUILD="katania balerion/strategy balerion/live balerion/optimizer __client__/support __client__/optimizer unit_tests/katania __client__/live"
 export JAVA_HOME=/usr/java/latest

@@ -16,10 +16,17 @@ cat << %%USAGE%%
        --roc
              Run a ROCARDIAN job, instead of the default RONIN one.
 
+       -d
+       --debug
+             Run the Debug build, instead of the Release one.
+
        -b branchName
        --branch branchName
              Run the code from the specified branch instead of master. This applies
 	     to both the C++ and the Python code.
+
+       --codePath path
+             Use the specified path as code path, instead of ${HOME}/code.
 
        --pythonPath path
              Specifies additional directories to be added to the PYTHONPATH 
@@ -34,7 +41,7 @@ cat << %%USAGE%%
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hb: -l "help,roc,branch:,pythonPath:,printPaths" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o hdb: -l "help,roc,branch:,codePath:,pythonPath:,printPaths" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -49,6 +56,8 @@ client=ronin
 branchName=master
 pythonPath=''
 printPath=0
+codePath=${HOME}/code/drogon
+buildType=Release
 while true; do
     case ${1} in
 	-h|--help)
@@ -59,8 +68,16 @@ while true; do
 	    client=rocardian
 	    shift
 	    ;;
+	-d|--debug)
+	    buildType=Debug
+	    shift
+	    ;;
 	-b|--branch)
 	    branchName=${2}
+	    shift 2
+	    ;;
+        --codePath)
+	    codePath=${2}
 	    shift 2
 	    ;;
 	--pythonPath)
@@ -83,21 +100,32 @@ while true; do
 done
 
 # Create and check the lib path
-libPath=${HOME}/deploy/${branchName}/Release/lib
+libPath=${HOME}/deploy/${branchName}/${buildType}/lib
 if [[ ! -d ${libPath} ]]; then
    printf "Library path not found: ${libPath}\n"
    exit 1
 fi
+clientLibPath=${libPath}/${client}
+if [[ ! -d ${clientLibPath} ]]; then
+   printf "Client library path not found: ${clientLibPath}\n"
+   exit 1
+else
+    initFile=${clientLibPath}/__init__.py
+    if [[ ! -f ${initFile} ]]; then
+	touch ${initFile}
+    fi
+fi
 
-codePath=${HOME}/code/drogon
+
+
 if [[ ! -d ${codePath} ]]; then
    printf "Code path not found: ${codePath}\n"
    exit 1
 fi
 
-codeBranch=$(cd ${codePath} && branch -ls | awk '{print $2}')
+codeBranch=$(cd ${codePath} && branch -ls | awk '{print $2} ' | sort -u)
 if [[ ${codeBranch} != ${branchName} ]]; then
-    printf "Branch of the code is %s, different than %s\n" ${codeBranch} ${branchName}
+    printf "Branch of the code is '%s', different than '%s'\n" ${codeBranch} ${branchName}
     exit 1
 fi
 

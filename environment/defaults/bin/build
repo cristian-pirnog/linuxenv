@@ -8,7 +8,7 @@ printUsage()
     cat << %%USAGE%%
 
     Usage: $(basename $0) [-h] 
-           $(basename $0) [-f|-s] [--source dirName] [--target dirName] [--branch name] [--project name] --debugLiveFramework <Debug|Release> [all|clean|fresh] [install]
+           $(basename $0) [-f|-s] [-D TAG] [--source dirName] [--target dirName] [--branch name] [--project name] --debugLiveFramework <Debug|Release> [all|clean|fresh] [install]
 	   
 
     Description:
@@ -28,6 +28,15 @@ printUsage()
        --script
              Run in script-mode, i.e. don\'t ask for confirmation.
 
+       -D TAG
+             Passes the given tag to CMake via a define (-D) option. Multiple
+	     options result in appending the given tags.
+	     Currently, the following defines will have an efect:
+	          DEBUG_SERIALIZATION - enables debugging of the binary serialization
+		  DEBUG_LIVE_FRAMEWORK - enables debugging of the live framework
+	     IMPORTANT: When using this option, one should make sure that the code 
+	     is built fresh.
+
        --source dirName
              Runs cmake for the given directory. If not specified, 
 	     it defaults to the directory above the current.
@@ -44,10 +53,6 @@ printUsage()
        --project name
              (Only when --target is specified) append the given project
 	     name to the target dirName.
-
-       --debugLiveFramework
-             Builds the live code such that all ArByte processing is disabled,
-             and thus only framework stuff runs.
 
        <x|y>:  one of the arguments in the brackets must be provided
 
@@ -105,7 +110,7 @@ if [[ $# -lt 1 ]]; then
     exit 1
 fi
 
-ARGS=$(getopt -o hfj::c:s -l "help,force,client:,source:,target:,branch:,project:,script,static,shared,debugLiveFramework" -n "build" -- "$@")
+ARGS=$(getopt -o hfj::c:sD: -l "help,force,client:,source:,target:,branch:,project:,script,static,shared" -n "build" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -120,7 +125,7 @@ libraryType=SHARED
 scriptMode=0
 buildDirRoot="."
 sourceDir=$(pwd)
-compilerFlags='none'
+compilerFlags=''
 while true; do
     case ${1} in
 	-h|--help)
@@ -159,10 +164,10 @@ while true; do
 	    projectName=$(echo ${2} | replace '\.' '/')
 	    shift 2
 	    ;;
-    --debugLiveFramework)
-        compilerFlags="-DDEBUG_LIVE_FRAMEWORK=on"
-        shift
-        ;;
+	-D)
+            compilerFlags=${compilerFlags}" -D${2}=on"
+            shift 2
+            ;;
 #	--static)
 #	    libraryType=STATIC
 #	    shift
@@ -179,6 +184,9 @@ while true; do
 	    # This is necessary for processing missing optional arguments 
 	    shift
 	    ;;
+	*)
+	    echo "Option ${1} accepted but not handled. Please report this as a bug."
+	    exit 1
     esac
 done
 
@@ -191,6 +199,10 @@ buildType=${1}
 shift
 option=${1}
 shift
+
+if [[ -z ${compilerFlags} ]]; then
+    compilerFlags='none'
+fi
 
 if [[ ${buildDirRoot} != "." ]]; then
     buildDir=${branchName}/${buildType}/${projectName}

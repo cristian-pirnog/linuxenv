@@ -7,7 +7,7 @@ printUsage()
 
     cat << %%USAGE%%
     
-    Usage: $(basename ${0}) [--force] [--branch name] <roc|ron> <Release|Debug> [buildOptions]
+    Usage: $(basename ${0}) [--force] [--branch name] <roc|ron> <Release|Debug> -- [buildOptions]
  
     Description:
        Builds all the code using CMake configurations.
@@ -20,13 +20,15 @@ printUsage()
              Force build, even when issues are found. Should be used, when having mixed
 	     branches e.g. due to checking out of old revisions.
 
-       --target
-             
+       --target dir_name
+             Put the build into the given dir_name.
 
+       --noPy
+	     Do not build the python stuff (i.e. drogon).
 %%USAGE%%
 }
 
-ARGS=$(getopt -o '' -l "branch:,target:,force,debugLiveFramework" -n ${0} -- "$@")
+ARGS=$(getopt -o '' -l "branch:,target:,force,noPy" -n ${0} -- "$@")
 
 eval set -- "$ARGS"
 
@@ -50,6 +52,10 @@ while true; do
 		buildDirBase=${HOME}/${buildDirBase}
 	    fi
 	    shift 2
+	    ;;
+	--noPy)
+	    SKIP_PORTFOLIO_BUILD=1
+	    shift
 	    ;;
 	--)
 	    shift
@@ -96,10 +102,11 @@ shift 1
 
 # Specify which projects we want to build
 if [[ -z ${PROJECTS_TO_BUILD} ]]; then
-    PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live ${client}/support ${client}/optimizer  ${client}/live" # unit_tests/katania"
+    PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live ${client}/support ${client}/optimizer ${client}/live" # unit_tests/katania"
 else
     PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace '__client__' "${client}")
 fi
+
 
 ## Add portfolio build, only if not specified in the environment otherwise
 if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
@@ -126,6 +133,14 @@ if [[ -z ${branchName} ]]; then
     fi
 fi
 
+if [[ ${branchName} == 'whole_book' ]]; then
+    PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace 'katania' 'katania simulation')" load_test"
+fi
+
+if [[ ${branchName} == 'MRTR' ]]; then
+    PROJECTS_TO_BUILD='katania simulation load_test'
+fi
+
 # Remove the target build dirs, if requested
 if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
     rm -rf ${buildDirBase}/${branchName}/${buildType}
@@ -139,11 +154,13 @@ for d in ${PROJECTS_TO_BUILD}; do
 	echo -e "\n\nSkipping build of ${d} (.skipBuild file found)"
 	continue
     fi
-
+    
     cd $d && build -s -j${threadCount} ${buildType} --client ${client} --target ${buildDirBase} --branch ${branchName} --project ${d} ${optionsToForward} $@ || exit 1
     cd ->/dev/null
 done
 
 if [[ -n $(echo $@|grep 'install') ]]; then
-    cp -r ~/code/ronin/libs/kfc/lib/libkfcData.so ~/deploy/${branchName}/${buildType}/lib/
+    libDir=~/deploy/${branchName}/${buildType}/lib/
+    cp -r ~/code/ronin/libs/kfc/lib/libkfcData.so ${libDir}
+    touch ~/deploy/${branchName}/${buildType}/lib/${client}/__init__.py
 fi
