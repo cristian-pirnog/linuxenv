@@ -1,3 +1,4 @@
+alias acmt='add&&cmt'
 alias cdb='cd ~/live/bin'
 alias cdl='cd /dev/shm/log'
 alias cdll='cd ~/live/log/latest'
