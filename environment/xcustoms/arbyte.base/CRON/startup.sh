@@ -132,8 +132,8 @@ else
     currentWeekNo=$(date +%V)
     lastResetWeekNo=$(date +%V -d ${lastResetDate})
     if [[ ${lastResetWeekNo} -ne ${currentWeekNo} ]]; then
-        printf "\nResetting CME seq numbers for week %s\n\n" ${currentWeekNo}
-        failedExchanges=${failedExchanges}$(resetTextSequenceNumbers CME)
+        printf "\nNot necessary to resetting CME seq numbers for week %s\n\n" ${currentWeekNo}
+        #failedExchanges=${failedExchanges}$(resetTextSequenceNumbers CME)
     else
         printf "\nCME seq numbers were already reset for week %s on %s.\n\n" ${currentWeekNo} ${lastResetDate}
     fi
@@ -143,8 +143,9 @@ else
     failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICL)
     failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers LIF)
 
-
-    sendMail "Error!!! Failed to reset sequence numbers" "Failed to reset sequence numbers for exchange(s) ${failedExchanges}" ${CRISTIAN}  
+    if [[ -n ${failedExchanges} ]]; then
+	sendMail "Error!!! Failed to reset sequence numbers" "Failed to reset sequence numbers for exchange(s) ${failedExchanges}" ${CRISTIAN}
+    fi
 fi
 
 # Restore any renamed recovery files
