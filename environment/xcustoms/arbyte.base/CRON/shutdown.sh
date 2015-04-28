@@ -54,7 +54,7 @@ getHistoricalLogDir()
     # Make a symlink to the latest log dir
     latestLog=${lHistLogDirBase}/../latest
     if [[ -h ${latestLog} ]]; then rm ${latestLog}; fi
-    ln -s ${lDateDir}$(basename ${lHistLogDir}) ${latestLog}
+    ln -s ${lHistLogDir} ${latestLog}
 
     echo ${lHistLogDir}
 }

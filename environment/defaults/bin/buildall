@@ -141,6 +141,10 @@ if [[ ${branchName} == 'whole_book' ]]; then
     PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace 'katania' 'katania simulation')" load_test"
 fi
 
+if [[ ${branchName} == 'MRTR' ]]; then
+    PROJECTS_TO_BUILD='katania simulation load_test'
+fi
+
 # Remove the target build dirs, if requested
 if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
     rm -rf ${buildDirBase}/${branchName}/${buildType}
@@ -160,5 +164,7 @@ for d in ${PROJECTS_TO_BUILD}; do
 done
 
 if [[ -n $(echo $@|grep 'install') ]]; then
-    cp -r ~/code/ronin/libs/kfc/lib/libkfcData.so ~/deploy/${branchName}/${buildType}/lib/
+    libDir=~/deploy/${branchName}/${buildType}/lib/
+    cp -r ~/code/ronin/libs/kfc/lib/libkfcData.so ${libDir}
+    touch ~/deploy/${branchName}/${buildType}/lib/${client}/__init__.py
 fi
