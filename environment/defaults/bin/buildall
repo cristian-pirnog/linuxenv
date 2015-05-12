@@ -158,5 +158,7 @@ done
 if [[ -n $(echo $@|grep 'install') ]]; then
     libDir=~/deploy/${branchName}/${buildType}/lib/
     cp -r ~/code/ronin/libs/kfc/lib/libkfcData.so ${libDir}
-    touch ~/deploy/${branchName}/${buildType}/lib/${client}/__init__.py
+    if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
+	touch ~/deploy/${branchName}/${buildType}/lib/${client}/__init__.py
+    fi
 fi
