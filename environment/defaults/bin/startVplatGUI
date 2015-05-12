@@ -87,7 +87,6 @@ fi
 # Start the new instances
 outfile="output.$(date +%Y%m%d-%H%M%S).log"
 for v in ${venues}; do
-    echo v=${v}
     cd ${monitoringDir}/${v} && (./rungui > ${outfile} &) && cd - > /dev/null
 done
 
