@@ -137,6 +137,10 @@ if [[ ${branchName} == 'whole_book' ]]; then
     PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace 'katania' 'katania simulation')" load_test"
 fi
 
+if [[ ${branchName} == 'MRTR' ]]; then
+    PROJECTS_TO_BUILD='katania simulation load_test'
+fi
+
 # Remove the target build dirs, if requested
 if [[ -n $(echo $@ | grep -P '( |^)fresh( |$)') ]]; then
     rm -rf ${buildDirBase}/${branchName}/${buildType}
