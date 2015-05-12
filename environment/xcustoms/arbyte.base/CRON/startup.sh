@@ -33,7 +33,6 @@ resetBinarySequenceNumbers()
 
     local lSenderTag=$(grep sender_comp_id ${cfgDir}/${lExchange}_client.xml | awk -F'=' '{print $2}' | sed 's/"//g')
     local lTargetTag=$(grep target_comp_id ${cfgDir}/${lExchange}_client.xml | awk -F'=' '{print $2}' | sed 's/"//g')
-    echo lTargetTag=$lTargetTag
 
     if [[ -z ${lTargetTag} ]]; then
       echo "${lExchange}; "
@@ -41,7 +40,6 @@ resetBinarySequenceNumbers()
     fi
 
     local lFilePattern=${fixDir}/client.${lSenderTag}.${lTargetTag}
-    echo lFilePattern=${lFilePattern}
     seqedit -S 1 ${lFilePattern}
     seqedit -R 1 ${lFilePattern}
     return 0
