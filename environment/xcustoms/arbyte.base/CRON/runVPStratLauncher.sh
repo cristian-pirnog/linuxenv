@@ -35,7 +35,7 @@ startYang()
     local lReceivingPort=7303
     if [[ ${USER} == arbytetest ]]; then
        lRunType=DEV
-       lReceivingHost="10.192.77.47"
+       lReceivingHost="localhost"
        lReceivingPort=17303
     fi
 
@@ -116,6 +116,11 @@ fi
 
 source ${baseScript}
 
+if [[ -z $(ls ${strategyConfigDir} | grep '.cfg$') ]]; then
+    printf "No configs found in directory %s' ${strategyConfigDir}" >> ${outputFile}
+    exit 1
+fi
+
 ###############################
 # Test the config file
 ###############################
@@ -134,16 +139,21 @@ fi
 ###############################
 # Perform some checks
 ###############################
+onloadCommand='/usr/bin/onload'
 binaryName=$(ls | grep VPStratLauncher | grep -v RWDI_unstripped | tail -1)
-strategyCommand="/usr/bin/onload ./${binaryName} --stratname ArByte --config ${configFile}"
 if [[ -z ${binaryName} ]]; then
     echo "Could not find a binary to run. Exiting" >> ${outputFile}
     exit 1
 fi
 
+strategyCommand="./${binaryName} --stratname ArByte --config ${configFile}"
+if [[ -f ${onloadCommand} ]]; then
+  strategyCommand="${onloadCommand} ${strategyCommand}"
+fi
+
 # Check that VPStratLauncher is not alredy running
-if [[ -n $(fp "${strategyCommand} ") ]]; then
-    echo "StrategyCommand ${strategyCommand} already running. Exiting" >> ${outputFile}
+if [[ -n $(findVPStratLauncherInstances) ]]; then
+    echo "Found VPStratLauncher instances running. Exiting" >> ${outputFile}
     exit 1
 fi
 

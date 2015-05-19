@@ -23,7 +23,7 @@ printUsage()
 
 
 #----------------------------------------------
-resetSequenceNumbers()
+resetBinarySequenceNumbers()
 {
     local lExchange=${1}
 
@@ -33,17 +33,34 @@ resetSequenceNumbers()
 
     local lSenderTag=$(grep sender_comp_id ${cfgDir}/${lExchange}_client.xml | awk -F'=' '{print $2}' | sed 's/"//g')
     local lTargetTag=$(grep target_comp_id ${cfgDir}/${lExchange}_client.xml | awk -F'=' '{print $2}' | sed 's/"//g')
-    echo lTargetTag=$lTargetTag
 
     if [[ -z ${lTargetTag} ]]; then
-      sendMail "Error!!! Failed to reset sequence numbers" "Failed to reset sequence numbers for exchange ${lExchange}" ${CRISTIAN}
-      exit 1
+      echo "${lExchange}; "
+      return 1
     fi
 
     local lFilePattern=${fixDir}/client.${lSenderTag}.${lTargetTag}
-    echo lFilePattern=${lFilePattern}
     seqedit -S 1 ${lFilePattern}
     seqedit -R 1 ${lFilePattern}
+    return 0
+}
+
+#----------------------------------------------
+resetTextSequenceNumbers()
+{
+    local lExchange=${1}
+    local lSessionTag=$(grep "mkt=\"${lExchange}\"" ${binDir}/arbyte.xml |  awk -F' ' '{for(i = 1; i<NF; i++) print $i}' | grep session_id | awk -F'=' '{print $2}' | sed 's/"//g')
+
+    echo lSessionTag=${lSessionTag}
+
+    if [[ -z ${lSessionTag} ]]; then
+      echo "${lExchange}; "
+      return 1
+    fi
+
+    echo 1 > ${fixDir}/${lSessionTag}_send_seq.txt
+    echo 1 > ${fixDir}/${lSessionTag}_recv_seq.txt
+    return 0
 }
 
 #----------------------------------
@@ -113,16 +130,20 @@ else
     currentWeekNo=$(date +%V)
     lastResetWeekNo=$(date +%V -d ${lastResetDate})
     if [[ ${lastResetWeekNo} -ne ${currentWeekNo} ]]; then
-        printf "\nResetting CME seq numbers for week %s\n\n" ${currentWeekNo}
-        resetSequenceNumbers CME
+        printf "\nNot necessary to resetting CME seq numbers for week %s\n\n" ${currentWeekNo}
+        #failedExchanges=${failedExchanges}$(resetTextSequenceNumbers CME)
     else
         printf "\nCME seq numbers were already reset for week %s on %s.\n\n" ${currentWeekNo} ${lastResetDate}
     fi
     # ... daily on all other exchanges
-    resetSequenceNumbers EUX 
-    resetSequenceNumbers ICE
-    resetSequenceNumbers ICL
-    resetSequenceNumbers LIF
+    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers EUX)
+    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICE)
+    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICL)
+    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers LIF)
+
+    if [[ -n ${failedExchanges} ]]; then
+	sendMail "Error!!! Failed to reset sequence numbers" "Failed to reset sequence numbers for exchange(s) ${failedExchanges}" ${CRISTIAN}
+    fi
 fi
 
 # Restore any renamed recovery files
