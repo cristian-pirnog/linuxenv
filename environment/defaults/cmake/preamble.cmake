@@ -27,6 +27,8 @@ message(STATUS "Generating \"${CMAKE_BUILD_TYPE}\" Makefile")
 # 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG")
+else (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSPEEDY")
 endif(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
 # Compiler options
