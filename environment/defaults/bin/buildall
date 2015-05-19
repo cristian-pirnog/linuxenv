@@ -134,7 +134,8 @@ if [[ -z ${branchName} ]]; then
 fi
 
 if [[ ${branchName} == 'whole_book' ]]; then
-    PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace 'katania' 'katania simulation')" load_test"
+    PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | sed 's/katania/katania simulation/') #" load_test"
+    PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | sed 's_drogon/src/C__')
 fi
 
 # Remove the target build dirs, if requested
