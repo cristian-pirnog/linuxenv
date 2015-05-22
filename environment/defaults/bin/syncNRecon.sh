@@ -53,7 +53,7 @@ then
 	#echo "NO RECON DIR YET; DIR $reconDir DOES NOT EXIST YET"
 	
 	# check whether dev server is reachable
-	/usr/bin/ssh -i /home/jepo/.ssh/id_rsa_cron jpoepjes@DARB-HAN-APP1 : > /dev/null 2>&1
+	/usr/bin/ssh -i /home/jepo/.ssh/id_rsa.pub jpoepjes@DARB-HAN-APP1 : > /dev/null 2>&1
 	returnValue=$?
 	if [ $returnValue -ne 0 ]
 	then
@@ -63,7 +63,7 @@ then
 	
 	dataStatusDate=$(date -d "$reconDate +1 day" +%Y%m%d)
 	strToGrep="missingData_"$dataStatusDate"_"
-	isDataThere=$(/usr/bin/ssh -i /home/jepo/.ssh/id_rsa_cron -X jpoepjes@DARB-HAN-APP1 ls -ltra $statusDir | grep $strToGrep | awk 'BEGIN{dataIsThere=0}{if($5==0){dataIsThere=1}}END{print dataIsThere}')
+	isDataThere=$(/usr/bin/ssh -i /home/jepo/.ssh/id_rsa.pub -X jpoepjes@DARB-HAN-APP1 ls -ltra $statusDir | grep $strToGrep | awk 'BEGIN{dataIsThere=0}{if($5==0){dataIsThere=1}}END{print dataIsThere}')
 
 	#echo "dataStatusDate: $dataStatusDate, IS DATA THERE: $isDataThere"
 	
@@ -72,14 +72,14 @@ then
         	echo "Historical data (mbba-files) for $reconDate are available"
 		
 		# synchronize data
-		nrMbbaFiles=$(/usr/bin/ssh -i /home/jepo/.ssh/id_rsa_cron -X jpoepjes@DARB-HAN-APP1 find $mbbaDir -name "*.mbba" | wc -l)
+		nrMbbaFiles=$(/usr/bin/ssh -i /home/jepo/.ssh/id_rsa.pub -X jpoepjes@DARB-HAN-APP1 find $mbbaDir -name "*.mbba" | wc -l)
 		#echo "NR OF MBBA FILES: $nrMbbaFiles"
-		echo "Rsyncing data from origin jpoepjes@DARB-HAN-APP1:$mbbaDir to /home/data/RONIN/MBBA"
-		rsyncScript.sh jpoepjes@DARB-HAN-APP1:$mbbaDir /home/data/RONIN/MBBA mbba $nrMbbaFiles &>/dev/null 2>&1
+		echo "Rsyncing data from origin jpoepjes@DARB-HAN-APP1:$mbbaDir to /mnt/MD_crypt/CLIENT1/MBBA"
+		rsyncScript.sh jpoepjes@DARB-HAN-APP1:$mbbaDir /mnt/MD_crypt/CLIENT1/MBBA mbba $nrMbbaFiles &>/dev/null 2>&1
 
 		# run reconciliation
 		scrOutputFile=$scrOutputDir"/scr_reconciliation_"$reconDate".txt"
-		echo "Running reconciliation for $reconDate"
+		echo "Running reconciliation for $reconDate, scrOutputFile: $scrOutputFile"
 		reconciliation.sh $reconDate 0 0 > $scrOutputFile
 	else
         	echo "Historical data (mbba-files) for $reconDate are not yet available"
