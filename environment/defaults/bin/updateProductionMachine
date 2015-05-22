@@ -89,8 +89,13 @@ if [[ $# -lt 1 ]]; then
     exit 1
 fi
 
-hostName=${1}
-shift
+hostNames=$@
+for arg in ${hostNames}; do
+    if [[ ${arg} == 'all' ]]; then
+	hostNames="cme eux liffe"
+	break
+    fi
+done
 
 if [[ -z ${userNames} ]]; then
     printf "\n---------------------------------------------\n"
@@ -101,11 +106,13 @@ if [[ -z ${userNames} ]]; then
 fi
 
 rsyncCommand="rsync -azvhq"
-for user in ${userNames}; do
-    userAtHost=${user}@${hostName}
-    printf "Updating for ${userAtHost}...\t"
-    targetConfigDir='scratch/cluster/config/RONIN'
-    ssh -A ${userAtHost} "mkdir -p '${targetConfigDir}'"
-    ${rsyncCommand} /mnt/config/RONIN/*.csv ${userAtHost}:${targetConfigDir}
-    printf "[Done]\n"
+for hostName in ${hostNames}; do
+    for user in ${userNames}; do
+	userAtHost=${user}@${hostName}
+	printf "Updating for ${userAtHost}...\t"
+	targetConfigDir='scratch/cluster/config/RONIN'
+	ssh -A ${userAtHost} "mkdir -p '${targetConfigDir}'"
+	${rsyncCommand} /mnt/config/RONIN/*.csv ${userAtHost}:${targetConfigDir}
+	printf "[Done]\n"
+    done
 done
