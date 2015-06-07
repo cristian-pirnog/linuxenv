@@ -40,8 +40,8 @@ resetBinarySequenceNumbers()
     fi
 
     local lFilePattern=${fixDir}/client.${lSenderTag}.${lTargetTag}
-    seqedit -S 1 ${lFilePattern}
-    seqedit -R 1 ${lFilePattern}
+    seqedit -S 1 ${lFilePattern} > /dev/null
+    seqedit -R 1 ${lFilePattern} > /dev/null
     return 0
 }
 

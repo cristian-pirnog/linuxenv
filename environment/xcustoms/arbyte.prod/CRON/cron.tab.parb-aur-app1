@@ -8,7 +8,7 @@ MAILTO=pirnog@gmail.com
 #DISPLAY=:0
 
 # Each weekday, start the binary at 05:45 UTC
-40 05 * * Mon-Fri bash --login -c ". ~/.bash_profile; cd ~/live/bin && ~/CRON/runVPStratLauncher.sh" > /dev/null 2>&1
+30 05 * * Mon-Fri bash --login -c ". ~/.bash_profile; cd ~/live/bin && ~/CRON/runVPStratLauncher.sh" > /dev/null 2>&1
 
 # Each day (including week-end) update configs for the next day
 30 23 * * Sun-Sat bash --login -c '. ~/.bash_profile; ~/CRON/updateConfigsForTomorrow.sh' > /dev/null 2>&1
