@@ -137,7 +137,8 @@ if [[ -n $(ls ${logDir} | grep '.state') ]]; then
     cp ${logDir}/*.state ${targetStrategyConfigDir}
     # ... and append atStop extension to their name
     rename 'state' 'state.atStop' ${targetStrategyConfigDir}/*.state
-    # ... also copy the atStart state files
+    
+    # Also copy the atStart state files
     cp ${logDir}/*.state.atStart ${targetStrategyConfigDir}   
 fi
 
