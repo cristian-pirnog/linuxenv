@@ -162,7 +162,10 @@ done
 
 if [[ -n $(echo $@|grep 'install') ]]; then
     libDir=~/deploy/${branchName}/${buildType}/lib/
+    # Copy the Ronin lib(s)
     cp -r ~/code/ronin/libs/kfc/lib/libkfcData.so ${libDir}
+    # Record the branch name (useful when deploying to prod)
+    echo ${branchName} > ${libDir}/branch.txt
     if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
 	touch ~/deploy/${branchName}/${buildType}/lib/${client}/__init__.py
     fi

@@ -9,11 +9,11 @@ shopt -s expand_aliases
 getAnswer()
 {
     # Pop the question
-    local question="${1}"
+    local question="${@}"
     if [[ -z ${question} ]]; then
 	question="Would you like to continue?"
     fi
-    question=${question}" [y\n]"
+    question="${question} [y\n]"
     printf "%s " "${question}"
 
     # Get the answer
