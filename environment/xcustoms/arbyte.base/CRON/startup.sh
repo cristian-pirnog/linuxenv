@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-# Script to be run from the runVPStratLauncher.sh, after the binary stops
+# Script to be run from the runVPStratLauncher.sh, before the binary starts
 
 
 #----------------------------------------------
@@ -148,4 +148,19 @@ fi
 
 # Restore any renamed recovery files
 rename "_recover.csv.${date}" '_recover.csv' ${datDir}/*
+
+# Process the state files...
+rm ${logDir}/*.state.atStart
+for f in $(ls ${logDir} | grep .cfg.state); do 
+    configFile=$HOME/live/configs/$(echo $f | sed 's/.state//'); 
+ 
+    # ... removing those that don't have a correspondent config file
+    if [[ ! -f ${configFile} ]]; then 
+        rm ${logDir}/${f}
+    # ... and copying those that do have one with extension .atStart
+    else
+        cp ${logDir}/${f} ${logDir}/${f}.atStart
+    fi 
+done
+
 
