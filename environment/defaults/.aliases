@@ -14,9 +14,17 @@ alias revert='git checkout'
 alias rm='rm -I --preserve-root'
 alias vi=vim
 
+printLastDir()
+{
+  /bin/ls -l | egrep '^d' | tail -1 | awk '{$1=$2=$3=$4=$5=$6=$7=$8=""; print substr($0, 9)}'
+}
+
 ## Directory changes
 alias cdc='cd ${HOME}/.${USER}_config'
 alias cdr='cd ${HOME}/run'
+alias cdy='cd $(date +%Y%m%d -d yesterday)'
+alias cdt='cd $(date +%Y%m%d)'
+alias cdl='cd $(printLastDir)'
 
 # Git aliases
 alias add='git add --all'
