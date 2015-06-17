@@ -171,7 +171,7 @@ do
 		fi
 	
 		#echo "$prod1 $prod2 $startT $stopT $servLoc $gridId"	
-		cfgFile=$(ls $directory/configs | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId)
+		cfgFile=$(ls $directory/configs | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep -v state)
 
 		baseName=$prod1"_"$prod2"_"$startT"_"$stopT"_"$servLoc"_"$isSpread"_1_"$gridId
 
@@ -253,7 +253,7 @@ do
 			exit 1
 		fi
 
-		nrOfCfgFiles=$(ls $directory/configs | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | wc -l)
+		nrOfCfgFiles=$(ls $directory/configs | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep -v state | wc -l)
 		if [ $nrOfCfgFiles -eq 0 ]
 		then
 			echo "NO CONFIG FILES FOUND FOR LOG FILE $fileName IN DIRECTORY $directory/configs!"
@@ -274,12 +274,13 @@ do
 		# Run a simulation
 		echo -e "\trunning single simulation with server location $servLoc"
 		optimizer.sh ronin master Release simulate $newCfgFileName $date $date serverLocation:$servLoc logTrades:1 logInternals:1 logExecution:1 > screen.txt
-
+		
 		# Calculating hitratio's in simulation
 		fileTmp=$(ls | grep _Trades_ | grep $prod1)
-		hitRatio1=$(awk -F ',' 'BEGIN{tradVol=0;ordVol=0}{if($1=="O" && $6==0){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1=="T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{hr=0;if(ordVol>0){hr=tradVol/ordVol};print hr}' $fileTmp)
+		#echo $fileTmp
+		hitRatio1=$(awk -F ',' 'BEGIN{tradVol=0;ordVol=0}{if( ($1=="xO" && $6==0) || ($1==" O" && $6==0) ){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1==" T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{hr=0;if(ordVol>0){hr=tradVol/ordVol};print hr}' $fileTmp)
 		fileTmp=$(ls | grep _Trades_ | grep $prod2)
-		hitRatio2=$(awk -F ',' 'BEGIN{tradVol=0;ordVol=0}{if($1=="O" && $6==0){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1=="T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{hr=0;if(ordVol>0){hr=tradVol/ordVol};print hr}' $fileTmp)
+		hitRatio2=$(awk -F ',' 'BEGIN{tradVol=0;ordVol=0}{if( ($1=="xO" && $6==0) || ($1==" O" && $6==0) ){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1==" T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{hr=0;if(ordVol>0){hr=tradVol/ordVol};print hr}' $fileTmp)
 		#echo "HR1: $hitRatio1, HR2: $hitRatio2"
 		
 		# Translating .sim into csv
@@ -294,7 +295,7 @@ do
                 grep $strToGrep $fileNameSim | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $6, $7, $8, $11, $13, $16, $18, $21, $23, $26}' > ./$stage3SimFile
 
 		# Check that 1st update is the same; otherwise crossings will never be the same
-		echo -e "\tcomparing 1st update lines between production and simulation"
+		#echo -e "\tcomparing 1st update lines between production and simulation"
 		firstUpdateProdLine=$(grep "1st update" $fileName | awk -F ',' '{print $1, $4, $5, $8, $9, $11}')
 		firstUpdateSimLine=$(grep "1st update" $fileNameSim | awk -F ',' '{print $1, $4, $5, $8, $9, $11}')
 		firstUpdatesSame=0
@@ -308,7 +309,7 @@ do
 		fi
 
 		# first check nr of lines of crossings files
-		echo -e "\tcomparing crossings between production and simulation"
+		#echo -e "\tcomparing crossings between production and simulation"
 		nrLinesCrossProd=$(wc -l $stage3ProdFile | awk '{print $1}')
 		nrLinesCrossSim=$(wc -l $stage3SimFile | awk '{print $1}')
 		if [ $firstUpdatesSame -eq 1 -a $nrLinesCrossProd -ne $nrLinesCrossSim ]
@@ -383,14 +384,14 @@ do
 	symbol=$(grep ",$i," /mnt/config/RONIN/products.csv | awk -F ',' '{print $4}')
 	categ=$(grep ",$i," /mnt/config/RONIN/products.csv | awk -F ',' '{print $2}')
 
-        pnlPerProd=$(awk 'BEGIN{pnlLoc=0}{if($2=="'$alias'"){pnlLoc+=$9}}END{print pnlLoc}' $baseSimDir/$date/$summaryFileName)
-        feePerProd=$(awk 'BEGIN{feesLoc=0}{if($2=="'$alias'"){feesLoc+=$10}}END{print feesLoc}' $baseSimDir/$date/$summaryFileName)
-        pnlYang=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($21,1,11)*1}')
-        feeYang=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print $4/$1}')
-        fxRateFee=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($1,1,11)*1}')
-        currFee=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print $2}')
-        fxRate=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($10,1,11)*1}')
-        currProd=$(grep $symbol $baseSimDir/$date/$yangFileName | awk -F ',' '{print $17}')
+        pnlPerProd=$(awk 'BEGIN{pnlLoc=0}{if(substr($2,1,length($2)-2)=="'$alias'"){pnlLoc+=$9}}END{print pnlLoc}' $baseSimDir/$date/$summaryFileName)
+        feePerProd=$(awk 'BEGIN{feesLoc=0}{if(substr($2,1,length($2)-2)=="'$alias'"){feesLoc+=$10}}END{print feesLoc}' $baseSimDir/$date/$summaryFileName)
+        pnlYang=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($21,1,11)*1}')
+        feeYang=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print $4/$1}')
+        fxRateFee=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($1,1,11)*1}')
+        currFee=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print $2}')
+        fxRate=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($10,1,11)*1}')
+        currProd=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print $17}')
         matchPerProd=$(echo $pnlPerProd $pnlYang $feePerProd $feeYang | awk '{if($1==$2 && $3==$4){print 1}else{print 0}}')
 
 	# get simulated local pnl & fees
