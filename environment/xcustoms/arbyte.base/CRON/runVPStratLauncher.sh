@@ -193,7 +193,7 @@ fi
 echo "Starting the binary using command: ${strategyCommand}" >> ${outputFile}
 export LD_LIBRARY_PATH=../lib:../3p_libs/ums/UMS_6.7/Linux-glibc-2.5-x86_64/lib:../3p_libs/lbm/LBM_4.2.6/lib/linux/x64:../3p_libs/tbb/tbb42_20130725oss/lib/intel64/gcc4.4:../3p_libs/poco/poco-1.4.6:/usr/local/lib64:/usr/local/lib
 export LBM_LICENSE_INFO='Product=UME:Organization=SAC:Expiration-Date=never:License-Key=F7D4 6786 455F DAAA'
-${strategyCommand} | tee -a ${outputFile}
+${strategyCommand} 2>&1 | tee -a ${outputFile}
 
 ###############################
 # Stop Yang
