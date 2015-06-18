@@ -100,19 +100,6 @@ shift 1
 #    cd ~/code
 #fi
 
-# Specify which projects we want to build
-if [[ -z ${PROJECTS_TO_BUILD} ]]; then
-    PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live ${client}/support ${client}/optimizer ${client}/live" # unit_tests/katania"
-else
-    PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace '__client__' "${client}")
-fi
-
-
-## Add portfolio build, only if not specified in the environment otherwise
-if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
-    PROJECTS_TO_BUILD="${PROJECTS_TO_BUILD} drogon/src/C"
-fi
-
 threadCount=$(($(nproc) - 1))
 if [[ ${threadCount} < 1 ]]; then
     threadCount=1
@@ -133,13 +120,27 @@ if [[ -z ${branchName} ]]; then
     fi
 fi
 
-if [[ ${branchName} == 'whole_book' ]]; then
-    PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | sed 's/katania/katania simulation/') #" load_test"
-    PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | sed 's_drogon/src/C__')
-fi
+branchBuildFile="${HOME}/${branchName}.build"
+# If the build file for the branch exists, set the projects to build from it
+printf '\nLooking for branch build file: %s...    ' ${branchBuildFile}
+if [[ -f ${branchBuildFile} ]]; then
+    printf "Found!\n\tLoading projects to build: "
+    PROJECTS_TO_BUILD=$(cat ${branchBuildFile})
+    printf '%s\n' ${PROJECTS_TO_BUILD}
+# Otherwise, set the default ones, in case PROJECTS_TO_BUILD is not defined in the environment
+else
+    printf 'Not found.\n'
+    # Specify which projects we want to build
+    if [[ -z ${PROJECTS_TO_BUILD} ]]; then
+	PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live ${client}/support ${client}/optimizer ${client}/live" # unit_tests/katania"
+    else
+	PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace '__client__' "${client}")
+    fi
 
-if [[ ${branchName} == 'MRTR' ]]; then
-    PROJECTS_TO_BUILD='katania simulation load_test'
+    ## Add portfolio build, only if not specified in the environment otherwise
+    if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
+	PROJECTS_TO_BUILD="${PROJECTS_TO_BUILD} drogon/src/C"
+    fi
 fi
 
 # Remove the target build dirs, if requested
@@ -166,7 +167,8 @@ if [[ -n $(echo $@|grep 'install') ]]; then
     cp -r ~/code/ronin/libs/kfc/lib/libkfcData.so ${libDir}
     # Record the branch name (useful when deploying to prod)
     echo ${branchName} > ${libDir}/branch.txt
-    if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
+
+    if [[ -n $(echo ${PROJECTS_TO_BUILD} | grep drogon) ]]; then
 	touch ~/deploy/${branchName}/${buildType}/lib/${client}/__init__.py
     fi
 fi

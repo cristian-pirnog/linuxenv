@@ -30,7 +30,7 @@ cat << %%USAGE%%
 ARGS=$(getopt -o hb: -l "help,branch:," -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
-if [[ $? -ne 0 ]]; then
+if [[ $? -eq 0 ]]; then
     printUsage
     exit 1;
 fi
@@ -78,7 +78,7 @@ if [[ ${assetClass} != 'index' ]] && [[ ${assetClass} != 'nonindex' ]]; then
     exit 1
 fi
 
-${cmd} -- createTotal ${assetClass} -s 0 || exit 1
+${cmd} -- createTotal ${assetClass} || exit 1
 ${cmd} -- runPortfolios ${assetClass} -l ${policyNos} --export || exit 1
 
 for n in ${policyNos}; do

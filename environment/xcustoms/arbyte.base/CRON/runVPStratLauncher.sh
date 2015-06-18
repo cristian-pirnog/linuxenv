@@ -153,19 +153,21 @@ fi
 
 # Check that VPStratLauncher is not alredy running
 if [[ -n $(findVPStratLauncherInstances) ]]; then
-    echo "Found VPStratLauncher instances running. Exiting" >> ${outputFile}
+    msg="Found VPStratLauncher instances running. Exiting."
+    echo ${msg} | mail -s "${USER}@${HOST}: binary not started" ${recipientsList}
+    printf  ${msg} >> ${outputFile}
     exit 1
 fi
 
 # Check that the live log directory exists
 if [[ ! -d ${logDir} ]]; then
     msg="\nLog directory does not exist ${logDir}. Exiting."
-    echo ${msg} mail -s "${USER}@${HOST}: binary stopped" ${recipientsList}
+    echo ${msg} | mail -s "${USER}@${HOST}: binary not started" ${recipientsList}
     printf ${msg} >> ${outputFile}
     exit 1
 elif [[ ! -w ${logDir} ]]; then
     msg="\nLog directory is not writable by user. Exiting." 
-    echo ${msg} mail -s "${USER}@${HOST}: binary stopped" ${recipientsList}
+    echo ${msg} | mail -s "${USER}@${HOST}: binary not started" ${recipientsList}
     printf ${msg} >> ${outputFile}
     exit 1
 fi
