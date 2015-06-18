@@ -28,3 +28,4 @@ bin/distributeSSHKeys ${HOME}/bin/distributeSSHKeys
 bin/runPy $HOME/bin/runPy
 bin/syncNRecon.sh $HOME/bin/syncNRecon.sh
 bin/reconciliation.sh $HOME/bin/reconciliation.sh
+bin/portfolioBuilder.sh $HOME/bin/portfolioBuilder.sh

@@ -31,7 +31,7 @@ nrOfFiles=$4
 filesFound=0
 while [ $filesFound -lt $nrOfFiles ]
 do
-	/usr/bin/rsync -avz -e "ssh -q -i /home/jepo/.ssh/id_rsa_cron" --timeout=10 --bwlimit=20000 $fromDir/* $toDir
+	/usr/bin/rsync -avz --omit-dir-times -e "ssh -q -i /home/jepo/.ssh/id_rsa_cron" --timeout=10 --bwlimit=20000 $fromDir/* $toDir
 	filesFound=$(nrOfFilesFound $toDir $extension)
 	echo -e "FILES WITH EXTENSION $extension FOUND IN DIR $toDir IS $filesFound \t NR OF FILES TO BE FOUND: $nrOfFiles"
 done
