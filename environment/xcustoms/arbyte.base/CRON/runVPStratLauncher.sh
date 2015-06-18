@@ -160,6 +160,7 @@ if [[ -n $(findVPStratLauncherInstances) ]]; then
 fi
 
 # Check that the live log directory exists
+mkdir -p ${logDir}
 if [[ ! -d ${logDir} ]]; then
     msg="\nLog directory does not exist ${logDir}. Exiting."
     echo ${msg} | mail -s "${USER}@${HOST}: binary not started" ${recipientsList}
