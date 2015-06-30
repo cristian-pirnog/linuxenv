@@ -50,9 +50,11 @@ while true; do
     --noAsk)
         noAsk=true
         shift
+        ;;
     -9)
         optionsForKill='-9'
         shift
+        ;;
     --)
         shift
         break
@@ -64,11 +66,6 @@ while true; do
     esac
 done
 
-if [[ $# -lt 1 ]]; then
-    printUsage
-    exit 1
-fi
-
 processIds=$(findVPStratLauncherInstances)
 
 if [[ -z ${processIds} ]]; then
@@ -77,10 +74,10 @@ if [[ -z ${processIds} ]]; then
 fi
 
 source ~/.userfunctions
-printf "\n\t\tThis is %s\n\n" $(hostname|tr '[:lower:]' '[:upper:]')
 if [[ ${noAsk} == false ]]; then
+    printf "\n\t\tThis is %s\n\n" $(hostname|tr '[:lower:]' '[:upper:]')
     getAnswer "Are you sure you want to kill the VPStratLauncher?" || exit 0
 fi
 
 echo "Killing process with id: ${processIds}"
-kill $@ ${processIds}
+kill ${optionsForKill} $@ ${processIds}
