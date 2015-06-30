@@ -40,7 +40,12 @@ getAlignSize()
     echo ${alignSize}
 }
 
-
+#----------------------------------------------
+exitWithError()
+{
+    printf "$@\nExiting.\n"
+    exit 1
+}
 
 #----------------------------------------------
 vif()
