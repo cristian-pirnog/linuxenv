@@ -23,5 +23,5 @@ pula >> ${logFile} 2>&1
 # The user config stuff
 cd ~/.${USER}_config
 pwd >> ${logFile} 2>&1
-pula >> ${logFile} 2>&1
+./updateuser --noask >> ${logFile} 2>&1
 

@@ -42,10 +42,12 @@ fi
 # Build the 'cedet' package
 echo "    Building the CEDET package"
 cd $HOME/.emacs.d/lisp
-answer=yes
-if [ -d "${CEDET}" ]; then
-    printf "Looks like CEDET is already built. Would you like to rebuild? [Y/N] "
-    read answer
+answer=no
+if [[ ${noAsk} = false ]]; then
+    if [[ -d "${CEDET}" ]]; then
+	printf "Looks like CEDET is already built. Would you like to rebuild? [Y/N] "
+	read answer
+    fi
 fi
 
 case $answer in
