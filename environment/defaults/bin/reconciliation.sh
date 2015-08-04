@@ -152,8 +152,6 @@ do
 		directory=$(echo $fileName | awk -F '/' '{print "/"$2"/"$3"/"$4"/"$5"/"$6}')
 		nameTmp=$(echo $fileName | awk -F '/' '{print $7}')
 
-		isSpread=$(echo $fileName | grep "spread" | wc -l)
-		#echo "IS SPREAD: $isSpread OLD NAME TMP: $nameTmp"
 		nameTmp=$(echo $nameTmp | sed "s/-spread//g")
 		#echo "NEW NAME TMP: $nameTmp"
 
@@ -172,6 +170,8 @@ do
 	
 		#echo "$prod1 $prod2 $startT $stopT $servLoc $gridId"	
 		cfgFile=$(ls $directory/configs | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep -v state)
+		isSpread=$(optimizer.sh ronin master Release translate $directory/configs/$cfgFile | grep IsSingleLeg | awk '{if($2==1){print 0}else{print 1}}')
+		execType=$(optimizer.sh ronin master Release translate $directory/configs/$cfgFile | grep OrderType | awk '{print $2}')
 
 		baseName=$prod1"_"$prod2"_"$startT"_"$stopT"_"$servLoc"_"$isSpread"_1_"$gridId
 
@@ -227,7 +227,7 @@ do
 
 		stage3ProdFile="Crossings_prod_"$nameTmp
 		strToGrep="stage3,"$date"T"
-		grep $strToGrep $fileName | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $6, $7, $8, $11, $13, $16, $18, $21, $23, $26}' > ./$stage3ProdFile
+		grep $strToGrep $fileName | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $6, $7, $8, $9}' > ./$stage3ProdFile
 
 		#echo "PRODS: $prod1 $prod2 $fileName $date $servLoc"
 		#echo -e "\tdetermining start time for simulation"
@@ -271,9 +271,23 @@ do
 		#echo "$directory/configs/$cfgFile"
 		optimizer.sh ronin master Release edit $directory/configs/$cfgFile StartTime $latestTimeStampMbba $newCfgFileName &>/dev/null
 
-		# Run a simulation
-		echo -e "\trunning single simulation with server location $servLoc"
-		optimizer.sh ronin master Release simulate $newCfgFileName $date $date serverLocation:$servLoc logTrades:1 logInternals:1 logExecution:1 > screen.txt
+		# Check if there is a state file & run a simulation
+		stateFileExists=$(ls $directory/configs | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep state.atStart | wc -l)
+		if [ $stateFileExists -eq 1 ]
+		then
+			stateFileOrg=$(ls $directory/configs | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep state.atStart)
+			stateFileNew=$newCfgFileName".state"
+			cp $directory/configs/$stateFileOrg $stateFileNew
+			echo -e "\trunning single simulation with server location $servLoc and statefile $stateFileNew"
+			optimizer.sh ronin master Release simulate $newCfgFileName $date $date serverLocation:$servLoc logTrades:1 logInternals:1 execution:$execType logExecution:1 loadStatefile:1 > screen.txt
+		elif [ $stateFileExists -eq 0 ]
+		then
+			echo -e "\trunning single simulation with server location $servLoc (using no stateFile)"
+			optimizer.sh ronin master Release simulate $newCfgFileName $date $date serverLocation:$servLoc logTrades:1 logInternals:1 execution:$execType logExecution:1 > screen.txt
+		else
+			echo "More than 1 stateFile found (nr: $stateFileExists)!"
+			exit 1
+		fi
 		
 		# Calculating hitratio's in simulation
 		fileTmp=$(ls | grep _Trades_ | grep $prod1)
@@ -292,7 +306,7 @@ do
 
 		fileNameSim=$(ls | grep _Internals.log)
 		stage3SimFile="Crossings_sim_"$nameTmp
-                grep $strToGrep $fileNameSim | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $6, $7, $8, $11, $13, $16, $18, $21, $23, $26}' > ./$stage3SimFile
+                grep $strToGrep $fileNameSim | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $7, $8, $11, $12}' > ./$stage3SimFile
 
 		# Check that 1st update is the same; otherwise crossings will never be the same
 		#echo -e "\tcomparing 1st update lines between production and simulation"
@@ -396,17 +410,18 @@ do
 
 	# get simulated local pnl & fees
 	#echo "GETTING SIM PNL & FEE FOR $alias"
-	strToFetch="_"$alias".log"
-	find $baseSimDir/$date -name "*_Trades_*" | grep $strToFetch | xargs cat > $baseSimDir/$date/allTrades.tmp
+	strToFetch="_"$alias".1.log"
+	find $baseSimDir/$date -name "*_Trades_*" | grep $strToFetch | xargs cat | grep -v "Product,TimeStamp,Size" > $baseSimDir/$date/allTrades.tmp
 	
 	nrOfSimTrades=$(wc -l $baseSimDir/$date/allTrades.tmp | awk '{print $1}')
 	pnlSim=0
 	feeSim=0
+	#echo "STR TO FETCH: $strToFetch, NR OF TRDS: $nrOfSimTrades"
 	if [ $nrOfSimTrades -gt 0 ]
 	then
 		optimizer.sh ronin master Release PnlFromTrades $baseSimDir/$date/allTrades.tmp 1 > $baseSimDir/$date/screen.tmp
-		pnlSim=$(grep local $baseSimDir/$date/screen.tmp | grep "P&L" | awk '{print $6}')
-		feeSim=$(grep local $baseSimDir/$date/screen.tmp | grep "Fee" | awk '{print $4}')
+		pnlSim=$(grep local $baseSimDir/$date/screen.tmp | grep "P&L" | awk 'BEGIN{pl=0}{pl=$6}END{print pl}')
+		feeSim=$(grep local $baseSimDir/$date/screen.tmp | grep "Fee" | awk 'BEGIN{fee=0}{fee=$4}END{print fee}')
 	fi
 
 	rm -f $baseSimDir/$date/allTrades.tmp $baseSimDir/$date/screen.tmp
@@ -420,7 +435,7 @@ do
         isMatching=$(echo $isMatching $matchPerProd | awk '{if($1==1 && $2==1){print 1}else{print 0}}')
         #echo "$alias $pnlPerProd $pnlYang $isMatching"
         echo "$date $alias $symbol $pnlYang $pnlPerProd $currProd $fxRate $feeYang $feePerProd $currFee $fxRateFee" >> $baseSimDir/$date/$sumPnlFile
-	
+
 	echo "$date $alias $symbol $categ $pnlYang $feeYang $pnlPerProd $feePerProd $pnlSim $feeSim $fxRate $fxRateFee" | awk '{print $1, $2, $3, $4, ($5*$11 - $6*$12), ($7*$11 - $8*$12), ($9*$11 - $10*$12)}' >> $baseSimDir/$date/$sumReconFile
 done
 
