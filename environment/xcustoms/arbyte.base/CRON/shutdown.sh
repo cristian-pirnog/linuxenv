@@ -1,8 +1,6 @@
 #!/bin/bash
 
-
 # Script to be run from the runVPStratLauncher.sh, after the binary stops
-
 
 #----------------------------------------------
 printUsage()
@@ -24,7 +22,6 @@ printUsage()
              running, but just proceeds with the task.
 %%USAGE%%
 }
-
 
 #----------------------------------------------
 getNextNuberedDir()
@@ -59,6 +56,13 @@ getHistoricalLogDir()
     echo ${lHistLogDir}
 }
 
+
+#----------------------------------------------
+getSessionIds()
+{
+    grep session_id ${binDir}/arbyte.xml | awk '{for (i=1; i<NF; i++) {if ($i ~ /session_id/) {print $i}}}' | \
+sed s/session_id=\"// | sed s/\"//
+}
 
 #----------------------------------
 # Main script
@@ -109,7 +113,7 @@ fi
 
 baseScript=${HOME}/CRON/base.sh
 if [[ ! -f ${baseScript} ]]; then
-    printf "Could not find base script %s" ${baseScript}
+    printf "Could not find base script %s\n" ${baseScript}
     exit 1
 fi
 
@@ -120,44 +124,50 @@ source ${HOME}/CRON/email.sh
 ###############################
 # Copy/Move all relevant files to the historicalLogDir
 ###############################
+cmd=echo
+cmd=''  
 historicalLogDir=$(getHistoricalLogDir)
+sessions=$(getSessionIds)
+
 # ... move the log files
-mv ${binDir}/*.log ${historicalLogDir} >/dev/null 2>&1
-mv ${logDir}/*.log ${historicalLogDir} >/dev/null 2>&1
+${cmd} mv ${binDir}/*.log ${historicalLogDir} >/dev/null 2>&1
+${cmd} mv ${logDir}/*.log ${historicalLogDir} >/dev/null 2>&1
 
 # ... copy the dat dir (which includes the cmeRecoverFile (if any exists))
-cp -r ${datDir} ${historicalLogDir} >/dev/null 2>&1
+${cmd} cp -r ${datDir} ${historicalLogDir} >/dev/null 2>&1
 
 # ... copy the strategy config directory (for future reference)
-cp -r ${strategyConfigDir} ${historicalLogDir}
+${cmd} cp -r ${strategyConfigDir} ${historicalLogDir}
+
+# ... copy the arbyte.xml file
+${cmd} cp -r ${binDir}/arbyte.xml ${historicalLogDir}
 
 # ... copy the state files to the config directory in the historical log dir
 if [[ -n $(ls ${logDir} | grep '.state') ]]; then
     targetStrategyConfigDir=${historicalLogDir}/$(basename ${strategyConfigDir})
-    cp ${logDir}/*.state ${targetStrategyConfigDir}
+${cmd}     cp ${logDir}/*.state ${targetStrategyConfigDir}
     # ... and append atStop extension to their name
-    rename 'state' 'state.atStop' ${targetStrategyConfigDir}/*.state
+${cmd}     rename 'state' 'state.atStop' ${targetStrategyConfigDir}/*.state
     
     # Also copy the atStart state files
-    cp ${logDir}/*.state.atStart ${targetStrategyConfigDir}   
+${cmd}     cp ${logDir}/*.state.atStart ${targetStrategyConfigDir}   
 fi
 
 # ... copy the fix log files
-cp -r ${fixDir} ${historicalLogDir} || exit -1
+${cmd} cp -r ${fixDir} ${historicalLogDir} || exit -1
 
-# ... [TODO] copy log files for other protocols
 
 ###############################
 # Copy the historicalLogDir to the NAS
 ###############################
-#if [[ ${USER} == arbyteprod ]]; then
+if [[ ${USER} == arbyteprod ]]; then
     bkpDirOnNAS=${arbyteLiveBkpDir}/${date}/$(hostname --short)
     identityFile="${HOME}/.ssh/id_rsa"
     if [[ -f ${identityFile} ]]; then
-        ssh -i ${identityFile} ${arbyteNAS} "mkdir -p ${bkpDirOnNAS}" && \
-        rsync -azvh ${historicalLogDir} ${arbyteNAS}:${bkpDirOnNAS}
+${cmd}         ssh -i ${identityFile} ${arbyteNAS} "mkdir -p ${bkpDirOnNAS}" && \
+${cmd}         rsync -azvh ${historicalLogDir} ${arbyteNAS}:${bkpDirOnNAS}
     fi
-#fi
+fi
 
 ###############################
 # Copy files to the compliance shared dir
@@ -165,20 +175,25 @@ cp -r ${fixDir} ${historicalLogDir} || exit -1
 # ... the fix8 log files
 if [[ -d ${complianceLogDir} ]]; then
    complianceLogDir=${complianceLogDir}/${date}/$(hostname --short)
-   mkdir -p ${complianceLogDir}
+${cmd}    mkdir -p ${complianceLogDir}
 
    complianceNumberedLogDir=$(getNextNuberedDir ${complianceLogDir})
    echo complianceNumberedLogDir=${complianceNumberedLogDir}
-   cp -r ${historicalLogDir}/fix8/* ${complianceNumberedLogDir}
+${cmd}    cp -r ${historicalLogDir}/fix8/*_fix.log* ${complianceNumberedLogDir}
+
+   for s in ${sessions}; do
+${cmd}        cp -r ${historicalLogDir}/fix8/${s}.txt ${complianceNumberedLogDir}
+   done
 fi
 
 ###############################
 # Cleanup for the next day
 ###############################
 # ... remove all fix log files
-rm -f ${fixDir}/*.log.*
+${cmd} rm -f ${fixDir}/*_fix.log.*
+${cmd} rm -f ${fixDir}/client.*.Celoxica
 # ... remove old recovery files
-rm ${datDir}/*_recovery.csv.*
+${cmd} rm ${datDir}/*_recovery.csv.*
 # ... append the date to the current recovery file
-rename '_recover.csv' "_recover.csv.${date}" ${datDir}/*
+${cmd} rename '_recover.csv' "_recover.csv.${date}" ${datDir}/*
 
