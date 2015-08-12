@@ -179,7 +179,7 @@ ${cmd}    mkdir -p ${complianceLogDir}
 
    complianceNumberedLogDir=$(getNextNuberedDir ${complianceLogDir})
    echo complianceNumberedLogDir=${complianceNumberedLogDir}
-${cmd}    cp -r ${historicalLogDir}/fix8/*_fix.log* ${complianceNumberedLogDir}
+${cmd}    cp -r ${historicalLogDir}/fix8/fix_*.log* ${complianceNumberedLogDir}
 
    for s in ${sessions}; do
 ${cmd}        cp -r ${historicalLogDir}/fix8/${s}.txt ${complianceNumberedLogDir}
@@ -190,7 +190,7 @@ fi
 # Cleanup for the next day
 ###############################
 # ... remove all fix log files
-${cmd} rm -f ${fixDir}/*_fix.log.*
+${cmd} rm -f ${fixDir}/fix_*.log.*
 ${cmd} rm -f ${fixDir}/client.*.Celoxica
 # ... remove old recovery files
 ${cmd} rm ${datDir}/*_recovery.csv.*
