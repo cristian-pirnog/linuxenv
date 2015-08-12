@@ -120,6 +120,10 @@
 ;;    ("p_j" "\\Delta \\vect{p}_j" nil 1)
     ))
 
+(define-abbrev-table 'sh-mode-abbrev-table '(
+    ("initScript" "" sh-initializeScript  1)
+    ))
+
 (define-abbrev-table 'lisp-mode-abbrev-table '(
     ))
 
@@ -135,40 +139,7 @@
 (define-abbrev-table 'global-abbrev-table '(
     ("sap" "same as point" nil 1)
     ("sas" "same as summary." nil 1)
-    ("svnBranch" "" global-insert-svn-branch-tag 1)
-    ("svnMerge" "" global-insert-svn-merge-tag 1)
-    ("svnDelete" "" global-insert-svn-delete-tag 1)
     ("uatp" "updated according to point" nil 1)
-    ("FTI" "AEX,FTI" nil 1)
-    ("MME" "CBT,MME" nil 1)
-    ("MMS" "CBT,MMS" nil 1)
-    ("YM" "CBT,YM" nil 1)
-    ("FSPQ" "CME,FSPQ" nil 1)
-    ("JPYUSD" "CME,JPYUSD" nil 1)
-    ("NIY" "CME,NIY" nil 1)
-    ("SOIL" "CME,SOIL" nil 1)
-    ("SOYB" "CME,SOYB" nil 1)
-    ("POIL" "NYM,POIL" nil 1)
-    ("FBTP" "EUX,FBTP" nil 1)
-    ("FBTS" "EUX,FBTS" nil 1)
-    ("FDAX" "EUX,FDAX" nil 1)
-    ("FDAX_ONE" "EUX," nil 1)
-    ("FESX" "EUX,FESX" nil 1)
-    ("FESX_ONE" "EUX,FESX" nil 1)
-    ("FGBL" "EUX,FGBL" nil 1)
-    ("FOAT" "EUX,FOAT" nil 1)
-    ("HHI" "HKF,HHI" nil 1)
-    ("HSI" "HKF,HSI" nil 1)
-    ("BRE" "ICE,BRE" nil 1)
-    ("NASQ" "CME,NASQ" nil 1)
-    ("NKD" "CME,NKD" nil 1)
-    ("GOLD" "CME,GOLD" nil 1)
-    ("SILV" "CME,SILV" nil 1)
-    ("FCAC" "LIF,FCAC" nil 1)
-    ("GILT" "LIF,GILT" nil 1)
-    ("CGB" "MSE,CGB" nil 1)
-    ("OMX" "OMX,OMX" nil 1)
-    ("FTSE" "LIF,FTSE" nil 1)
     ))
 
 (define-abbrev-table 'confluence-mode-abbrev-table '(

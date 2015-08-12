@@ -1,5 +1,71 @@
 #!/bin/bash
 
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) -h
+            $(basename ${0}) [--noAsk] [-9] -- [OPTIONS FOR KILL]
+
+    Description:
+        Kills the running instance of VPStratLauncher.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       --noAsk
+	     Kills the instance without asking for permission.
+
+       -9
+	     Does 'kill -9'.
+
+%%USAGE%%
+}
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+ARGS=$(getopt -o h9 -l "help,noAsk" -n "$(basename ${0})" -- "$@")
+scriptOptions=$(echo ${ARGS} | awk -F ' -- ' '{print $1}')
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+userNames=""
+noAsk=false
+while true; do
+    case ${1} in
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    --noAsk)
+        noAsk=true
+        shift
+        ;;
+    -9)
+        optionsForKill='-9'
+        shift
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # This is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
+
 processIds=$(findVPStratLauncherInstances)
 
 if [[ -z ${processIds} ]]; then
@@ -8,8 +74,10 @@ if [[ -z ${processIds} ]]; then
 fi
 
 source ~/.userfunctions
-printf "\n\t\tThis is %s\n\n" $(hostname|tr '[:lower:]' '[:upper:]')
-getAnswer "Are you sure you want to kill the VPStratLauncher?" || exit 0
+if [[ ${noAsk} == false ]]; then
+    printf "\n\t\tThis is %s\n\n" $(hostname|tr '[:lower:]' '[:upper:]')
+    getAnswer "Are you sure you want to kill the VPStratLauncher?" || exit 0
+fi
 
 echo "Killing process with id: ${processIds}"
-kill $@ ${processIds}
+kill ${optionsForKill} $@ ${processIds}
