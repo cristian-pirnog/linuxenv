@@ -227,7 +227,7 @@ do
 
 		stage3ProdFile="Crossings_prod_"$nameTmp
 		strToGrep="stage3,"$date"T"
-		grep $strToGrep $fileName | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $6, $7, $8, $9}' > ./$stage3ProdFile
+		grep $strToGrep $fileName | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $7, $8, $11, $12}' > ./$stage3ProdFile
 
 		#echo "PRODS: $prod1 $prod2 $fileName $date $servLoc"
 		#echo -e "\tdetermining start time for simulation"
@@ -269,23 +269,26 @@ do
 		#echo "NEW CFG FILE: $newCfgFileName"
 		#echo -e "\tchanging start time of config"
 		#echo "$directory/configs/$cfgFile"
-		optimizer.sh ronin master Release edit $directory/configs/$cfgFile StartTime $latestTimeStampMbba $newCfgFileName &>/dev/null
+		cp $directory/configs/$cfgFile $newCfgFileName
+		optimizer.sh ronin master Release edit $newCfgFileName StartTime $latestTimeStampMbba &>/dev/null
 
 		# Check if there is a state file & run a simulation
 		stateFileExists=$(ls $directory/configs | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep state.atStart | wc -l)
-		if [ $stateFileExists -eq 1 ]
+		stateFileHashError=$(grep "error,Hash ID of current OPTIMAL file not equal to loaded hash ID" $fileName | wc -l)
+		#echo "BLA: $fileName $stateFileHashError"
+		if [ $stateFileExists -eq 1 -a $stateFileHashError -eq 0 ]
 		then
 			stateFileOrg=$(ls $directory/configs | grep $prod1 | grep $prod2 | grep $startT | grep $stopT | grep $servLoc | grep $gridId | grep state.atStart)
 			stateFileNew=$newCfgFileName".state"
 			cp $directory/configs/$stateFileOrg $stateFileNew
 			echo -e "\trunning single simulation with server location $servLoc and statefile $stateFileNew"
 			optimizer.sh ronin master Release simulate $newCfgFileName $date $date serverLocation:$servLoc logTrades:1 logInternals:1 execution:$execType logExecution:1 loadStatefile:1 > screen.txt
-		elif [ $stateFileExists -eq 0 ]
+		elif [ $stateFileExists -eq 0 -o $stateFileHashError -eq 1 ]
 		then
 			echo -e "\trunning single simulation with server location $servLoc (using no stateFile)"
 			optimizer.sh ronin master Release simulate $newCfgFileName $date $date serverLocation:$servLoc logTrades:1 logInternals:1 execution:$execType logExecution:1 > screen.txt
 		else
-			echo "More than 1 stateFile found (nr: $stateFileExists)!"
+			echo "More than 1 stateFile found or more than 1 hast error found (nr state files: $stateFileExists, nr hash errors: $stateFileHashError)!"
 			exit 1
 		fi
 		
@@ -311,8 +314,16 @@ do
 		# Check that 1st update is the same; otherwise crossings will never be the same
 		#echo -e "\tcomparing 1st update lines between production and simulation"
 		firstUpdateProdLine=$(grep "1st update" $fileName | awk -F ',' '{print $1, $4, $5, $8, $9, $11}')
-		firstUpdateSimLine=$(grep "1st update" $fileNameSim | awk -F ',' '{print $1, $4, $5, $8, $9, $11}')
+		if [ "$firstUpdateProdLine" == "" ]
+		then
+			firstUpdateProdLine=$(grep "Received first tick" $fileName | tail -1 | awk -F ',' '{print $1, $2, substr($3,1,17)}')
+			firstUpdateSimLine=$(grep "Received first tick" $fileNameSim | tail -1 | awk -F ',' '{print $1, $2, substr($3,1,17)}')
+		else
+			firstUpdateSimLine=$(grep "1st update" $fileNameSim | awk -F ',' '{print $1, $4, $5, $8, $9, $11}')
+		fi
+
 		firstUpdatesSame=0
+		#echo "1st UPDATE: $fileName $fileNameSim $firstUpdateProdLine $firstUpdateSimLine"
 		if [ "$firstUpdateProdLine" != "$firstUpdateSimLine" ]
 		then
 			echo -e "\t\t1st UPDATES ARE NOT THE SAME (PROD: $firstUpdateProdLine, SIM: $firstUpdateSimLine)"
@@ -328,17 +339,41 @@ do
 		nrLinesCrossSim=$(wc -l $stage3SimFile | awk '{print $1}')
 		if [ $firstUpdatesSame -eq 1 -a $nrLinesCrossProd -ne $nrLinesCrossSim ]
 		then
+			awk '{if($2!="Liquidation"){print $1, $3, $4, $5, $6, $7, $8}}' $stage3SimFile > ./tmpCrossSim.txt
+			mv tmpCrossSim.txt $stage3SimFile
+
+			awk '{if($2!="Liquidation"){print $1, $3, $4, $5, $6, $7, $8}}' $stage3ProdFile > ./tmpCrossProd.txt
+                        mv tmpCrossProd.txt $stage3ProdFile
+
+			nrLinesCrossSim=$(wc -l $stage3SimFile | awk '{print $1}')
+			nrLinesCrossProd=$(wc -l $stage3ProdFile | awk '{print $1}')
+			nrOfLinesDiffBefore=$(diff $stage3ProdFile $stage3SimFile | grep "<" | wc -l)
+
+ 			#echo "NROFCROSS: $nrLinesCrossSim $nrLinesCrossProd"
 			if [ $nrLinesCrossProd -gt $nrLinesCrossSim ]
 			then
-				echo -e "\t\tMore crossings in production than in simulation; removing crossings in production"
 				tmpNr=$((nrLinesCrossSim + 1))
                                 cat $stage3ProdFile | awk -v nrL=${tmpNr} 'NR<nrL{print $0}' > ./tmpCrossProd.txt
-				mv tmpCrossProd.txt $stage3ProdFile
-			else
-				echo -e "\t\tMore crossings in simulation than in production; removing crossings in simulation"
+				nrOfLinesDiffAfter=$(diff ./tmpCrossProd.txt $stage3SimFile | grep "<" | wc -l)
+
+				if [ $nrOfLinesDiffBefore -gt $nrOfLinesDiffAfter ]
+				then
+					echo -e "\t\tMore crossings in production than in simulation; removing crossings in production"
+					mv tmpCrossProd.txt $stage3ProdFile
+				fi
+				rm -f tmpCrossProd.txt
+			elif [ $nrLinesCrossSim -gt $nrLinesCrossProd ]
+			then
 				tmpNr=$((nrLinesCrossProd + 1))
                                 cat $stage3SimFile | awk -v nrL=${tmpNr} 'NR<nrL{print $0}' > ./tmpCrossSim.txt
-                                mv tmpCrossSim.txt $stage3SimFile
+				nrOfLinesDiffAfter=$(diff $stage3ProdFile ./tmpCrossSim.txt | grep "<" | wc -l)
+                                
+				if [ $nrOfLinesDiffBefore -gt $nrOfLinesDiffAfter ]
+                                then
+					echo -e "\t\tMore crossings in simulation than in production; removing crossings in simulation"
+					mv tmpCrossSim.txt $stage3SimFile
+				fi
+				rm -f tmpCrossSim.txt
 			fi
 		fi
 
@@ -346,7 +381,7 @@ do
 		nrOfLinesDiff=$(diff $stage3ProdFile $stage3SimFile | grep "<" | wc -l)
 		if [ $nrOfLinesDiff -eq 0 ]
 		then
-			echo -e "\t\tcrossings are the same!"
+			echo -e "\t\tcrossings are the same"
 		else
 			echo -e "\t\tcrossings are different (nr of lines different: $nrOfLinesDiff)!"
 		fi
@@ -370,6 +405,34 @@ mv $baseSimDir/$date/tmp.txt $baseSimDir/$date/$summFileNameSim
 recSumFileName="Reconciliation_OrderLog_vs_Simulation_"$date".txt"
 paste $baseSimDir/$date/$summaryFileName $baseSimDir/$date/$summFileNameSim | awk 'BEGIN{print "DATE TRADED ID LOG_PL_USD SIM_PL_USD 1ST_SAME CROSSDIF TOTCROSS HR_LOG HR_SIM"}NR>1{print $1, $2, $3, $7, $25, $26, $27, $28, $19, $29}' > $baseSimDir/$date/$recSumFileName
 
+# THE ERIC TABLE ;-)
+reconSumm="reconTable.txt"
+cp $baseSimDir/$date/$recSumFileName $baseSimDir/$date/$reconSumm
+SLOTS=$(awk 'NR>1{print $3}' $baseSimDir/$date/$reconSumm | sort -u)
+slotNr=1
+for i in $SLOTS
+do
+	sed -i "s/$i/$slotNr/g" $baseSimDir/$date/$reconSumm
+	((slotNr++))
+done
+
+tmpFile="reconTable.tmp"
+echo "DATE SLOTID SYMBOL NRDIFFSIG TOTNRSIG LIVEPL SIMPL DIFF %DIFF" > $baseSimDir/$date/$tmpFile
+while read line
+do
+	prod=$(echo $line | awk '{print substr($2,1,length($2)-2)}')
+	if [ "$prod" == "TRAD" ]
+	then
+		continue
+	fi
+
+	symbol=$(grep ",$prod," /mnt/config/RONIN/products.csv | awk -F ',' '{print $4}')
+	echo $line | awk '{print $1, $3, "'$symbol'", $7, $8, $4, $5, $5-$4, $5/$4}' >> $baseSimDir/$date/$tmpFile
+done<$baseSimDir/$date/$reconSumm
+
+awk '{totLogPl+=$4;totSimPl+=$5}END{print "TOTAL", totLogPl, totSimPl, totSimPl-totLogPl,totSimPl/totLogPl}' $baseSimDir/$date/$reconSumm >> $baseSimDir/$date/$tmpFile
+mv $baseSimDir/$date/$tmpFile $baseSimDir/$date/$reconSumm
+
 # print hitratio's for sim and prod into the simulation summary file
 #awk -F ',' '{if($1=="O" && $6==0){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1=="T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{print ordVol, tradVol, tradVol/ordVol}' 1065_Trades_LIF.CAC.log
 
@@ -378,6 +441,9 @@ yangDate=$(echo $date | awk '{print substr($1,1,4)"."substr($1,5,2)"."substr($1,
 echo -e "\nGetting Yang P&L for $yangDate"
 #echo "DATE: $yangDate, FILENAME: $baseSimDir/$date/$yangFileName"
 /home/$USER/code/ronin/libs/yang/getYangReportPerDate.py $yangDate $baseSimDir/$date/$yangFileName &>/dev/null
+
+# Since this is a windows based file, convert to to unix in order to avoind problems with e.g. end-of-line
+dos2unix $baseSimDir/$date/$yangFileName
 
 # Creating a per prod view
 echo -e "\nCreating P&L overview per product"
