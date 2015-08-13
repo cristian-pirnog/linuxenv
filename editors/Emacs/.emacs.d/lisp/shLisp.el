@@ -38,7 +38,7 @@
 	(insert "#----------------------------------------------\n")
 	(insert "# Main script\n")
 	(insert "#----------------------------------------------\n")
-	(insert "ARGS=$(getopt -o h -l \"help:\" -n \"$(basename ${0})\" -- \"$@\")\n")
+	(insert "ARGS=$(getopt -o h -l \"help,\" -n \"$(basename ${0})\" -- \"$@\")\n")
 	(insert "scriptOptions=$(echo ${ARGS} | awk -F ' -- ' '{print $1}')\n")
 	(insert "\n")
 	(insert "# If wrong arguments, print usage and exit\n")

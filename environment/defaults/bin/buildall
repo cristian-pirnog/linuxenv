@@ -126,7 +126,7 @@ printf '\nLooking for branch build file: %s...    ' ${branchBuildFile}
 if [[ -f ${branchBuildFile} ]]; then
     printf "Found!\n\tLoading projects to build: "
     PROJECTS_TO_BUILD=$(cat ${branchBuildFile})
-    printf '%s\n' ${PROJECTS_TO_BUILD}
+    printf '%s\n\n' "${PROJECTS_TO_BUILD}"
 # Otherwise, set the default ones, in case PROJECTS_TO_BUILD is not defined in the environment
 else
     printf 'Not found.\n'

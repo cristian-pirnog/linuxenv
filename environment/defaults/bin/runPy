@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 #----------------------------------------------
 printUsage()
 {
@@ -26,7 +25,7 @@ cat << %%USAGE%%
 	     to both the C++ and the Python code.
 
        --codePath path
-             Use the specified path as code path, instead of ${HOME}/code.
+             Use the specified path as code path, instead of ${HOME}/code/drogon.
 
        --pythonPath path
              Specifies additional directories to be added to the PYTHONPATH 
@@ -98,6 +97,7 @@ while true; do
 	    ;;
     esac
 done
+
 
 # Create and check the lib path
 libPath=${HOME}/deploy/${branchName}/${buildType}/lib

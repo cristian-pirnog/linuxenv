@@ -9,6 +9,7 @@ MAILTO=pirnog@gmail.com
 
 # Each day, update the RONIN config environment
 __MM_HH__ * * * bash --login -c '~/bin/updateProductionMachine --prod all' > log/updateProductionMachine.log 2>&1
+__MM_HH__ * * * bash --login -c '~/bin/updateProductionMachine --sim' > log/updateProductionMachine.log 2>&1
 
 # Each weekday, run the rolling script
 __MM_HH__ * * Sun-Thu bash --login -c '~/production/framework/scripts/bash/createBookConfigs.sh --production --deploy' > log/createBookConfigs.log 2>&1
