@@ -108,7 +108,9 @@ cleanupCeloxicaFiles()
 # Main script
 #----------------------------------
 
-ARGS=$(getopt -o h -l "help,afterRun" -n "$(basename ${0})" -- "$@")
+shortOptions='h'
+longOptions='help,listOptions,afterRun'
+ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -122,6 +124,10 @@ eval set -- "$ARGS"
 afterRun=0
 while true; do
     case ${1} in
+    --listOptions)
+        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) '-'$(sed 's/\(.\)/\1 /g' <<< ${shortOptions}) | sed 's/://g'
+        exit 0
+        ;;
     -h|--help)
         printUsage
         exit 0
@@ -140,7 +146,7 @@ while true; do
         ;;
     esac
 done
-
+exit 1
 
 # If the binary still runs, exit
 if [[ ${afterRun} -ne 1 ]]; then
