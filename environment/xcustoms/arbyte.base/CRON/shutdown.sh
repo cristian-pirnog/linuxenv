@@ -146,7 +146,6 @@ while true; do
         ;;
     esac
 done
-exit 1
 
 # If the binary still runs, exit
 if [[ ${afterRun} -ne 1 ]]; then
