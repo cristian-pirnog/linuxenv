@@ -4,8 +4,8 @@ _bashScript()
   COMPREPLY=( $( compgen -W "$(${s} --listOptions)" -- $cur ) )
 }
 
-scriptDirs="${HOME}/CRON ${HOME}/bin"
-supportedScripts=$(grep -l -- --listOptions $(awk '{for(i=1;i<=NF;i++) print $i"/*"}' <<< ${scriptDirs}))
+scriptDirs="${HOME}/CRON ${HOME}/bin ${HOME}/.${USER}_config"
+supportedScripts=$(grep -l -d skip -- --listOptions $(sed -E 's_ |$_/* _g' <<< ${scriptDirs}) 2> /dev/null)
 
 for s in ${supportedScripts}; do
   complete -o default -o filenames -F _bashScript ${s} $(basename ${s}) ./$(basename ${s}) $(sed "s_${HOME}_~_" <<< ${s})

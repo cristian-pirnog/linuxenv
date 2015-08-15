@@ -252,7 +252,6 @@ fi
 # Cleanup for the next day
 ###############################
 # ... remove all fix log files
-${dbg} rm -f ${fixDir}/fix_*.log.*
 cleanupCeloxicaFiles ${date} ${fixDir}
 
 handleRecoveryFiles ${datDir}
