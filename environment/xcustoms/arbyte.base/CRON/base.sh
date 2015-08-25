@@ -6,7 +6,8 @@
 #----------------------------------
 liveDir=${HOME}/live
 binDir=${liveDir}/bin
-logDir=/dev/shm/log
+shmDir=/dev/shm
+logDir=${shmDir}/log
 fixDir=${logDir}/fix8
 cfgDir=${liveDir}/cfg
 strategyConfigDir=${liveDir}/configs
@@ -32,5 +33,3 @@ timeStamp=$(date +%Y%m%dT%H%M%S)
 #----------------------------------
 # Functions
 #----------------------------------
-
-

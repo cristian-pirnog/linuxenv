@@ -24,7 +24,7 @@ printUsage()
 }
 
 #----------------------------------------------
-getNextNuberedDir()
+getNextNumberedDir()
 {
     local lBaseDir="${1}"
 
@@ -46,7 +46,7 @@ getHistoricalLogDir()
 {
     local lDateDir=log/${date}
     local lHistLogDirBase=${liveDir}/${lDateDir}
-    local lHistLogDir=$(getNextNuberedDir ${lHistLogDirBase})
+    local lHistLogDir=$(getNextNumberedDir ${lHistLogDirBase})
 
     # Make a symlink to the latest log dir
     latestLog=${lHistLogDirBase}/../latest
@@ -82,27 +82,28 @@ handleRecoveryFiles()
 }
 
 #----------------------------------------------
-cleanupCeloxicaFiles()
+removeFixEntriesFromPreviousDays()
 {
     local lCleanupDate=${1}
     local lDir=${2}
 
-    # Cleanup the client*.Celoxica files
-    shopt -s nullglob
-    for f in ${lDir}/client*.Celoxica; do
-	if [[ -n $(grep '8=FIX' ${f} ) ]]; then
-	    sed 's/8=FIX/\
-8=FIX/g' ${f} | grep ${lCleanupDate} | tr -d '\n' > ${f}.clean && mv ${f}.clean ${f}
-	fi
-	
-	# If the file is empty, remove it
-	if [[ ! -s ${f} ]] ;then
+    # Cleanup all FIX log files
+    for f in $(grep -lR '8=FIX' ${lDir}); do
+	echo "Cleaning up FIX file: ${f}"
+        if [[ $(<${f} wc -l) -eq 0 ]]; then
+            sed 's/8=FIX/\
+8=FIX/g' ${f} | grep ${lCleanupDate} | tr -d '\n' > $f.clean
+        else
+            grep ${lCleanupDate} ${f} > ${f}.clean
+        fi
+	mv ${f}.clean ${f}
+
+	# If the file is empty, remove it and all files that have the same prefix
+	if [[ ! -s ${f} ]]; then
 	    rm ${f}*
 	fi
     done
-    shopt -u nullglob
 }
-
 
 #----------------------------------
 # Main script
@@ -201,7 +202,7 @@ if [[ -n $(ls ${logDir} | grep '.state') ]]; then
 fi
 
 # ... copy the fix log files
-${dbg} cp -r ${fixDir} ${historicalLogDir} || exit -1
+${dbg} cp -r ${fixDir} ${historicalLogDir} || exitWithEMail "Error at shutdown" "Could not copy ${fixDir} to ${historicalLogDir}" ${CRISTIAN} 1
 
 
 ###############################
@@ -225,34 +226,36 @@ if [[ -d ${complianceLogDir} ]]; then
    complianceLogDir=${complianceLogDir}/${date}/$(hostname --short)
    ${dbg} mkdir -p ${complianceLogDir}
 
-   complianceNumberedLogDir=$(getNextNuberedDir ${complianceLogDir})
+   complianceNumberedLogDir=$(getNextNumberedDir ${complianceLogDir})
    echo complianceNumberedLogDir=${complianceNumberedLogDir}
    ${dbg} cp -r ${historicalLogDir}/fix8/fix_*.log* ${complianceNumberedLogDir}
-   rename fix_ ${date}.fix_ ${complianceNumberedLogDir}/*
+   ${dbg} rename fix_ ${date}.fix_ ${complianceNumberedLogDir}/*
+   ${dbg} rm -f ${fixDir}/fix_*
 
-   shopt -s nullglob
    for s in ${sessions}; do
        txtFile=${historicalLogDir}/fix8/${s}.txt
+       echo txtFile=${txtFile}
        if [[ -f ${txtFile} ]]; then
 	   targetFile=${date}.$(basename ${txtFile})
            ${dbg} cp ${txtFile} ${complianceNumberedLogDir}/${targetFile}
+	   ${dbg} rm ${fixDir}/${s}.txt
        fi
 
        # Eurex-ETI style log files
        datFile=${historicalLogDir}/fix8/${date}.${s}.dat
+       echo datFile=${datFile}
        if [[ -f ${datFile} ]]; then
 	   targetFile=$(basename ${datFile})
-	   cp ${datFile} ${complianceNumberedLogDir}/${targetFile}
+	   ${dbg} cp ${datFile} ${complianceNumberedLogDir}/${targetFile}
+	   ${dbg} rm ${fixDir}/${s}.dat
        fi
    done
-   shopt -u nullglob
+
+   removeFixEntriesFromPreviousDays ${date} ${complianceLogDir}
 fi
 
 ###############################
 # Cleanup for the next day
 ###############################
-# ... remove all fix log files
-cleanupCeloxicaFiles ${date} ${fixDir}
-
 handleRecoveryFiles ${datDir}
 handleRecoveryFiles ${fixDir}

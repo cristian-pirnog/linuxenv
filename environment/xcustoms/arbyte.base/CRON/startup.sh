@@ -94,15 +94,6 @@ while true; do
 done
 
 
-# If the binary still runs, exit
-if [[ ${afterRun} -ne 1 ]]; then
-    processId=$(findVPStratLauncherInstances)
-    if [[ -n "${processId}" ]]; then 
-        printf "Found binary running (process id: ${processId}). Aborting.\n"
-        exit 1
-    fi
-fi
-
 baseScript=${HOME}/CRON/base.sh
 if [[ ! -f ${baseScript} ]]; then
     printf "Could not find base script %s" ${baseScript}
@@ -112,6 +103,16 @@ fi
 # Source the base script
 source ${baseScript}
 source ${HOME}/CRON/email.sh
+
+# If the binary still runs, exit
+if [[ ${afterRun} -ne 1 ]]; then
+    processId=$(findVPStratLauncherInstances)
+
+    if [[ -n "${processId}" ]]; then 
+	exitWithEMail "Binary not started" "Found binary running (process id: ${processId})" ${arbyteDudes} ${outputFile}
+    fi
+fi
+
 
 # When debuggin script, we echo all (most) commands, instead of executing them
 dbg=echo
@@ -129,10 +130,10 @@ else
     echo ${date} > ${lastResetFile}
 
     # ... daily on all other exchanges
-    ${dbg} failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers EUX)
-    ${dbg} failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICE)
-    ${dbg} failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICL)
-    ${dbg} failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers LIF)
+    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers EUX)
+    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICE)
+    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICL)
+    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers LIF)
 
     if [[ -n ${failedExchanges} ]]; then
 	${dbg} sendMail "Error!!! Failed to reset sequence numbers" "Failed to reset sequence numbers for exchange(s) ${failedExchanges}" ${CRISTIAN}
