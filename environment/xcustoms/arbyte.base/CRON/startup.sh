@@ -51,8 +51,6 @@ resetTextSequenceNumbers()
     local lExchange=${1}
     local lSessionTag=$(grep "mkt=\"${lExchange}\"" ${binDir}/arbyte.xml |  awk -F' ' '{for(i = 1; i<NF; i++) print $i}' | grep session_id | awk -F'=' '{print $2}' | sed 's/"//g')
 
-    echo lSessionTag=${lSessionTag}
-
     if [[ -z ${lSessionTag} ]]; then
       echo "${lExchange}; "
       return 1
@@ -115,6 +113,10 @@ fi
 source ${baseScript}
 source ${HOME}/CRON/email.sh
 
+# When debuggin script, we echo all (most) commands, instead of executing them
+dbg=echo
+dbg=''
+
 ###############################
 # Reset FIX sequence numbers
 ###############################
@@ -126,40 +128,32 @@ else
     # Write the date of the last reset
     echo ${date} > ${lastResetFile}
 
-    # ... at the startof the week on CME
-    currentWeekNo=$(date +%V)
-    lastResetWeekNo=$(date +%V -d ${lastResetDate})
-    if [[ ${lastResetWeekNo} -ne ${currentWeekNo} ]]; then
-        printf "\nNot necessary to resetting CME seq numbers for week %s\n\n" ${currentWeekNo}
-        #failedExchanges=${failedExchanges}$(resetTextSequenceNumbers CME)
-    else
-        printf "\nCME seq numbers were already reset for week %s on %s.\n\n" ${currentWeekNo} ${lastResetDate}
-    fi
     # ... daily on all other exchanges
-    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers EUX)
-    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICE)
-    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICL)
-    failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers LIF)
+    ${dbg} failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers EUX)
+    ${dbg} failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICE)
+    ${dbg} failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICL)
+    ${dbg} failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers LIF)
 
     if [[ -n ${failedExchanges} ]]; then
-	sendMail "Error!!! Failed to reset sequence numbers" "Failed to reset sequence numbers for exchange(s) ${failedExchanges}" ${CRISTIAN}
+	${dbg} sendMail "Error!!! Failed to reset sequence numbers" "Failed to reset sequence numbers for exchange(s) ${failedExchanges}" ${CRISTIAN}
     fi
 fi
 
-# Restore any renamed recovery files
-rename "_recover.csv.${date}" '_recover.csv' ${datDir}/*
+# Restore any renamed recovery file
+${dbg} rename "_recover.csv.${date}" '_recover.csv' ${datDir}/*
+${dbg} rename "_recover.csv.${date}" '_recover.csv' ${fixDir}/*
 
 # Process the state files...
-rm ${logDir}/*.state.atStart
+${dbg} rm ${logDir}/*.state.atStart
 for f in $(ls ${logDir} | grep .cfg.state); do 
     configFile=$HOME/live/configs/$(echo $f | sed 's/.state//'); 
  
     # ... removing those that don't have a correspondent config file
     if [[ ! -f ${configFile} ]]; then 
-        rm ${logDir}/${f}
+        ${dbg} rm ${logDir}/${f}
     # ... and copying those that do have one with extension .atStart
     else
-        cp ${logDir}/${f} ${logDir}/${f}.atStart
+        ${dbg} cp ${logDir}/${f} ${logDir}/${f}.atStart
     fi 
 done
 
