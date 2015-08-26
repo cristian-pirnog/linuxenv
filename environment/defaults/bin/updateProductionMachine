@@ -98,6 +98,10 @@ while true; do
     esac
 done
 
+if [[ $# -gt 0 ]]; then
+    usersAtHosts="$@"
+fi
+
 if [[ -z ${usersAtHosts} ]]; then
     if [[ $# -lt 1 ]]; then
 	printUsage
