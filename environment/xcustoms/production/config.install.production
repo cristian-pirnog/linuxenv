@@ -3,7 +3,6 @@ bin/keepUpToDate.sh ${HOME}/bin/keepUpToDate.sh
 
 # SSH
 .ssh/config $HOME/.ssh/config
-.ssh/authorized_keys $HOME/.ssh/authorized_keys
 .ssh/known_hosts $HOME/.ssh/known_hosts
 .ssh/id_rsa.pub $HOME/.ssh/id_rsa.pub
 .ssh/id_rsa $HOME/.ssh/id_rsa
