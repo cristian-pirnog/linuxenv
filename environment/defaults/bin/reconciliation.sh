@@ -16,7 +16,27 @@ function getMbbaTime
 	timeStampMbba=0
 	if [ $foundFirstUpdateLine -ne 1 ]
 	then
-		timeStampMbba=$(grep "Received first tick" $fileName1 | awk -F ',' '{print $3}')
+		timeStampFirstTick=$(grep "Received first tick" $fileName1 | awk -F ',' '{print $3}')
+		timeStampFirstCross=$(grep "stage3," $fileName1 | head -2 | tail -1 | awk -F ',' '{print $2}')
+		sameTimeStamp=$(echo $timeStampFirstTick $timeStampFirstCross | awk '{if($1==$2){print 1}else{print 0}}')
+		
+		timeStampMbba=$timeStampFirstTick
+		if [ $sameTimeStamp -eq 1 ]
+		then
+			bidSz=$(grep "stage3," $fileName1 | head -2 | tail -1 | awk -F ',' '{print $6}')
+			bidPr=$(grep "stage3," $fileName1 | head -2 | tail -1 | awk -F ',' '{print $7}')
+			askPr=$(grep "stage3," $fileName1 | head -2 | tail -1 | awk -F ',' '{print $8}')
+			askSz=$(grep "stage3," $fileName1 | head -2 | tail -1 | awk -F ',' '{print $9}')
+
+			if [ $index -eq 2 ]
+                	then
+				bidSz=$(grep "stage3," $fileName1 | head -2 | tail -1 | awk -F ',' '{print $10}')
+                        	bidPr=$(grep "stage3," $fileName1 | head -2 | tail -1 | awk -F ',' '{print $11}')
+                        	askPr=$(grep "stage3," $fileName1 | head -2 | tail -1 | awk -F ',' '{print $12}')
+                        	askSz=$(grep "stage3," $fileName1 | head -2 | tail -1 | awk -F ',' '{print $13}')
+			fi
+			timeStampMbba=$(optimizer.sh ronin master Release findTick $prodLoc $timeStampFirstCross $bidSz $bidPr $askPr $askSz $serverLoc 1 | grep TIMESTAMP | awk '{print $2}')
+		fi
 	else
 		timeStamp=$(grep "1st update" $fileName1 | awk -F ',' '{print $2}')
         	bidSize=$(grep "1st update" $fileName1 | awk -F ',' '{print $3}')
@@ -227,7 +247,7 @@ do
 
 		stage3ProdFile="Crossings_prod_"$nameTmp
 		strToGrep="stage3,"$date"T"
-		grep $strToGrep $fileName | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $7, $8, $11, $12}' > ./$stage3ProdFile
+		grep $strToGrep $fileName | sed "s/,/ /g" | awk '{print substr($2,1,17), $4, $5, $7, $8, $11, $12}' > ./$stage3ProdFile
 
 		#echo "PRODS: $prod1 $prod2 $fileName $date $servLoc"
 		#echo -e "\tdetermining start time for simulation"
@@ -237,13 +257,18 @@ do
 		#echo "TS1: $timeStamp1, TS2: $timeStamp2"
 		#exit 1
 
+		latestTimeStampMbba=0
 	        if [ "$timeStamp1" == "-" -o "$timeStamp2" == "-" ]
         	then
-                	echo "TIMESTAMP NOT FOUND FOR ONE OF THE PRODS (TS1: $timeStamp1, TS2: $timeStamp2)"
-                	exit 1
-        	fi
-	
-		latestTimeStampMbba=$(echo $timeStamp1 $timeStamp2 | awk '{ts1=substr($1,10,99);ts2=substr($2,10,99);if(ts1>ts2){print ts1}else{print ts2}}')
+                	echo -e "\tTIMESTAMP NOT FOUND FOR ONE OF THE PRODS (TS1: $timeStamp1, TS2: $timeStamp2)"
+			latestTimeStampMbba=$timeStamp1
+			if [ "$timeStamp1" == "-" ]
+			then
+				latestTimeStampMbba=$timeStamp2
+			fi
+        	else
+			latestTimeStampMbba=$(echo $timeStamp1 $timeStamp2 | awk '{ts1=substr($1,10,99);ts2=substr($2,10,99);if(ts1>ts2){print ts1}else{print ts2}}')
+		fi
 		#echo "TS USED IN CFG FILE: $latestTimeStampMbba"
 
 		# Find the config corresponding to the log file
@@ -300,16 +325,9 @@ do
 		hitRatio2=$(awk -F ',' 'BEGIN{tradVol=0;ordVol=0}{if( ($1=="xO" && $6==0) || ($1==" O" && $6==0) ){if($4>0){ordVol+=$4}else{ordVol-=$4}};if($1==" T" && $6==0){if($4>0){tradVol+=$4}else{tradVol-=$4}}}END{hr=0;if(ordVol>0){hr=tradVol/ordVol};print hr}' $fileTmp)
 		#echo "HR1: $hitRatio1, HR2: $hitRatio2"
 		
-		# Translating .sim into csv
-		simOutputFile=$(ls *.sim)
-		#echo -e "\ttranslating sim output file to csv"
-		optimizer.sh ronin master Release translate $simOutputFile &>/dev/null
-		csvFile=$(ls *.sim.csv | awk '{print substr($1,1,length($1)-3)"csv"}')
-		#echo "CSV FILE: $csvFile"
-
 		fileNameSim=$(ls | grep _Internals.log)
 		stage3SimFile="Crossings_sim_"$nameTmp
-                grep $strToGrep $fileNameSim | sed "s/,/ /g" | awk '{print substr($2,1,17), $3, $4, $5, $7, $8, $11, $12}' > ./$stage3SimFile
+                grep $strToGrep $fileNameSim | sed "s/,/ /g" | awk '{print substr($2,1,17), $4, $5, $7, $8, $11, $12}' > ./$stage3SimFile
 
 		# Check that 1st update is the same; otherwise crossings will never be the same
 		#echo -e "\tcomparing 1st update lines between production and simulation"
@@ -386,10 +404,25 @@ do
 			echo -e "\t\tcrossings are different (nr of lines different: $nrOfLinesDiff)!"
 		fi
 
-		# Grepping simulation P&L numbers
+		# Translating .sim into csv
+		#echo -e "\ttranslating sim output file to csv"
+		simOutputFile=$(ls *.sim)
+		optimizer.sh ronin master Release translate $simOutputFile &>/dev/null
+		csvFile=$(ls *.sim.csv | awk '{print substr($1,1,length($1)-3)"csv"}')
 		#echo "CSV FILE: $csvFile"
-                grep -A1 Pnl $csvFile | grep -v Pnl | awk -F ',' '{if($27>0.00001 || $27<-0.00001){print "'$date'", "'$baseName'", "'$prod1'", $27, $29, $27-$29, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'", "'$hitRatio1'"};if($28>0.00001 || $28<-0.00001){ print "'$date'", "'$baseName'", "'$prod2'", $28, $30, $28-$30, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'", "'$hitRatio2'"}}' >> $baseSimDir/$date/$summFileNameSim
-
+                
+		# Grepping simulation P&L numbers
+		fileSize=$(ls -l $csvFile | awk '{print $5}')
+		if [ $fileSize -gt 0 ]
+		then
+			grep -A1 Pnl $csvFile | grep -v Pnl | awk -F ',' '{if($27>0.00001 || $27<-0.00001){print "'$date'", "'$baseName'", "'$prod1'", $27, $29, $27-$29, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'", "'$hitRatio1'"};if($28>0.00001 || $28<-0.00001){ print "'$date'", "'$baseName'", "'$prod2'", $28, $30, $28-$30, "'$firstUpdatesSame'", "'$nrOfLinesDiff'", "'$nrLinesCrossProd'", "'$hitRatio2'"}}' >> $baseSimDir/$date/$summFileNameSim
+		else
+			echo "$date $baseName $prod1 0 0 0 $firstUpdatesSame $nrOfLinesDiff $nrLinesCrossProd $hitRatio1" >> $baseSimDir/$date/$summFileNameSim
+			if [ $isSpread -eq 1 ]
+			then
+				echo "$date $baseName $prod2 0 0 0 $firstUpdatesSame $nrOfLinesDiff $nrLinesCrossProd $hitRatio2" >> $baseSimDir/$date/$summFileNameSim
+			fi
+		fi
 	done
 done
 
@@ -443,7 +476,7 @@ echo -e "\nGetting Yang P&L for $yangDate"
 /home/$USER/code/ronin/libs/yang/getYangReportPerDate.py $yangDate $baseSimDir/$date/$yangFileName &>/dev/null
 
 # Since this is a windows based file, convert to to unix in order to avoind problems with e.g. end-of-line
-dos2unix $baseSimDir/$date/$yangFileName
+dos2unix $baseSimDir/$date/$yangFileName &>/dev/null
 
 # Creating a per prod view
 echo -e "\nCreating P&L overview per product"
@@ -455,7 +488,7 @@ echo "DATE ALIAS SYMBOL CATEGORY PNLYNGUSD PNLLOGUSD PNLSIMUSD" > $baseSimDir/$d
 
 isMatching=1
 
-PRODS=$(awk -F ',' 'NR>1{print $17}' $baseSimDir/$date/$yangFileName | sort -u)
+PRODS=$(awk -F ',' 'NR>1{print $20}' $baseSimDir/$date/$yangFileName | sort -u)
 for i in $PRODS
 do
 	#echo -e "\t$i"
@@ -466,12 +499,12 @@ do
 
         pnlPerProd=$(awk 'BEGIN{pnlLoc=0}{if(substr($2,1,length($2)-2)=="'$alias'"){pnlLoc+=$9}}END{print pnlLoc}' $baseSimDir/$date/$summaryFileName)
         feePerProd=$(awk 'BEGIN{feesLoc=0}{if(substr($2,1,length($2)-2)=="'$alias'"){feesLoc+=$10}}END{print feesLoc}' $baseSimDir/$date/$summaryFileName)
-        pnlYang=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($21,1,11)*1}')
-        feeYang=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print $4/$1}')
+        pnlYang=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($24,1,11)*1}')
+        feeYang=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print $6/$1}')
         fxRateFee=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($1,1,11)*1}')
-        currFee=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print $2}')
-        fxRate=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($10,1,11)*1}')
-        currProd=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print $17}')
+        currFee=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print $4}')
+        fxRate=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print substr($13,1,11)*1}')
+        currProd=$(grep ",$symbol," $baseSimDir/$date/$yangFileName | awk -F ',' '{print $20}')
         matchPerProd=$(echo $pnlPerProd $pnlYang $feePerProd $feeYang | awk '{if($1==$2 && $3==$4){print 1}else{print 0}}')
 
 	# get simulated local pnl & fees

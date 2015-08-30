@@ -98,6 +98,10 @@ while true; do
     esac
 done
 
+if [[ $# -gt 0 ]]; then
+    usersAtHosts="$@"
+fi
+
 if [[ -z ${usersAtHosts} ]]; then
     if [[ $# -lt 1 ]]; then
 	printUsage
@@ -130,7 +134,17 @@ fi
 rsyncCommand="rsync -azvhq"
 for userAtHost in ${usersAtHosts}; do
     printf "Updating for ${userAtHost}...  \t"
+    
     ssh -A ${userAtHost} "mkdir -p '${targetConfigDir}'" > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        printf "[Failed]\n"
+        continue
+    fi
+    
     ${rsyncCommand} /mnt/config/RONIN/*.csv ${userAtHost}:${targetConfigDir} > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        printf "[Failed]\n"
+        continue
+    fi
     printf "[Done]\n"
 done

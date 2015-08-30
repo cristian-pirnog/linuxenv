@@ -93,18 +93,6 @@ done
 
 
 ###############################
-# Define some variables/constants
-###############################
-timeStamp=$(date +%Y%m%dT%H%M%S)
-outputFile=output_${timeStamp}.log
-
-CRISTIAN='pirnog@gmail.com'
-GIULIANO='giuliano.tirenni@gmail.com'
-JENS='jens.poepjes@gmail.com'
-BRANDON='bleung@vitessetech.com'
-recipientsList="${CRISTIAN} ${JENS} ${GIULIANO}"
-
-###############################
 # Source the base script
 ###############################
 scriptDir=$(dirname ${0})
@@ -115,11 +103,21 @@ if [[ ! -f ${baseScript} ]]; then
 fi
 
 source ${baseScript}
+source ${scriptDir}/email.sh
 
 if [[ -z $(ls ${strategyConfigDir} | grep '.cfg$') ]]; then
     printf "No configs found in directory %s' ${strategyConfigDir}" >> ${outputFile}
     exit 1
 fi
+
+###############################
+# Define some variables/constants
+###############################
+timeStamp=$(date +%Y%m%dT%H%M%S)
+outputFile=${logDir}/output_${timeStamp}.log
+
+arbyteDudes="${CRISTIAN} ${JENS} ${GIULIANO}"
+recipientsList=${arbyteDudes}
 
 ###############################
 # Test the config file
@@ -132,8 +130,7 @@ fi
 
 xmllint --noout ${configFile}
 if [[ $? -ne 0 ]]; then
-    printf "\nError in the config file %s. Will not start the binary.\n\n" ${configFile} >> ${outputFile}
-    exit 1
+    exitWithEMail "Binary not started" "${msg}" ${arbyteDudes} 1 ${outputFile}
 fi
 
 ###############################
@@ -142,8 +139,7 @@ fi
 onloadCommand='/usr/bin/onload'
 binaryName=$(ls | grep VPStratLauncher | grep -v RWDI_unstripped | tail -1)
 if [[ -z ${binaryName} ]]; then
-    echo "Could not find a binary to run. Exiting" >> ${outputFile}
-    exit 1
+    exitWithEMail "Binary not started" "Could not find a binary to run. Exiting" ${arbyteDudes} 1 ${outputFile}
 fi
 
 strategyCommand="./${binaryName} --stratname ArByte --config ${configFile}"
@@ -151,32 +147,25 @@ if [[ -f ${onloadCommand} ]]; then
   strategyCommand="${onloadCommand} ${strategyCommand}"
 fi
 
-# Check that VPStratLauncher is not alredy running
-if [[ -n $(findVPStratLauncherInstances) ]]; then
-    msg="Found VPStratLauncher instances running. Exiting."
-    echo ${msg} | mail -s "${USER}@${HOST}: binary not started" ${recipientsList}
-    printf  ${msg} >> ${outputFile}
-    exit 1
+###############################
+# Checks on the live log dir
+###############################
+if [[ -z $(mount | grep ${shmDir}) ]]; then
+    exitWithEMail "Binary not started" "\n${shmDir} not mounted" ${recipientsList} 1 ${outputFile}
 fi
 
-# Check that the live log directory exists
 mkdir -p ${logDir}
 if [[ ! -d ${logDir} ]]; then
-    msg="\nLog directory does not exist ${logDir}. Exiting."
-    echo ${msg} | mail -s "${USER}@${HOST}: binary not started" ${recipientsList}
-    printf ${msg} >> ${outputFile}
-    exit 1
+    exitWithEMail "Binary not started" "\nLog directory does not exist ${logDir}." ${recipientsList} 1 ${outputFile}
 elif [[ ! -w ${logDir} ]]; then
-    msg="\nLog directory is not writable by user. Exiting." 
-    echo ${msg} | mail -s "${USER}@${HOST}: binary not started" ${recipientsList}
-    printf ${msg} >> ${outputFile}
-    exit 1
+    exitWithEMail "Binary not started" "\nLog directory is not writable by user." ${recipientsList} 1 ${outputFile}
 fi
+
 
 ###############################
 # Run the startup procedure
 ###############################
-${scriptDir}/startup.sh >> ${outputFile} || exit 1
+${scriptDir}/startup.sh >> ${outputFile}
 
 
 ###############################
@@ -209,18 +198,27 @@ message="$(date): Binary stopped."
 
 
 ###############################
-# Check for any core files
+# Check for open positions
 ###############################
-if [[ -n `ls | grep core.` ]]; then
-    # Send e-mail 
-    recipientsList="${recipientsList} ${BRANDON}"
-    message=${message}" Found core dump file $(ls core.*)."
-    chmod g+r core.*
+openPositions="grep -i 'Open position' ArByteLive* | grep 'shut'"
+if [[ -n ${openPositions} ]]; then
+    sendMail "Open positions at shutdown" "${openPositions}" ${arbyteDudes}
 fi
 
-mail -s "${USER}@${HOST}: binary stopped" ${recipientsList} << EOF
+###############################
+# Check for any core files
+###############################
+if [[ -n $(ls | grep core.) ]]; then
+    # Send e-mail 
+    chmod g+r core.*
+
+    message=${message}" Found core dump file $(ls core.*)."
+    sendMail "Core dump at shut down" "${CRISTIAN} ${BRANDON}"  << EOF
 ${message}
 EOF
 
+fi
+
+
 # At the end, run the shutdown script
-$(dirname ${0})/shutdown.sh --afterRun
+$(dirname ${0})/shutdown.sh --afterRun >> ${outputFile}
