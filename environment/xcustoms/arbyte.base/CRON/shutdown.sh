@@ -29,13 +29,19 @@ getNextNumberedDir()
     local lBaseDir="${1}"
 
     local lNextNumberedDir=""
+    local lCurrNumberedDir=""
     for i in `seq 1 50`; do
         local lNextNumber=${i}
         lNextNumberedDir=${lBaseDir}/${lNextNumber}
         if [[ ! -d ${lNextNumberedDir} ]]; then
-            mkdir -p ${lNextNumberedDir}
+            if [[ ${dbg} == 'echo' ]]; then
+                lNextNumberedDir=${lCurrNumberedDir}
+            else
+                mkdir -p ${lNextNumberedDir}
+            fi
             break
         fi
+        lCurrNumberedDir=${lNextNumberedDir}
     done
     echo ${lNextNumberedDir}
 }
@@ -234,21 +240,29 @@ if [[ -d ${complianceLogDir} ]]; then
 
    for s in ${sessions}; do
        txtFile=${historicalLogDir}/fix8/${s}.txt
-       echo txtFile=${txtFile}
        if [[ -f ${txtFile} ]]; then
-	   targetFile=${date}.$(basename ${txtFile})
+           targetFile=${date}.$(basename ${txtFile})
            ${dbg} cp ${txtFile} ${complianceNumberedLogDir}/${targetFile}
-	   ${dbg} rm ${fixDir}/${s}.txt
+           ${dbg} rm ${fixDir}/${s}.txt
        fi
 
-       # Eurex-ETI style log files
+       # Eurex-ETI style log/recover files
        datFile=${historicalLogDir}/fix8/${date}.${s}.dat
-       echo datFile=${datFile}
+       recoverFile=${historicalLogDir}/fix8/${s}_recover.csv
        if [[ -f ${datFile} ]]; then
-	   targetFile=$(basename ${datFile})
-	   ${dbg} cp ${datFile} ${complianceNumberedLogDir}/${targetFile}
-	   ${dbg} rm ${fixDir}/${s}.dat
+          sourceFile=${datFile}
+          targetFile=$(basename ${datFile})
+       elif [[ -f ${recoverFile} ]]; then
+          sourceFile=${recoverFile}
+          targetFile=${date}.$(basename ${recoverFile})
        fi
+       
+       if [[ -f ${sourceFile} ]]; then
+           ${dbg} cp ${sourceFile} ${complianceNumberedLogDir}/${targetFile}
+       fi
+
+       # Remove the dat file from the fix dir, if exists
+       ${dbg} rm -f ${fixDir}/$(basename ${datFile})
    done
 
    removeFixEntriesFromPreviousDays ${date} ${complianceLogDir}
