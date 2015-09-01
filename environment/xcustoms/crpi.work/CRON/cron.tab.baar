@@ -5,7 +5,11 @@
 MAILTO=pirnog@gmail.com
 
 # Set this variable for running X-based applications
-#DISPLAY=:0
+DISPLAY=:0
+
+30 07 * * Mon-Fri bash --login -c "export DISPLAY=:0; ~/bin/manageVplatGUIs prod --logDir ~/VPlatGUILogs"
+30 22 * * Mon-Fri bash --login -c "~/bin/manageVplatGUIs stop"
+
 
 # Each weekday, check for rolling for the next few days
 #15 12 * * Mon-Fri bash --login -c "~/CRON/checkRolling.sh" > /dev/null 2>&1

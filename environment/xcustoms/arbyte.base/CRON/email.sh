@@ -14,7 +14,7 @@ sendMail()
 
     if [[ -z ${recipients} ]]; then
         recipients=${CRISTIAN}
-        message=${message}"\n\nAlso, no recipients list was specified."
+        message=$(printf "%s\n\nPS: No recipients list was specified." "${message}")
     fi
 
    mail -s "${USER}@${HOST}: ${subject}" ${recipients} << EOF
