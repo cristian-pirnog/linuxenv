@@ -334,7 +334,9 @@ mergeBranch()
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hx:c:d:D:fs:t:m:l:: -l "help,exclude:,create:,delete:,deleteRemote:,DELETE:,fetch,switch:,track:,merge:" -n "$(basename ${0})" -- "$@")
+shortOptions='hx:c:d:D:fs:t:m:l::'  # Add short options here
+longOptions='listOptions,help,exclude:,create:,delete:,deleteRemote:,DELETE:,fetch,switch:,track:,merge:'
+ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -357,6 +359,10 @@ while true; do
 	    printUsage
 	    exit 0
 	    ;;
+    --listOptions)
+        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | sed 's/[^:]/-& /g') | sed 's/://g'
+        exit 0
+        ;;
 	-x|--exclude)
 	    toExclude="${toExclude},""${2},"
 	    shift 2

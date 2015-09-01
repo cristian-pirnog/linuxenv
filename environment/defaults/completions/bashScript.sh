@@ -1,7 +1,7 @@
 _bashScript()
 {
   cur=${COMP_WORDS[COMP_CWORD]}
-  COMPREPLY=( $( compgen -W "$(${s} --listOptions)" -- $cur ) )
+  COMPREPLY=( $( compgen -W "$(${1} --listOptions)" -- $cur ) )
 }
 
 scriptDirs="${HOME}/CRON ${HOME}/bin ${HOME}/.${USER}_config"

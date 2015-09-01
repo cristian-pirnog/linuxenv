@@ -200,7 +200,7 @@ message="$(date): Binary stopped."
 ###############################
 # Check for open positions
 ###############################
-openPositions="grep -i 'Open position' ArByteLive* | grep 'shut'"
+openPositions=$(grep -i 'Open position' ArByteLive* | grep 'shut')
 if [[ -n ${openPositions} ]]; then
     sendMail "Open positions at shutdown" "${openPositions}" ${arbyteDudes}
 fi
@@ -213,8 +213,7 @@ if [[ -n $(ls | grep core.) ]]; then
     chmod g+r core.*
 
     message=${message}" Found core dump file $(ls core.*)."
-    sendMail "Core dump at shut down" "${CRISTIAN} ${BRANDON}"  << EOF
-${message}
+    sendMail "Core dump at shut down" "${message}" "${CRISTIAN} ${BRANDON}"
 EOF
 
 fi
