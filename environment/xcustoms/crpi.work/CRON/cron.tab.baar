@@ -7,7 +7,7 @@ MAILTO=pirnog@gmail.com
 # Set this variable for running X-based applications
 DISPLAY=:0
 
-30 07 * * Mon-Fri bash --login -c "export DISPLAY=:0; ~/bin/manageVplatGUIs prod --logDir ~/VPlatGUILogs"
+35 07 * * Mon-Fri bash --login -c "export DISPLAY=:0; ~/bin/manageVplatGUIs prod --logPath ~/VPlatGUILogs --noKill"
 30 22 * * Mon-Fri bash --login -c "~/bin/manageVplatGUIs stop"
 
 

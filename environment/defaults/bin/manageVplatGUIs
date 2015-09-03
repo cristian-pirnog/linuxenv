@@ -7,8 +7,7 @@ printUsage()
     
     Usage: $(basename ${0}) [-h|--help]
            $(basename ${0}) stop
-           $(basename ${0}) prod [--logPath path]
-           $(basename ${0}) [cme|eux|liffe|uat]
+           $(basename ${0}) <prod|cme|eux|liffe|uat>  [--logPath path] --noKill
  
     Description:
        Manages the Vplat GUIs
@@ -32,7 +31,10 @@ printUsage()
            Prints this help message and exits.
 
        --logPath path
-           Writes the log file to the directory given in the path
+           Writes the log file to the directory given in the path.
+
+       --noKill
+           Does not kill any GUIs that are already running.
 
 %%USAGE%%
 }
@@ -58,7 +60,7 @@ source ~/.userfunctions
 # Main script
 #----------------------------------------------
 shortOptions='h'  # Add short options here
-longOptions='help,logPath,listOptions' # Add long options here
+longOptions='listOptions,help,logPath,noKill' # Add long options here
 ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
@@ -70,6 +72,7 @@ fi
 eval set -- "$ARGS"
 
 logPath='.'
+noKill='false'
 while true; do
     case ${1} in
     --listOptions)
@@ -88,6 +91,10 @@ while true; do
 	    fi
 
 	    shift 2
+	    ;;
+	--noKill)
+	    noKill='true'
+	    shift
 	    ;;
 	--)
             shift
@@ -122,7 +129,9 @@ for arg in $@; do
     venues="${venues}${arg} "
 done
 
-killRunningGUIs 'true'
+if [[ ${noKill} == 'false' ]]; then
+    killRunningGUIs 'true'
+fi
 
 # Start the new instances
 for v in ${venues}; do
