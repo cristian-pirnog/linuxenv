@@ -67,7 +67,9 @@ makeSymLink()
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o h -l "help,nopull,noask,batch" -n "$(basename ${0})" -- "$@")
+shortOptions='h'  # Add short options here
+longOptions='help,nopull,noask,batch,listOptions' # Add long options here
+ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -81,6 +83,10 @@ noPull=false
 noAsk=false
 while true; do
     case ${1} in
+    --listOptions)
+        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | sed 's/[^:]/-& /g') | sed 's/://g'
+        exit 0
+        ;;
     -h|--help)
         printUsage
         exit 0
