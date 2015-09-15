@@ -84,7 +84,7 @@ while true; do
 	;;
     --sim)
 	usersAtHosts="cluster2 cluster"
-	targetConfigDir='scratch/cluster/config_master_ID'
+	targetConfigDir='scratch/cluster/config_master_ID/RONIN'
 	shift
 	;;
     --)
