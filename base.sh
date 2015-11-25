@@ -52,11 +52,11 @@ SaveConfigValueToCache()
 #
 UpdateFile()
 {
-    if [ ! -e $1 ]; then
-	return 0;
-    fi
-
     echo "        Making symlink $1 to $2"
+
+    if [ ! -e $1 ]; then
+        echo "Source file doesn't exist: ${1}" && return 0
+    fi
 
     # Take action only if the target dir of the symlink exists
     TARGET_PATH=`GetFilePath $2` 
@@ -106,7 +106,11 @@ InstallFromConfigFile()
       eval SOURCE_FILE=`echo $myConfig | awk '{print $1}'`
       eval TARGET_FILE=`echo $myConfig | awk '{print $2}'`
 
-      UpdateFile $lDir/$SOURCE_FILE $TARGET_FILE ${lBackUpDir}
+      if [[ ${SOURCE_FILE} = /* ]]; then
+          UpdateFile $SOURCE_FILE $TARGET_FILE ${lBackUpDir}
+      else
+          UpdateFile $lDir/$SOURCE_FILE $TARGET_FILE ${lBackUpDir}
+      fi
     done
 }
 

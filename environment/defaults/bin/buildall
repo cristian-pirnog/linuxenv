@@ -1,13 +1,14 @@
 #!/bin/bash
 
 source ~/.userfunctions
-	
+
+#----------------------------------------------	
 printUsage()
 {
 
     cat << %%USAGE%%
     
-    Usage: $(basename ${0}) [--force] [--branch name] <roc|ron> <Release|Debug> -- [buildOptions]
+    Usage: $(basename ${0}) [--force] [--branch name] [roc|ron] [Release|Debug] -- [buildOptions]
  
     Description:
        Builds all the code using CMake configurations.
@@ -28,6 +29,10 @@ printUsage()
 %%USAGE%%
 }
 
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
 ARGS=$(getopt -o '' -l "branch:,target:,force,noPy" -n ${0} -- "$@")
 
 eval set -- "$ARGS"
@@ -88,13 +93,19 @@ case ${1} in
 	shift
 	;;
     *)
-	printUsage
-	exit 1
+	client=ronin
 	;;
 esac
 
 buildType=${1}
-shift 1
+case ${buildType} in
+    'Release'|'Debug')
+	shift 1
+	;;
+    *)
+	buildType=Release
+	;;
+esac
 
 #if [[ $(pwd) != "${HOME}/code" ]]; then
 #    cd ~/code

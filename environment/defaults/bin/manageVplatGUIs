@@ -60,7 +60,7 @@ source ~/.userfunctions
 # Main script
 #----------------------------------------------
 shortOptions='h'  # Add short options here
-longOptions='listOptions,help,logPath,noKill' # Add long options here
+longOptions='listOptions,help,logPath:,noKill' # Add long options here
 ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
@@ -87,7 +87,7 @@ while true; do
 	    if [[ -d ${2} ]]; then
 		logPath=${2}
 	    else
-		echo "Log directory '${s}' does not exist. Using "
+		echo "Log directory '${2}' does not exist. Using current dir."
 	    fi
 
 	    shift 2
