@@ -214,10 +214,7 @@ if [[ -n $(ls | grep core.) ]]; then
 
     message=${message}" Found core dump file $(ls core.*)."
     sendMail "Core dump at shut down" "${message}" "${CRISTIAN} ${BRANDON}"
-EOF
-
 fi
-
 
 # At the end, run the shutdown script
 $(dirname ${0})/shutdown.sh --afterRun >> ${outputFile}
