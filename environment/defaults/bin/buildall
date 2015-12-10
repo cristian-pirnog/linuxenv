@@ -94,9 +94,10 @@ case ${1} in
 esac
 
 buildType=${1}
-supportedBuildTypes=' Release Debug -'
-if [[ -z $(echo ${supportedBuildTypes} | grep " ${buildType} ") ]]; then
+supportedBuildTypes=' Release Debug '
+if [[ -z $(echo "${supportedBuildTypes}" | egrep " ${buildType} ") ]]; then
     echo "Build type '${buildType}' not supported"
+    exit 1
 fi
 shift 1
 
