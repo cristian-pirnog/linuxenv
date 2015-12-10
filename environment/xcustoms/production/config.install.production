@@ -1,6 +1,13 @@
 # Stuff in the bin dir
 bin/keepUpToDate.sh ${HOME}/bin/keepUpToDate.sh
 
+# SSH
+.ssh/config $HOME/.ssh/config
+.ssh/known_hosts $HOME/.ssh/known_hosts
+.ssh/id_rsa.pub $HOME/.ssh/id_rsa.pub
+.ssh/id_rsa $HOME/.ssh/id_rsa
+.ssh/randomart $HOME/.ssh/randomart
+
 # Stuff in the CRON dir
 CRON/cron.tab.baar ${HOME}/CRON/cron.tab.baar
 CRON/cron.tab.luzern ${HOME}/CRON/cron.tab.luzern

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-# Script to be run from the runVPStratLauncher.sh, after the binary stops
+# Script to be run from the runVPStratLauncher.sh, before the binary starts
 
 
 #----------------------------------------------
@@ -33,7 +33,6 @@ resetBinarySequenceNumbers()
 
     local lSenderTag=$(grep sender_comp_id ${cfgDir}/${lExchange}_client.xml | awk -F'=' '{print $2}' | sed 's/"//g')
     local lTargetTag=$(grep target_comp_id ${cfgDir}/${lExchange}_client.xml | awk -F'=' '{print $2}' | sed 's/"//g')
-    echo lTargetTag=$lTargetTag
 
     if [[ -z ${lTargetTag} ]]; then
       echo "${lExchange}; "
@@ -41,9 +40,8 @@ resetBinarySequenceNumbers()
     fi
 
     local lFilePattern=${fixDir}/client.${lSenderTag}.${lTargetTag}
-    echo lFilePattern=${lFilePattern}
-    seqedit -S 1 ${lFilePattern}
-    seqedit -R 1 ${lFilePattern}
+    seqedit -S 1 ${lFilePattern} > /dev/null
+    seqedit -R 1 ${lFilePattern} > /dev/null
     return 0
 }
 
@@ -52,8 +50,6 @@ resetTextSequenceNumbers()
 {
     local lExchange=${1}
     local lSessionTag=$(grep "mkt=\"${lExchange}\"" ${binDir}/arbyte.xml |  awk -F' ' '{for(i = 1; i<NF; i++) print $i}' | grep session_id | awk -F'=' '{print $2}' | sed 's/"//g')
-
-    echo lSessionTag=${lSessionTag}
 
     if [[ -z ${lSessionTag} ]]; then
       echo "${lExchange}; "
@@ -98,15 +94,6 @@ while true; do
 done
 
 
-# If the binary still runs, exit
-if [[ ${afterRun} -ne 1 ]]; then
-    processId=$(findVPStratLauncherInstances)
-    if [[ -n "${processId}" ]]; then 
-        printf "Found binary running (process id: ${processId}). Aborting.\n"
-        exit 1
-    fi
-fi
-
 baseScript=${HOME}/CRON/base.sh
 if [[ ! -f ${baseScript} ]]; then
     printf "Could not find base script %s" ${baseScript}
@@ -116,6 +103,20 @@ fi
 # Source the base script
 source ${baseScript}
 source ${HOME}/CRON/email.sh
+
+# If the binary still runs, exit
+if [[ ${afterRun} -ne 1 ]]; then
+    processId=$(findVPStratLauncherInstances)
+
+    if [[ -n "${processId}" ]]; then 
+	exitWithEMail "Binary not started" "Found binary running (process id: ${processId})" ${arbyteDudes} ${outputFile}
+    fi
+fi
+
+
+# When debuggin script, we echo all (most) commands, instead of executing them
+dbg=echo
+dbg=''
 
 ###############################
 # Reset FIX sequence numbers
@@ -128,15 +129,6 @@ else
     # Write the date of the last reset
     echo ${date} > ${lastResetFile}
 
-    # ... at the startof the week on CME
-    currentWeekNo=$(date +%V)
-    lastResetWeekNo=$(date +%V -d ${lastResetDate})
-    if [[ ${lastResetWeekNo} -ne ${currentWeekNo} ]]; then
-        printf "\nNot necessary to resetting CME seq numbers for week %s\n\n" ${currentWeekNo}
-        #failedExchanges=${failedExchanges}$(resetTextSequenceNumbers CME)
-    else
-        printf "\nCME seq numbers were already reset for week %s on %s.\n\n" ${currentWeekNo} ${lastResetDate}
-    fi
     # ... daily on all other exchanges
     failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers EUX)
     failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers ICE)
@@ -144,10 +136,26 @@ else
     failedExchanges=${failedExchanges}$(resetBinarySequenceNumbers LIF)
 
     if [[ -n ${failedExchanges} ]]; then
-	sendMail "Error!!! Failed to reset sequence numbers" "Failed to reset sequence numbers for exchange(s) ${failedExchanges}" ${CRISTIAN}
+	${dbg} sendMail "Error!!! Failed to reset sequence numbers" "Failed to reset sequence numbers for exchange(s) ${failedExchanges}" ${CRISTIAN}
     fi
 fi
 
-# Restore any renamed recovery files
-rename "_recover.csv.${date}" '_recover.csv' ${datDir}/*
+# Restore any renamed recovery file
+${dbg} rename "_recover.csv.${date}" '_recover.csv' ${datDir}/*
+${dbg} rename "_recover.csv.${date}" '_recover.csv' ${fixDir}/*
+
+# Process the state files...
+${dbg} rm ${logDir}/*.state.atStart
+for f in $(ls ${logDir} | grep .cfg.state); do 
+    configFile=$HOME/live/configs/$(echo $f | sed 's/.state//'); 
+ 
+    # ... removing those that don't have a correspondent config file
+    if [[ ! -f ${configFile} ]]; then 
+        ${dbg} rm ${logDir}/${f}
+    # ... and copying those that do have one with extension .atStart
+    else
+        ${dbg} cp ${logDir}/${f} ${logDir}/${f}.atStart
+    fi 
+done
+
 

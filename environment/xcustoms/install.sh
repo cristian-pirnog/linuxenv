@@ -46,30 +46,16 @@ userCustomDir=${XCUSTOMS_USER}
 # Find if there are more directories for the user
 userDirs=$(ls | grep "${XCUSTOMS_USER}" | grep -v "${userBaseDir}")
 if [[ $(echo ${userDirs} | wc -w) -gt 1 ]]; then
-    echo "Found the followig user directories:"
-    echo ${userDirs} | tr ' ' '\n'
-
     defaultCustomDir=$(GetCachedConfigValue DEFAULT_CUSTOM_DIR)
 
     message="Choose which to install"
-    while true; do
-	if [[ -n ${defaultCustomDir} ]]; then
-	    message=${message}" (default ${defaultCustomDir})"
-	fi
-	printf "%s" "${message}: "
-	read userCustomDir
-    
-	if [[ -z ${userCustomDir} ]] && [[ -n ${defaultCustomDir} ]]; then
-	    userCustomDir=${defaultCustomDir}
-	fi
+    if [[ -n ${defaultCustomDir} ]]; then
+	userCustomDir=${defaultCustomDir}
+	message=${message}" (default ${defaultCustomDir})"
+    fi
 
-	# Check that the chosen directory exists
-	if [[ -d ${userCustomDir} ]]; then
-	    break
-	else
-	    message="Directory '${userCustomDir}' is not in the list. Choose again: "
-	fi
-    done
+    echo ""
+    AskForValueInList "${message}" userCustomDir ${userDirs}
 fi
 SaveConfigValueToCache DEFAULT_CUSTOM_DIR ${userCustomDir}
 

@@ -43,20 +43,20 @@ SaveConfigValueToCache()
     echo "${1}=${2}" >> ${lCacheFile}
 }
 
-##
-# Function 'UpdateFile'
-##
+#----------------------------------------------
+# Function UpdateFile
+#----------------------------------------------
 # Arguments: $1 = SOURCE_FILE
 #            $2 = DESTINATION_FILE
 #            $3 = BACK_UP_DIR
 #
 UpdateFile()
 {
-    if [ ! -e $1 ]; then
-	return 0;
-    fi
-
     echo "        Making symlink $1 to $2"
+
+    if [ ! -e $1 ]; then
+        echo "Source file doesn't exist: ${1}" && return 0
+    fi
 
     # Take action only if the target dir of the symlink exists
     TARGET_PATH=`GetFilePath $2` 
@@ -82,9 +82,9 @@ UpdateFile()
 }
 
 
-##
+#----------------------------------------------
 # Function 'InstallFromConfigFile'
-##
+#----------------------------------------------
 # Arguments: $1 = SOURCE_DIR
 #            $2 = CONFIG_FILE
 #
@@ -106,6 +106,65 @@ InstallFromConfigFile()
       eval SOURCE_FILE=`echo $myConfig | awk '{print $1}'`
       eval TARGET_FILE=`echo $myConfig | awk '{print $2}'`
 
-      UpdateFile $lDir/$SOURCE_FILE $TARGET_FILE ${lBackUpDir}
+      if [[ ${SOURCE_FILE} = /* ]]; then
+          UpdateFile $SOURCE_FILE $TARGET_FILE ${lBackUpDir}
+      else
+          UpdateFile $lDir/$SOURCE_FILE $TARGET_FILE ${lBackUpDir}
+      fi
     done
+}
+
+#----------------------------------------------
+# Function AskForValue
+#----------------------------------------------
+# Arguments: $1 = Question
+#            $2 = Variable to write into
+#
+#
+AskForValue()
+{
+    local lQuestion="${1}"
+
+    if [[ ${noAsk} = false ]]; then
+	printf "${lQuestion}"
+	local lAnswer && read lAnswer
+	if [[ -n ${lAnswer} ]]; then
+	    local "$2" && upvar $2 ${lAnswer}
+	fi
+    fi
+}
+
+#----------------------------------------------
+# Function AskForValueInList
+#----------------------------------------------
+# Arguments: $1 = Question
+#            $2 = Variable to write into
+#
+AskForValueInList()
+{
+    local lQuestion="${1}"
+    local lDefaultValue="${2}"
+    local lList=("${@:3}")
+
+    if [[ ${noAsk} = false ]]; then
+	while true; do
+	    echo "Options:"
+	    echo ${lList[@]} | tr ' ' '\n' | awk '{print "  "$0}'
+	    printf "${lQuestion}: "
+	    local lAnswer && read lAnswer
+	    
+	    if [[ -z ${lAnswer} ]] && [[ -n ${lDefaultValue} ]]; then
+		eval 'lAnswer=${'$2'}'
+	    fi
+	    
+	    for i in $(seq 0 ${#lList[@]}); do
+		if [[ ${lList[$i]} = ${lAnswer} ]]; then
+    		    local "$2" && upvar $2 ${lAnswer}
+		    return
+		fi
+	    done
+
+	    lQuestion="Value '${lAnswer}' is not in the list. Choose again"
+	done
+    fi
 }

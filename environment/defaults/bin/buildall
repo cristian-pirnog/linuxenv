@@ -1,13 +1,14 @@
 #!/bin/bash
 
 source ~/.userfunctions
-	
+
+#----------------------------------------------	
 printUsage()
 {
 
     cat << %%USAGE%%
     
-    Usage: $(basename ${0}) [--force] [--branch name] <roc|ron> <Release|Debug> -- [buildOptions]
+    Usage: $(basename ${0}) [--force] [--branch name] [roc|ron] [Release|Debug] -- [buildOptions]
  
     Description:
        Builds all the code using CMake configurations.
@@ -28,6 +29,10 @@ printUsage()
 %%USAGE%%
 }
 
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
 ARGS=$(getopt -o '' -l "branch:,target:,force,noPy" -n ${0} -- "$@")
 
 eval set -- "$ARGS"
@@ -88,8 +93,7 @@ case ${1} in
 	shift
 	;;
     *)
-	printUsage
-	exit 1
+	client=ronin
 	;;
 esac
 
@@ -104,19 +108,6 @@ shift 1
 #if [[ $(pwd) != "${HOME}/code" ]]; then
 #    cd ~/code
 #fi
-
-# Specify which projects we want to build
-if [[ -z ${PROJECTS_TO_BUILD} ]]; then
-    PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live ${client}/support ${client}/optimizer ${client}/live" # unit_tests/katania"
-else
-    PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace '__client__' "${client}")
-fi
-
-
-## Add portfolio build, only if not specified in the environment otherwise
-if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
-    PROJECTS_TO_BUILD="${PROJECTS_TO_BUILD} drogon/src/C"
-fi
 
 threadCount=$(($(nproc) - 1))
 if [[ ${threadCount} < 1 ]]; then
@@ -138,12 +129,27 @@ if [[ -z ${branchName} ]]; then
     fi
 fi
 
-if [[ ${branchName} == 'whole_book' ]]; then
-    PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace 'katania' 'katania simulation')" load_test"
-fi
+branchBuildFile="${HOME}/${branchName}.build"
+# If the build file for the branch exists, set the projects to build from it
+printf '\nLooking for branch build file: %s...    ' ${branchBuildFile}
+if [[ -f ${branchBuildFile} ]]; then
+    printf "Found!\n\tLoading projects to build: "
+    PROJECTS_TO_BUILD=$(cat ${branchBuildFile})
+    printf '%s\n\n' "${PROJECTS_TO_BUILD}"
+# Otherwise, set the default ones, in case PROJECTS_TO_BUILD is not defined in the environment
+else
+    printf 'Not found.\n'
+    # Specify which projects we want to build
+    if [[ -z ${PROJECTS_TO_BUILD} ]]; then
+	PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live ${client}/support ${client}/optimizer ${client}/live" # unit_tests/katania"
+    else
+	PROJECTS_TO_BUILD=$(echo ${PROJECTS_TO_BUILD} | replace '__client__' "${client}")
+    fi
 
-if [[ ${branchName} == 'MRTR' ]]; then
-    PROJECTS_TO_BUILD='katania simulation load_test'
+    ## Add portfolio build, only if not specified in the environment otherwise
+    if [[ ${SKIP_PORTFOLIO_BUILD} -ne 1 ]]; then
+	PROJECTS_TO_BUILD="${PROJECTS_TO_BUILD} drogon/src/C"
+    fi
 fi
 
 # Remove the target build dirs, if requested
@@ -166,6 +172,12 @@ done
 
 if [[ -n $(echo $@|grep 'install') ]]; then
     libDir=~/deploy/${branchName}/${buildType}/lib/
+    # Copy the Ronin lib(s)
     cp -r ~/code/ronin/libs/kfc/lib/libkfcData.so ${libDir}
-    touch ~/deploy/${branchName}/${buildType}/lib/${client}/__init__.py
+    # Record the branch name (useful when deploying to prod)
+    echo ${branchName} > ${libDir}/branch.txt
+
+    if [[ -n $(echo ${PROJECTS_TO_BUILD} | grep drogon) ]]; then
+	touch ~/deploy/${branchName}/${buildType}/lib/${client}/__init__.py
+    fi
 fi

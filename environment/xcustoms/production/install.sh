@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # Cron run times: script name HH MM
-cronRunTimes='createBookConfigs.sh 22 30
-deploySoftware 22 40'
+cronRunTimes='createBookConfigs.sh 20 30
+deploySoftware 22 35
+updateProductionMachine 23 30
+checkForRunningBinariesInProduction.sh 23 30'
 
 # The list of hosts where the user is deployed
 hosts='baar

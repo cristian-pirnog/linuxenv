@@ -139,5 +139,6 @@
 (add-hook 'latex-mode-hook (load "latexLisp.el"))
 (add-hook 'java-mode-hook (load "javaLisp.el"))
 (add-hook 'cc-mode-hook (load "ccLisp.el"))
+(add-hook 'sh-mode-hook (load "shLisp.el"))
 
 (setq gdb-command-name "gdb --annotate=1")

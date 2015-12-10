@@ -2,6 +2,7 @@ metacity $HOME/.gconf/apps/metacity
 .dircolors $HOME/.dircolors
 .eclipse.dict $HOME/.eclipse.dict
 synergy.conf $HOME/.synergy.conf
+.Xdefaults $HOME/.Xdefaults
 #
 # Files from '.ssh' directory
 #

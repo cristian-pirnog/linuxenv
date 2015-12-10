@@ -9,8 +9,9 @@ cat << %%USAGE%%
      Usage: $(basename ${0}) -h
             $(basename ${0}) --prod host
             $(basename ${0}) --test host
+            $(basename ${0}) --sim host
             $(basename ${0}) --all host
-            $(basename ${0}) --user userNames host
+            $(basename ${0}) --user userName --path targetPath host
 
     Description:
         Update the configurations for the production environment on the given host.
@@ -29,8 +30,11 @@ cat << %%USAGE%%
        --all
             Updates the environment for all arbyte users.
 
-       --user userNames
-            Updates the environment for the given userNames.
+       --user userName
+            Updates the environment for the given userName.
+
+       --path targetPath
+            Updates the environment using the specified target path.
 
 %%USAGE%%
 }
@@ -39,7 +43,7 @@ cat << %%USAGE%%
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o h -l "help,prod,test,all,user:" -n "$(basename ${0})" -- "$@")
+ARGS=$(getopt -o h -l "help,prod,test,sim,all,user:,path:" -n "$(basename ${0})" -- "$@")
 scriptOptions=$(echo ${ARGS} | awk -F ' -- ' '{print $1}')
 
 # If wrong arguments, print usage and exit
@@ -50,6 +54,7 @@ fi
 
 eval set -- "$ARGS"
 
+targetConfigDir='scratch/cluster/config/RONIN'
 userNames=""
 while true; do
     case ${1} in
@@ -69,10 +74,19 @@ while true; do
 	userNames="arbytetest arbyteprod"
         shift
         ;;
-    --local)
+    --user)
 	userNames="${2}"
-        shift 2
-        ;;
+	shift 2
+	;;
+    --path)
+        targetConfigDir="${2}"
+	shift 2
+	;;
+    --sim)
+	usersAtHosts="cluster2 cluster"
+	targetConfigDir='scratch/cluster/config_master_ID/RONIN'
+	shift
+	;;
     --)
         shift
         break
@@ -84,28 +98,53 @@ while true; do
     esac
 done
 
-if [[ $# -lt 1 ]]; then
-    printUsage
-    exit 1
+if [[ $# -gt 0 ]]; then
+    usersAtHosts="$@"
 fi
 
-hostName=${1}
-shift
+if [[ -z ${usersAtHosts} ]]; then
+    if [[ $# -lt 1 ]]; then
+	printUsage
+	exit 1
+    fi
+    hostNames=$@
+    for arg in ${hostNames}; do
+	if [[ ${arg} == 'all' ]]; then
+	    hostNames="cme eux liffe"
+	    break
+	fi
+    done
 
-if [[ -z ${userNames} ]]; then
-    printf "\n---------------------------------------------\n"
-    printf "Must specify the target user. See usage below"
-    printf "\n---------------------------------------------\n\n"
-    printUsage
-    exit 1
+    if [[ -z ${userNames} ]]; then
+	printf "\n---------------------------------------------\n"
+	printf "Must specify the target user. See usage below"
+	printf "\n---------------------------------------------\n\n"
+	printUsage
+	exit 1
+    fi
+    
+    for hostName in ${hostNames}; do
+	for user in ${userNames}; do
+	    usersAtHosts=${usersAtHosts}" "${user}@${hostName}
+	done
+    done
 fi
+
 
 rsyncCommand="rsync -azvhq"
-for user in ${userNames}; do
-    userAtHost=${user}@${hostName}
-    printf "Updating for ${userAtHost}...\t"
-    targetConfigDir='scratch/cluster/config/RONIN'
-    ssh -A ${userAtHost} "mkdir -p '${targetConfigDir}'"
-    ${rsyncCommand} /mnt/config/RONIN/*.csv ${userAtHost}:${targetConfigDir}
+for userAtHost in ${usersAtHosts}; do
+    printf "Updating for ${userAtHost}...  \t"
+    
+    ssh -A ${userAtHost} "mkdir -p '${targetConfigDir}'" > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        printf "[Failed]\n"
+        continue
+    fi
+    
+    ${rsyncCommand} /mnt/config/RONIN/*.csv ${userAtHost}:${targetConfigDir} > /dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        printf "[Failed]\n"
+        continue
+    fi
     printf "[Done]\n"
 done

@@ -70,13 +70,16 @@ fi
 monitoringDir="${HOME}/code/ronin/libs/monitoring/VplatGUI/"
 
 # Fetch the venues for which to start the GUI's
-venues=${1}
-if [[ ${venues} == 'prod' ]]; then
-    venues=$(ls ${monitoringDir} | grep -v uat)
-elif [[ ! -d ${monitoringDir}/${venues} ]]; then
-    printf "\nUnsuported venue: %s.\n\n" ${venues}
-    printUsage && exit 1
-fi
+for arg in $@; do
+    if [[ ${arg} == 'prod' ]]; then
+	venues=$(ls ${monitoringDir} | grep -v uat)
+	break
+    elif [[ ! -d ${monitoringDir}/${arg} ]]; then
+	printf "\nUnsuported venue: %s.\n\n" ${venues}
+	printUsage && exit 1
+    fi
+    venues="${venues}${arg} "
+done
 
 # Check for running instances
 processIds=$(fp com.bbl.gui.StartVplatGui | awk '{print $1}')
@@ -87,7 +90,6 @@ fi
 # Start the new instances
 outfile="output.$(date +%Y%m%d-%H%M%S).log"
 for v in ${venues}; do
-    echo v=${v}
     cd ${monitoringDir}/${v} && (./rungui > ${outfile} &) && cd - > /dev/null
 done
 

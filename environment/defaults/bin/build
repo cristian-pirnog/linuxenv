@@ -94,7 +94,7 @@ cmakeBuild()
     cd ${lBuildDir}
     
     printf "Running cmake...\n\n"
-    cmake -DCMAKE_INSTALL_PREFIX=${HOME}/code ${lCmakeOptions} ${lCodeDir} -DCMAKE_LIBRARY_TYPE=${lLibraryType} -DBUILD_OUTPUT_DIR=$(pwd) -DPROJECT_BRANCH=${lBranchName} -DCMAKE_BUILD_TYPE=${buildType}|| return 1
+    cmake -DCMAKE_INSTALL_PREFIX=${lCodeDir} ${lCmakeOptions} ${lCodeDir} -DCMAKE_LIBRARY_TYPE=${lLibraryType} -DBUILD_OUTPUT_DIR=$(pwd) -DPROJECT_BRANCH=${lBranchName} -DCMAKE_BUILD_TYPE=${buildType}|| return 1
 
     printf "\n\nRunning make $s...\n\n" ${lOption}
     make ${lOption} ${moreLOptions} $*

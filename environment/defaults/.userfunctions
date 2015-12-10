@@ -3,17 +3,18 @@
 shopt -s expand_aliases
 . ~/.aliases
 
+
 #----------------------------------------------
 # General functions
 #----------------------------------------------
 getAnswer()
 {
     # Pop the question
-    local question="${1}"
+    local question="${@}"
     if [[ -z ${question} ]]; then
 	question="Would you like to continue?"
     fi
-    question=${question}" [y\n]"
+    question="${question} [y\n]"
     printf "%s " "${question}"
 
     # Get the answer
@@ -28,6 +29,35 @@ getAnswer()
 }
 
 #----------------------------------------------
+# Function upvar
+#----------------------------------------------
+# Assign variable one scope above the caller
+# Usage: local "$1" && upvar $1 "value(s)"
+# Param: $1  Variable name to assign value to
+# Param: $*  Value(s) to assign.  If multiple values, an array is
+#            assigned, otherwise a single value is assigned.
+# NOTE: For assigning multiple variables, use 'upvars'.  Do NOT
+#       use multiple 'upvar' calls, since one 'upvar' call might
+#       reassign a variable to be used by another 'upvar' call.
+# Example: 
+#
+#    f() { local b; g b; echo $b; }
+#    g() { local "$1" && upvar $1 bar; }
+#    f  # Ok: b=bar
+#
+upvar() 
+{
+    if unset -v "$1"; then           # Unset & validate varname
+        if (( $# == 2 )); then
+            eval $1=\"\$2\"          # Return single value
+        else
+            eval $1=\(\"\${@:2}\"\)  # Return array
+        fi
+    fi
+}
+
+
+#----------------------------------------------
 getAlignSize()
 {
     local list="$*"
@@ -40,7 +70,12 @@ getAlignSize()
     echo ${alignSize}
 }
 
-
+#----------------------------------------------
+exitWithError()
+{
+    printf "$@\nExiting.\n"
+    exit 1
+}
 
 #----------------------------------------------
 vif()
