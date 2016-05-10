@@ -1,5 +1,0 @@
-source ~/.aliases_functions
-
-MakeCDAlias cdf ${HOME}/production/framework
-
-alias acmt='add && cmt'

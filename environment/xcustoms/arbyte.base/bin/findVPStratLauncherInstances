@@ -1,4 +1,0 @@
-#!/bin/bash
-
-# Note: cmd must stay at the end, such that it is printed in full
-ps -e -opid,ruser:20,cmd|grep " ${USER} " |grep './VPStratLauncher' | grep ' --stratname ArByte' | grep -v 'grep ' | awk '{print $1}'
