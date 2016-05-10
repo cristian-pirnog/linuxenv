@@ -1,6 +1,6 @@
 # -*- mode: sh -*- #
 
-export PATH=$PATH:${HOME}/code/drogon/src/scripts:/usr/local/bin
+export PATH=${HOME}/.cabal/bin:$PATH:${HOME}/code/drogon/src/scripts:/usr/local/bin
 export PYTHONPATH=${PYTHONPATH}:/home/${USER}/code/drogon/src/python
 
 export HISTIGNORE="&:l:[bf]g:exit"
@@ -28,9 +28,4 @@ fi
 if [[ -f ~/.dircolors ]]; then eval `dircolors ~/.dircolors`; fi
 
 source ~/.userfunctions
-
-export IN_SWITZERLAND=1
-for f in ~/completions/*; do
-    source $f
-done
 

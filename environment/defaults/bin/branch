@@ -7,15 +7,15 @@ printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) [-h]
-            $(basename ${0}) [-xprj1[,prj2,...]] <-c|--create>  branchName
-            $(basename ${0}) [-xprj1[,prj2,...]] <-d|--delete>  branchName
-            $(basename ${0}) [-xprj1[,prj2,...]] --deleteRemote  branchName
-            $(basename ${0}) [-xprj1[,prj2,...]] <-D|--DELETE>  branchName
-            $(basename ${0}) [-xprj1[,prj2,...]] <-f|--fetch> 
-            $(basename ${0}) [-xprj1[,prj2,...]] <-s|--switch>  branchName
-            $(basename ${0}) [-xprj1[,prj2,...]] <-t|--track>   [branchName]
-            $(basename ${0}) [-xprj1[,prj2,...]] <-m|--merge>   fromBranch toBranch 
-            $(basename ${0}) [-xprj1[,prj2,...]] <-l|--list> [s] [all]
+            $(basename ${0}) [options] <-c|--create>  branchName
+            $(basename ${0}) [options] <-d|--delete>  branchName
+            $(basename ${0}) [options] --deleteRemote branchName
+            $(basename ${0}) [options] <-D|--DELETE>  branchName
+            $(basename ${0}) [options] <-f|--fetch> 
+            $(basename ${0}) [options] <-s|--switch>  branchName [--force]
+            $(basename ${0}) [options] <-t|--track>   [branchName]
+            $(basename ${0}) [options] <-m|--merge>   fromBranch toBranch 
+            $(basename ${0}) [options] <-l|--list> [s|all|uniq]
 
     Description:
        Manage (create/delete/switch/etc.) branches for all checked-out products.
@@ -29,6 +29,7 @@ cat << %%USAGE%%
        --exclude prj1,prj2,...
              The listed projects will be excluded.
 
+    Tasks
        -c branchName
        --create branchName
              Create branches branchName (one for each project). 
@@ -110,8 +111,12 @@ checkLocalChanges()
     if [[ -n ${lBranchesWithChanges} ]]; then
 	printf "\nThe following branches have local changes\n"
 	echo "${lBranchesWithChanges}"
-	printf "\nCommit/stash changes before ${lActivity}ing.\n"
-	return 1
+	if [[ ${forceAction} == True ]]; then
+	    printf "\n Forcing ${lActivity}.\n"
+	else
+	    printf "\nCommit/stash changes before ${lActivity}ing.\n"
+	    return 1
+	fi
     fi
     return 0
 
@@ -335,7 +340,7 @@ mergeBranch()
 # Main script
 #----------------------------------------------
 shortOptions='hx:c:d:D:fs:t:m:l::'  # Add short options here
-longOptions='listOptions,help,exclude:,create:,delete:,deleteRemote:,DELETE:,fetch,switch:,track:,merge:'
+longOptions='listOptions,help,exclude:,create:,delete:,deleteRemote:,DELETE:,fetch,switch:,track:,merge:,force'
 ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
@@ -346,25 +351,22 @@ fi
 
 eval set -- "$ARGS"
 
-# Go th the code directory - don't do it! Bad when you have multiple copies of the code.
-#if [[ $(pwd) != "${HOME}/code" ]]; then
-#    cd ~/code
-#fi
-
 ## Parse options
 toExclude=""
+forceAction=False
 while true; do
     case ${1} in
 	-h|--help)
 	    printUsage
 	    exit 0
 	    ;;
-    --listOptions)
-        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | sed 's/[^:]/-& /g') | sed 's/://g'
-        exit 0
+	--listOptions)
+            echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | \
+	 	sed 's/[^:]/-& /g') | sed 's/://g'
+            exit 0
         ;;
 	-x|--exclude)
-	    toExclude="${toExclude},""${2},"
+	    toExclude="${toExclude}""${2},"
 	    shift 2
 	    ;;
 	-c|--create)
@@ -405,6 +407,10 @@ while true; do
 	    task='mergeBranch'
 	    arguments=${2}
 	    shift 2
+	    ;;
+	--force)
+	    forceAction=True
+	    shift
 	    ;;
 	-l)
 	    if [[ ${2} == 'uniq' ]]; then
@@ -451,12 +457,29 @@ fi
 ## Run checks for the given task
 check_${task} ${arguments} $* || exit 1
 
+
+if [[ $(echo "${toExclude}"|grep ' '|lc) > 0 ]]; then
+    echo "Projects to exclude contain spaces, which is not supported."
+    exit 1
+fi
+
+toExclude=$(echo ${toExclude} | sed 's/ /\ /g' | sed 's/,$//' | sed "s/,/ /g")
+
 # Then run the task
 for d in ${gitDirs}; do
-    if [[ -n $(echo ${toExclude} | grep ",${d},") ]]; then
+    skipProject=0
+    for e in ${toExclude}; do
+	if [[ $(echo ${d}|grep ${e}|lc) > 0 ]]; then
+	    skipProject=1
+	    break
+	fi
+    done
+
+    if [[ ${skipProject} -eq 1 ]]; then
 	echo "Skipping project ${d}"
 	continue
     fi
+
     cd ${d}
     n=$(( alignSize - ${#d} ))
     output=$(${task} ${arguments} $* 2>&1)

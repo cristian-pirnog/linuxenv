@@ -17,11 +17,19 @@ test -f ${HOME}/.userenv_custom.base && source ${HOME}/.userenv_custom.base
 test -f ${HOME}/.userenv_custom && source ${HOME}/.userenv_custom
 
 ##
-# Last, source user aliases
+# Source user aliases
 ##
 test -f ${HOME}/.aliases && source ${HOME}/.aliases
 test -f ${HOME}/.aliases_custom.base && source ${HOME}/.aliases_custom.base
 test -f ${HOME}/.aliases_custom && source ${HOME}/.aliases_custom
+
+##
+# And do stuff for completions
+##
+for f in ~/completions/*; do
+    source $f
+done
+
 
 # Set the file masks
 umask 002
