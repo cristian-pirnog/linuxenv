@@ -14,7 +14,3 @@ bin/from_unixtime_ms $HOME/bin/from_unixtime_ms
 bin/myXterm $HOME/bin/myXterm
 bin/twoTerms $HOME/bin/twoTerms
 bin/coolSsh $HOME/bin/coolSsh
-#
-# Files from 'useful' directory
-#
-useful/firefox/searchplugins $HOME/.mozilla/firefox/*.default/searchplugins

@@ -29,7 +29,7 @@ InstallFromDir()
     else
 	printf "Could not find config file: ${lFullFileName}\n"
     fi
-    
+
     # Run the custom install script (if it exists)
     if [[ -f ${lDirName}/${INSTALL_SCRIPT} ]]; then
 	cd $lDirName
