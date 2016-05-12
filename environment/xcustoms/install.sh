@@ -56,6 +56,8 @@ if [[ $(echo ${userDirs} | wc -w) -gt 1 ]]; then
 
     echo ""
     AskForValueInList "${message}" userCustomDir ${userDirs}
+elif [[ $(echo ${userDirs} | wc -w) -eq 1 ]]; then
+    userCustomDir=${userDirs}
 fi
 SaveConfigValueToCache DEFAULT_CUSTOM_DIR ${userCustomDir}
 

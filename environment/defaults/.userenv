@@ -27,5 +27,5 @@ fi
 # Use custom colors for 'ls' instead of the default ones
 if [[ -f ~/.dircolors ]]; then eval `dircolors ~/.dircolors`; fi
 
-source ~/.userfunctions
+if [[ -f ~/.userfunctions ]]; then source ~/.userfunctions; fi
 

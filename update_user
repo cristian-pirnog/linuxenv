@@ -110,7 +110,7 @@ while true; do
     esac
 done
 
-source ~/.userenv
+source ./environment/defaults/.userenv
 source base.sh
 
 TARGET_DIRECTORY=$HOME/.${USER}_config
