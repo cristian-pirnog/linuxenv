@@ -1,5 +1,4 @@
 # Files from '.ssh' directory
-.ssh/known_hosts $HOME/.ssh/known_hosts
 bin/optimizer.sh $HOME/bin/optimizer.sh
 bin/findMbbaFile.sh $HOME/bin/findMbbaFile.sh
 bin/rsyncScript.sh $HOME/bin/rsyncScript.sh

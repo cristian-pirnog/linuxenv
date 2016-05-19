@@ -1,7 +1,7 @@
 #
 # Files from '.ssh' directory
 #
-.ssh/known_hosts $HOME/.ssh/known_hosts
+
 #
 # Files from 'bin' directory
 #
