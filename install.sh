@@ -62,7 +62,7 @@ for myFile in ~/.ssh/config ~/.ssh/known_hosts ~/.netrc
 do
     # If the file is a symlink, 
     if [[ -L ${myFile} ]]; then
-	myTargetFile=$(ls -AFl ${myFile} | awk '{print $NF}')
+	myTargetFile=$(ls -Al --file-type ${myFile} | awk '{print $NF}')
     else
 	myTargetFile=${myFile}
     fi

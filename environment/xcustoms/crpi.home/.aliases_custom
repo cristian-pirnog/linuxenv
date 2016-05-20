@@ -1,7 +1,4 @@
 # -*- mode: sh -*- #
 
-alias install='sudo yum install'
-alias mountWork='sudo mount 10.199.10.10:/home/crpi /mnt/crpi.work'
-alias unmountWork='sudo umount /mnt/crpi.work'
 #alias home='switchWiredNetwork.sh home'
 #alias work='switchWiredNetwork.sh work'

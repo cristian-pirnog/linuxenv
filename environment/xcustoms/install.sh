@@ -19,7 +19,7 @@ LinkStandardFile()
 InstallFromDir()
 {
     local lDirName="${1}"
-    local lUserConfigFile="config.install.${XCUSTOMS_USER}"
+    local lUserConfigFile="user.config.install" #${XCUSTOMS_USER}"
     local lFullFileName="$lDirName/$lUserConfigFile"
 
     if [[ -f ${lFullFileName} ]]; then
