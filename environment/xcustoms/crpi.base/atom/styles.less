@@ -1,0 +1,27 @@
+atom-text-editor::shadow .comment{color: #ffe600}
+atom-text-editor::shadow .string{color: #00ff00; font-style: italic}
+
+@pitch-black: hsl(222, 8%, 2%);
+
+atom-workspace { background-color: @pitch-black; }
+
+.tab-bar {
+  font-size: 14px;
+  font-style: italic;
+  font-weight: bold;
+  background-color: @pitch-black;
+  color: white;
+  .tab {
+    background-color: @pitch-black;
+    .title {background-color: @pitch-black;}
+  }
+}
+
+.theme-one-dark-ui {
+  atom-text-editor { background-color: @pitch-black; }
+  .editor.mini { background-color: @pitch-black; }
+  .tree-view { background-color: @pitch-black;  }
+  .build-tab { background-color: @pitch-black;  }
+  .status-bar { background-color: @pitch-black;  }
+  .tool-panel { background-color: @pitch-black;  }
+}

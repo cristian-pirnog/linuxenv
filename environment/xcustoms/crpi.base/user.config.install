@@ -15,4 +15,5 @@ bin/myXterm $HOME/bin/myXterm
 bin/twoTerms $HOME/bin/twoTerms
 bin/coolSsh $HOME/bin/coolSsh
 
-atom.init.coffee $HOME/.atom/init.coffee
+atom/atom.init.coffee $HOME/.atom/init.coffee
+atom/styles.less ${HOME}/.atom/styles.less
