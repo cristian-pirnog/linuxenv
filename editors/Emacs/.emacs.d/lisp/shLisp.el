@@ -40,7 +40,6 @@
 	(insert "    exit 1;\n")
 	(insert "fi\n\n")
 	(insert "eval set -- \"$ARGS\"\n\n")
-	(insert "userNames=\"\"\n")
 	(insert "while true; do\n")
 	(insert "    case ${1} in\n")
     (insert "    --listOptions)\n")
