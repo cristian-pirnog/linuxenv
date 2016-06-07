@@ -7,8 +7,8 @@ MAILTO=pirnog@gmail.com
 # Set this variable for running X-based applications
 DISPLAY=:0
 
-35 07 * * Mon-Fri bash --login -c "export DISPLAY=:0; ~/bin/manageVplatGUIs prod --logPath ~/VPlatGUILogs --noKill"
-30 22 * * Mon-Fri bash --login -c "~/bin/manageVplatGUIs stop"
+#35 07 * * Mon-Fri bash --login -c "export DISPLAY=:0; ~/bin/manageVplatGUIs prod --logPath ~/VPlatGUILogs --noKill"
+#30 22 * * Mon-Fri bash --login -c "~/bin/manageVplatGUIs stop"
 
 
 # Each weekday, check for rolling for the next few days

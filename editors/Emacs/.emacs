@@ -4,6 +4,7 @@
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/modes"))
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/cedet-1.1/common"))
 
+
 ;; Improved dynamic completion
 (load-file "~/.dabbrev/dabbrev.elc")
 
@@ -129,11 +130,24 @@
 ;; Load special modes (defined in lisp/modes)
 (load "matlab-mode.el")
 (load "savehist-mode.el")
+(load "cython-mode.el")
 
 ;; savehist stuff
 (setq savehist-additional-variables '(kill-ring search-ring regexp-search-ring))
 (savehist-mode 1)
 
+;; Python stuff
+(add-hook 'python-mode-hook
+      (lambda ()
+        (setq indent-tabs-mode f)
+        (setq tab-width 4)
+        (setq python-indent 4)))
+
+(add-hook 'cython-mode-hook
+      (lambda ()
+        (setq indent-tabs-mode f)
+        (setq tab-width 4)
+        (setq python-indent 4)))
 
 ;; Load some custom lisp only when their mode is activated
 (add-hook 'latex-mode-hook (load "latexLisp.el"))
