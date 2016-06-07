@@ -125,14 +125,6 @@ allSourceFiles()
 }
 
 #----------------------------------------------
-listRepos()
-{
-    for f in $(find . -maxdepth 5 -type d -name .git | sort); do
-	dirname $f | sed 's_^\./__g'
-    done
-}
-
-#----------------------------------------------
 isGitRepo()
 {
     myDir=$(pwd)

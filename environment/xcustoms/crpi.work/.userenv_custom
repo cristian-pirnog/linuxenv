@@ -2,6 +2,8 @@
 
 test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
 
+export PATH=${HOME}/.local/bin:$PATH:/usr/local/bin:${HOME}/.local/bin
+
 # Inhibits some crap WARNING from Emacs (Couldn't register with accessibility bus...)
 export NO_AT_BRIDGE=1
 

@@ -1,6 +1,6 @@
 # -*- mode: sh -*- #
 
-export PATH=$PATH:${HOME}/code/drogon/src/scripts:/usr/local/bin
+export PATH=:$PATH:/usr/local/bin
 export PYTHONPATH=${PYTHONPATH}:/home/${USER}/code/drogon/src/python
 
 export HISTIGNORE="&:l:[bf]g:exit"
@@ -27,10 +27,5 @@ fi
 # Use custom colors for 'ls' instead of the default ones
 if [[ -f ~/.dircolors ]]; then eval `dircolors ~/.dircolors`; fi
 
-source ~/.userfunctions
-
-export IN_SWITZERLAND=1
-for f in ~/completions/*; do
-    source $f
-done
+if [[ -f ~/.userfunctions ]]; then source ~/.userfunctions; fi
 

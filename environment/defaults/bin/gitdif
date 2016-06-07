@@ -74,9 +74,9 @@ if [[ -d .user ]]; then
         TYPE=`echo "$FILE_STRING" | awk '{print $1}'`
         FILE=`echo "$FILE_STRING" | awk '{print $NF}'`
 
-	#if [[ $(is3rdParty ${FILE}) == 0 ]] && [[ -f ${FILE} ]]; then
-	#    copyright ${FILE}
-	#fi
+    	#if [[ $(is3rdParty ${FILE}) == 0 ]] && [[ -f ${FILE} ]]; then
+	    #    copyright ${FILE}
+	    #fi
 	
         # Check whether it should put the whole path (defaults to YES)
         if [[ -f ".user/.shortpath" ]]; then 

@@ -1,19 +1,103 @@
 #!/bin/bash
 
-source ~/.userfunctions
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) -h
+            $(basename ${0}) [-m msg]
+
+    Description:
+        Commits all changes staged into git.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       -m msg
+	     Uses the provided message instead of fetching it from the 
+	        "${logFile}" file.
+	     
+%%USAGE%%
+}
+
 
 #----------------------------------------------
 # Main script
 #----------------------------------------------
 
 logFile='.user/git.log'
-    	    
-if [[ -f .git/MERGE_HEAD ]]; then
-    echo "Looks like you're about to commit a merge"
-    rm ${logFile}
+
+shortOptions='hm:'  # Add short options here
+longOptions='help,listOptions' # Add long options here
+ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
 fi
 
-if [[ -f $logFile ]]; then
+eval set -- "$ARGS"
+
+message=""
+while true; do
+    case ${1} in
+    --listOptions)
+        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | 
+            sed 's/[^:]/-& /g') | sed 's/://g'
+        exit 0
+        ;;
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    -m)
+        message=${2}
+        shift 2
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # This is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
+
+
+# When debuggin script, we echo all (most) commands, instead of executing them
+dbg=echo
+dbg=''
+
+source ~/.userfunctions
+
+
+# If we're commiting a merge, just run git commit
+if [[ -f .git/MERGE_HEAD ]]; then
+    echo "Looks like you're about to commit a merge"
+    git commit
+    exit
+fi
+
+# Check for empty log file
+if [[ ! -f $logFile ]]; then
+    emptyLogFile=0
+else
+    test -s ${logFile}
+    emptyLogFile=$?
+    echo emptyLogFile=${emptyLogFile}
+fi
+
+if [[ -n ${message} ]]; then
+    if [[ ${emptyLogFile} -ne 0 ]]; then
+	getAnswer "Git log file not empty: ${logFile}. Ignore and proceed?" || exit 0
+    fi
+    git commit -m "${message}"
+else
     echo " "
     NON_REPO_FILES=`st --porcelain | grep '?'`
     if [ ${#NON_REPO_FILES} -ne 0 ]
@@ -27,8 +111,8 @@ if [[ -f $logFile ]]; then
     echo " "
     st  --untracked-files=no
     
-    if [[ -z $(cat ${logFile}) ]]; then
-	printf "The log file is empty. Aborting."
+    if [[ ${emptyLogFile} -ne 0 ]]; then
+	echo "The log file is empty. Aborting."
 	exit 1
     fi
 
@@ -49,9 +133,4 @@ if [[ -f $logFile ]]; then
     getAnswer "Would you like to use the above log message?" || exit 0
 
     git commit -F $logFile && mv ${logFile} ${logFile}.org && > ${logFile}
-
-
-else
-    echo "Could not find log file: $logFile. Will run 'git commit' instead?"
-    git commit
 fi

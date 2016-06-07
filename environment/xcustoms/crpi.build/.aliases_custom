@@ -1,3 +1,2 @@
 # -*- mode: sh -*- #
 
-alias install='sudo yum install'

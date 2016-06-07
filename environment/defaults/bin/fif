@@ -5,14 +5,12 @@
 printUsage()
 {
 cat << %%USAGE%%
-    "Usage: `basename $0` [-d directory] [-i] [-x pattern] [-s character] <searchword>
+Usage: `basename $0` [-i] [-x pattern] [-s character] [dir] expr
 
     Description:
         Tool for Checking existence of the searchword in a path
 
     Options:
-        -d      directory to search in
-
         -i      perform case Insensitive search
 
     	-s      skip lines that have the character before the searchword. 
@@ -24,11 +22,14 @@ cat << %%USAGE%%
 
                 If this option is not provided, the default pattern will be 
                       '$(echo ${thePattern})'. 
-                Otherwise, if pattern doesn't contain the default pattern, 
+                Otherwise, if pattern does not contain the default pattern, 
                 this will be added to it.
 
-        -h      display this help message"
+        -h      display this help message
 
+    Arguments:
+        dir     (optional) directory to search in
+        expr    expression to search for
 %%USAGE%%
 }
 
@@ -40,9 +41,9 @@ NEW_LINE='
 theDirectory="."
 theDoCase=""
 theFind="find"
-thePattern='\.git'${NEW_LINE}'\.user'${NEW_LINE}'\.o'${NEW_LINE}'\.so'${NEW_LINE}'CMakeFiles'
+thePattern='\.git'${NEW_LINE}'\.user'${NEW_LINE}'\.o'${NEW_LINE}'\.so'${NEW_LINE}'CMakeFiles'${NEW_LINE}'\.stack-work'
 
-ARGS=$(getopt -o hd:ix:s: -n "fif" -- "$@")
+ARGS=$(getopt -o hix:s: -n "fif" -- "$@")
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -60,10 +61,6 @@ while true; do
 	    printUsage
 	    exit 0
 	    ;;
-        -d)
-            theDirectory="${2}"
-	    shift 2
-            ;;
         -i)      
             theDoCase="-i"
 	    shift
@@ -88,7 +85,17 @@ while true; do
     esac
 done
 
-theSearchWord="$1"
+
+if [[ $# -eq 2 ]]; then
+    theDirectory="$1"
+    theSearchWord="$2"
+elif [[ $# -eq 1 ]]; then
+    theSearchWord="$1"
+else
+    echo -e "Too many input arguments.\n"
+    printUsage
+    exit
+fi
 
 if [[ -z ${theSearchWord} ]]; then
     echo "Please enter a searchWord.

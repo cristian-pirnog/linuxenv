@@ -14,18 +14,9 @@ metacity $HOME/.gconf/apps/metacity
 .userenv $HOME/.userenv
 .userfunctions $HOME/.userfunctions
 CodingTemplates $HOME/CodingTemplates
-cmake $HOME/code/cmake
 completions $HOME/completions
 
 #
 # Files from the 'bin' directory
 #
-bin/initProductionMachine ${HOME}/bin/initProductionMachine
-bin/updateProductionMachine ${HOME}/bin/updateProductionMachine
-bin/deployToProduction ${HOME}/bin/deployToProduction
-bin/optimizer ${HOME}/bin/optimizer
 bin/distributeSSHKeys ${HOME}/bin/distributeSSHKeys
-bin/runPy $HOME/bin/runPy
-bin/syncNRecon.sh $HOME/bin/syncNRecon.sh
-bin/reconciliation.sh $HOME/bin/reconciliation.sh
-bin/portfolioBuilder.sh $HOME/bin/portfolioBuilder.sh

@@ -19,7 +19,7 @@ LinkStandardFile()
 InstallFromDir()
 {
     local lDirName="${1}"
-    local lUserConfigFile="config.install.${XCUSTOMS_USER}"
+    local lUserConfigFile="user.config.install" #${XCUSTOMS_USER}"
     local lFullFileName="$lDirName/$lUserConfigFile"
 
     if [[ -f ${lFullFileName} ]]; then
@@ -29,7 +29,7 @@ InstallFromDir()
     else
 	printf "Could not find config file: ${lFullFileName}\n"
     fi
-    
+
     # Run the custom install script (if it exists)
     if [[ -f ${lDirName}/${INSTALL_SCRIPT} ]]; then
 	cd $lDirName
@@ -56,6 +56,8 @@ if [[ $(echo ${userDirs} | wc -w) -gt 1 ]]; then
 
     echo ""
     AskForValueInList "${message}" userCustomDir ${userDirs}
+elif [[ $(echo ${userDirs} | wc -w) -eq 1 ]]; then
+    userCustomDir=${userDirs}
 fi
 SaveConfigValueToCache DEFAULT_CUSTOM_DIR ${userCustomDir}
 

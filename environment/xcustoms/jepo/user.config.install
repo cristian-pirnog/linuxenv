@@ -1,0 +1,13 @@
+# Files from '.ssh' directory
+bin/optimizer.sh $HOME/bin/optimizer.sh
+bin/findMbbaFile.sh $HOME/bin/findMbbaFile.sh
+bin/rsyncScript.sh $HOME/bin/rsyncScript.sh
+bin/runGuis.sh $HOME/bin/runGuis.sh
+bin/createMBBAdata.sh $HOME/bin/createMBBAdata.sh
+bin/getYesterdaysData.sh $HOME/bin/getYesterdaysData.sh
+bin/deployBinaries.sh $HOME/bin/deployBinaries.sh
+bin/generateDates.sh $HOME/bin/generateDates.sh
+bin/getLastTwoWeeksData.sh $HOME/bin/getLastTwoWeeksData.sh
+bin/runDataQualityTest.sh $HOME/bin/runDataQualityTest.sh
+CRON/cron.tab.DARB-HAN-APP1 $HOME/CRON/cron.tab.DARB-HAN-APP1
+CRON/cron.tab.luzern $HOME/CRON/cron.tab.luzern

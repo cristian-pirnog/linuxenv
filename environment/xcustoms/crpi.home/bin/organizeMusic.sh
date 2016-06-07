@@ -37,7 +37,7 @@ MoveToDuplicates()
 
     echo "Duplicate file "${lFile}
     #mkdir -p ${myBaseDir}/duplicates
-    #echo mv "$lFile" "$myBaseDir/duplicates"
+    #echo cp "$lFile" "$myBaseDir/duplicates"
     #echo "$(basename ${lFile}) <--> ${lExistingFile}" >> ${myBaseDir}/duplicates/mapping.txt
 }
 
@@ -54,7 +54,7 @@ MoveToTarget()
 
     echo "${lFile} -> ${lTargetFile}"
     if [[ ! -f ${lTargetFile} ]]; then
-        mv "$lFile" "$lTargetFile"
+        cp "$lFile" "$lTargetFile"
 	chmod ugo-w "$lTargetFile"
     else
 	echo "Target file exists without checksum entry: ${lTargetFile}"

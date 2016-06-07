@@ -1,4 +1,6 @@
 # -*- mode: sh -*- #
 
+export PATH=${PATH}:~/.local/bin:/usr/local/go/bin
+
 export PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live __client__/support __client__/optimizer drogon/src/C" # unit_tests/katania __client__/live"
 

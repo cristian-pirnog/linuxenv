@@ -1,0 +1,11 @@
+#
+# Files from '.ssh' directory
+#
+
+#
+# Files from 'CRON' directory
+#
+CRON/cron.tab.baar ${HOME}/CRON/cron.tab.baar
+CRON/checkRolling.sh ${HOME}/CRON/checkRolling.sh
+
+/usr/local/MATLAB/R2013a/bin/matlab ${HOME}/bin/matlab
