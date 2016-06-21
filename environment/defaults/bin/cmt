@@ -87,12 +87,13 @@ fi
 if [[ ! -f $logFile ]]; then
     emptyLogFile=0
 else
-    test -z $(cat ${logFile})
+    test -s ${logFile}
     emptyLogFile=$?
+    echo emptyLogFile=${emptyLogFile}
 fi
 
 if [[ -n ${message} ]]; then
-    if [[ ! ${emptyLogFile} ]]; then
+    if [[ ${emptyLogFile} -ne 0 ]]; then
 	getAnswer "Git log file not empty: ${logFile}. Ignore and proceed?" || exit 0
     fi
     git commit -m "${message}"
@@ -110,7 +111,7 @@ else
     echo " "
     st  --untracked-files=no
     
-    if [[ ${emptyLogFile} ]]; then
+    if [[ ${emptyLogFile} -ne 0 ]]; then
 	echo "The log file is empty. Aborting."
 	exit 1
     fi
