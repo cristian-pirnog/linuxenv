@@ -2,13 +2,11 @@
 
 test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
 
-export PATH=${HOME}/.local/bin:$PATH:/usr/local/bin:${HOME}/.local/bin
+export PATH=/usr/local/go/bin:${HOME}/.local/bin:$PATH:/usr/local/bin:${HOME}/.local/bin
 
 # Inhibits some crap WARNING from Emacs (Couldn't register with accessibility bus...)
 export NO_AT_BRIDGE=1
 
-export WORKING_HOURS="80000 160000"
-
-export PROJECTS_TO_BUILD="katania balerion/strategy balerion/live balerion/optimizer __client__/support __client__/optimizer unit_tests/katania __client__/live"
-
-export SKIP_PORTFOLIO_BUILD=0
+export GOPATH=${HOME}/code/go
+export GOBIN=${GOPATH}/bin
+export PATH=${PATH}:${GOBIN}
