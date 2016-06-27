@@ -1,7 +1,7 @@
 metacity $HOME/.gconf/apps/metacity
 .dircolors $HOME/.dircolors
 .eclipse.dict $HOME/.eclipse.dict
-synergy.conf $HOME/.synergy.conf
+synergy.home.conf $HOME/.synergy.conf
 .Xdefaults $HOME/.Xdefaults
 #
 # Files from '.ssh' directory
@@ -14,6 +14,7 @@ bin/from_unixtime_ms $HOME/bin/from_unixtime_ms
 bin/myXterm $HOME/bin/myXterm
 bin/twoTerms $HOME/bin/twoTerms
 bin/coolSsh $HOME/bin/coolSsh
+bin/switchSynergy $HOME/bin/switchSynergy
 
 atom/atom.init.coffee $HOME/.atom/init.coffee
 atom/styles.less ${HOME}/.atom/styles.less
