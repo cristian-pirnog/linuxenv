@@ -2,5 +2,6 @@
 
 alias cdb='cd ~/deploy/master/Release/bin'
 alias codp='cd ~/code/pontus'
+alias codp2='cd ~/code/go/src/bitbucket.org/devicetools/pontus2'
 alias atom='stack exec atom'
 alias goi='go install'

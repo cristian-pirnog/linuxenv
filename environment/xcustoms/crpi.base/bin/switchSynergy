@@ -1,0 +1,90 @@
+#!/bin/bash
+
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) -h
+
+    Description:
+        Toggles the synergy configuration between home and office.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+%%USAGE%%
+}
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+shortOptions='h'  # Add short options here
+longOptions='help,listOptions' # Add long options here
+ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+while true; do
+    case ${1} in
+    --listOptions)
+        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | 
+            sed 's/[^:]/-& /g') | sed 's/://g'
+        exit 0
+        ;;
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # This is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
+
+# When debuggin script, we echo all (most) commands, instead of executing them
+dbg=echo
+dbg=''
+
+
+targetConf=$(ls -AFl ${HOME}| grep .synergy | awk '{print $NF}')
+synergyHomeFile=synergy.home.conf
+synergyOfficeFile=synergy.office.conf
+
+if [[ -n $(echo ${targetConf} | grep ${synergyHomeFile}) ]]; then
+    newConf=office
+    newTargetFile=$(echo ${targetConf} | sed 's/'${synergyHomeFile}'/'${synergyOfficeFile}'/')
+elif [[ -n $(echo ${targetConf} | grep ${synergyOfficeFile}) ]]; then
+    newConf=home
+    newTargetFile=$(echo ${targetConf} | sed 's/'${synergyOfficeFile}'/'${synergyHomeFile}'/')
+else
+    echo "The target synergy conf file is not recognized."
+    exit 1
+fi
+
+source ~/.userfunctions
+
+echo "Switching to ${newConf} config"
+${dbg} rm ~/.synergy.conf
+${dbg} ln -s ${newTargetFile} ${HOME}/.synergy.conf
+
+
+if [[ -n $(fp synergys) ]]; then
+    getAnswer "Found synergy server running. Would you like to restart it?" || exit 0
+    killall synergys || exitWithError "Could not kill the running instance."
+    synergys >/dev/null 2>&1 &
+    
+fi
