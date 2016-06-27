@@ -91,6 +91,7 @@ else
     if [[ ${isMounted} -gt 0 ]]; then
 	printf "Something is already mounted on '%s'.\n" ${targetDir}
     else
+    echo "Mounting phone on ${targetDir}"
 	simple-mtpfs ${targetDir}
     fi
 fi
