@@ -14,6 +14,12 @@ cat << %%USAGE%%
        --help
              Print this help message and exit.
 
+       --server
+	     (Re)start the server after switching
+
+       --client
+	     (Re)start the client after switching
+	     
 %%USAGE%%
 }
 
@@ -22,7 +28,7 @@ cat << %%USAGE%%
 # Main script
 #----------------------------------------------
 shortOptions='h'  # Add short options here
-longOptions='help,listOptions' # Add long options here
+longOptions='help,listOptions,server,client' # Add long options here
 ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
 
 # If wrong arguments, print usage and exit
@@ -33,6 +39,9 @@ fi
 
 eval set -- "$ARGS"
 
+
+startServer=false
+startClient=false
 while true; do
     case ${1} in
     --listOptions)
@@ -43,6 +52,14 @@ while true; do
     -h|--help)
         printUsage
         exit 0
+        ;;
+    --server)
+        startServer=true
+	shift
+        ;;
+    --client)
+        startClient=true
+	shift
         ;;
     --)
         shift
@@ -60,6 +77,7 @@ dbg=echo
 dbg=''
 
 
+symlinkFile=${HOME}/.synergy.conf
 targetConf=$(ls -AFl ${HOME}| grep .synergy | awk '{print $NF}')
 synergyHomeFile=synergy.home.conf
 synergyOfficeFile=synergy.office.conf
@@ -78,13 +96,29 @@ fi
 source ~/.userfunctions
 
 echo "Switching to ${newConf} config"
-${dbg} rm ~/.synergy.conf
-${dbg} ln -s ${newTargetFile} ${HOME}/.synergy.conf
+${dbg} rm ${symlinkFile}
+${dbg} ln -s ${newTargetFile} ${symlinkFile}
 
 
-if [[ -n $(fp synergys) ]]; then
-    getAnswer "Found synergy server running. Would you like to restart it?" || exit 0
-    killall synergys || exitWithError "Could not kill the running instance."
+if [[ ${startServer} == true ]]; then
+    if [[ -n $(fp synergys) ]]; then
+	killall synergys || exitWithError "Could not kill the running instance."
+    fi
     synergys >/dev/null 2>&1 &
-    
+    if [[ $? ]]; then
+	echo "Server started"
+    else
+	echo "Failed to start server"
+    fi
+elif [[ ${startClient} == true ]]; then
+    if [[ -n $(fp synergyc) ]]; then
+	killall synergyc || exitWithError "Could not kill the running instance."
+    fi
+    serverIp=$(grep $(hostname) ${symlinkFile} | egrep ' ([0-9]+\.)+[0-9]+')
+    synergyc ${serverIp}  >/dev/null 2>&1 &
+    if [[ $? ]]; then
+	echo "Client started"
+    else
+	echo "Failed to start client"
+    fi
 fi
