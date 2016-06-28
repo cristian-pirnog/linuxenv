@@ -90,7 +90,7 @@ else
 fi
 
 if [[ -n ${message} ]]; then
-    if [[ ${emptyLogFile} -ne 0 ]]; then
+    if [[ ${emptyLogFile} -ne 1 ]]; then
 	getAnswer "Git log file not empty: ${logFile}. Ignore and proceed?" || exit 0
     fi
     git commit -m "${message}"
@@ -108,7 +108,7 @@ else
     echo " "
     st  --untracked-files=no
     
-    if [[ ${emptyLogFile} -ne 0 ]]; then
+    if [[ ${emptyLogFile} -ne 1 ]]; then
 	echo "The log file is empty. Aborting."
 	exit 1
     fi
