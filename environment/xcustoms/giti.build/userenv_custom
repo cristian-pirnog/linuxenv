@@ -1,9 +1,0 @@
-# -*- mode: sh -*- #
-
-test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
-
-export PATH=/usr/local/anaconda/bin:$PATH:/home/giti/code/drogon/src/script
-
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/giti/code/drogon/lib/portfolio/lib:/home/giti/deploy/master/Release/lib:/home/giti/code/ronin/libs/support/lib:/usr/local/lib64:/usr/local/lib
-
-export PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live __client__/support __client__/optimizer __client__/live"
