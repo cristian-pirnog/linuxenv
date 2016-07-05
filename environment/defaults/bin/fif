@@ -41,7 +41,7 @@ NEW_LINE='
 theDirectory="."
 theDoCase=""
 theFind="find"
-thePattern='\.git'${NEW_LINE}'\.user'${NEW_LINE}'\.o'${NEW_LINE}'\.so'${NEW_LINE}'CMakeFiles'${NEW_LINE}'\.stack-work'
+thePattern='\.git'${NEW_LINE}'\.user'${NEW_LINE}'\.o'${NEW_LINE}'\.so'${NEW_LINE}'CMakeFiles'${NEW_LINE}'\.stack-work'${NEW_LINE}'\.dll'
 
 ARGS=$(getopt -o hix:s: -n "fif" -- "$@")
 

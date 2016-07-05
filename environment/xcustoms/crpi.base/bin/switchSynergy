@@ -114,7 +114,8 @@ elif [[ ${startClient} == true ]]; then
     if [[ -n $(fp synergyc) ]]; then
 	killall synergyc || exitWithError "Could not kill the running instance."
     fi
-    serverIp=$(grep $(hostname) ${symlinkFile} | egrep ' ([0-9]+\.)+[0-9]+')
+    serverIp=$(grep -A 2 '^#server' ${symlinkFile} | egrep ' ([0-9]+\.)+[0-9]+')
+    echo serverIp=${serverIp}
     synergyc ${serverIp}  >/dev/null 2>&1 &
     if [[ $? ]]; then
 	echo "Client started"
