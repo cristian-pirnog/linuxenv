@@ -1,3 +1,0 @@
-# -*- mode: sh -*- #
-
-test -f ~/.aliases_custom.base && source ~/.aliases_custom.base

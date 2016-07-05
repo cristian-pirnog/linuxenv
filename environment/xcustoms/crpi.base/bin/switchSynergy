@@ -23,6 +23,19 @@ cat << %%USAGE%%
 %%USAGE%%
 }
 
+#----------------------------------------------
+getTargetHomeFile()
+{
+    local lIpAddress=$(getIpAddress)
+    local lBaseFile="${1}"
+    
+    for f in ${lBaseFile}*; do
+	if [[ -n $(grep ${lIpAddress} $f) ]]; then
+	    echo ${f}
+	fi
+    done
+}
+
 
 #----------------------------------------------
 # Main script
@@ -79,21 +92,28 @@ dbg=''
 
 symlinkFile=${HOME}/.synergy.conf
 targetConf=$(ls -AFl ${HOME}| grep .synergy | awk '{print $NF}')
-synergyHomeFile=synergy.home.conf
+synergyHomeFile=synergy.home
 synergyOfficeFile=synergy.office.conf
+
+
+source ~/.userfunctions
 
 if [[ -n $(echo ${targetConf} | grep ${synergyHomeFile}) ]]; then
     newConf=office
     newTargetFile=$(echo ${targetConf} | sed 's/'${synergyHomeFile}'/'${synergyOfficeFile}'/')
 elif [[ -n $(echo ${targetConf} | grep ${synergyOfficeFile}) ]]; then
     newConf=home
-    newTargetFile=$(echo ${targetConf} | sed 's/'${synergyOfficeFile}'/'${synergyHomeFile}'/')
+    baseTargetFile=$(echo ${targetConf} | sed 's/'${synergyOfficeFile}'/'${synergyHomeFile}'/')
+    newTargetFile=$(getTargetHomeFile ${baseTargetFile})
+    if [[ -z ${newTargetFile} ]]; then
+	echo "Could not find synergy conf file for ip address: "$(getIpAddress)
+	exit 1
+    fi
 else
     echo "The target synergy conf file is not recognized."
     exit 1
 fi
 
-source ~/.userfunctions
 
 echo "Switching to ${newConf} config"
 ${dbg} rm ${symlinkFile}

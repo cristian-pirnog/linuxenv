@@ -5,7 +5,7 @@ printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) -h
-            $(basename ${0}) [-m msg]
+            $(basename ${0}) [msg]
 
     Description:
         Commits all changes staged into git.
@@ -15,8 +15,9 @@ cat << %%USAGE%%
        --help
              Print this help message and exit.
 
-       -m msg
-	     Uses the provided message instead of fetching it from the 
+    Arguments
+    msg (optional)
+	     If provided, the script uses the message instead of fetching it from the 
 	        "${logFile}" file.
 	     
 %%USAGE%%

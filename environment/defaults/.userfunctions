@@ -240,6 +240,11 @@ ric()
     
     myFiles=`allSourceFiles $*`
 
+    if [[ -z ${myFiles} ]]; then
+	echo "No source files found. Exiting."
+	return 1
+    fi
+    
     IFS=$'\n'
     replace "$from" "$to" -- ${myFiles}
     unset IFS
@@ -250,6 +255,13 @@ lna()
 {
     st | grep ? | awk '{print $NF}'
 }
+
+#----------------------------------------------
+getIpAddress()
+{
+    ifconfig|grep 'inet ' | awk '{print $2}'|grep -v '127.0'
+}
+
 
 
 # The environment overrides
