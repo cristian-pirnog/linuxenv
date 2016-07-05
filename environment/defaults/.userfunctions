@@ -251,6 +251,13 @@ lna()
     st | grep ? | awk '{print $NF}'
 }
 
+#----------------------------------------------
+getIpAddress()
+{
+    ifconfig|grep 'inet ' | awk '{print $2}'|grep -v '127.0'
+}
+
+
 
 # The environment overrides
 if [ -f $HOME/.userenv_overrides ]; then
