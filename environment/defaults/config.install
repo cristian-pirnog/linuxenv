@@ -13,8 +13,8 @@
 metacity $HOME/.gconf/apps
 .userenv $HOME/.userenv
 .userfunctions $HOME/.userfunctions
-CodingTemplates $HOME
-completions $HOME
+#CodingTemplates $HOME
+#completions $HOME
 
 #
 # Files from the 'bin' directory

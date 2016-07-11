@@ -69,7 +69,11 @@ makeSymLink()
 #----------------------------------------------
 shortOptions='h'  # Add short options here
 longOptions='help,nopull,noask,batch,listOptions' # Add long options here
-ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+if $(environment/defaults/bin/isMac) ; then
+    ARGS=`getopt ${shortOptions} $*`
+else
+   ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+fi
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
