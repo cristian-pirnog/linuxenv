@@ -5,7 +5,12 @@ export PYTHONPATH=${PYTHONPATH}:/home/${USER}/code/drogon/src/python
 
 export HISTIGNORE="&:l:[bf]g:exit"
 
-shopt -sq autocd cdspell cmdhist dirspell dotglob histappend no_empty_cmd_completion 
+if [[ $(uname -s) != Darwin ]]; then
+    shopt -sq autocd dirspell
+fi
+
+shopt -sq cdspell cmdhist dotglob histappend no_empty_cmd_completion 
+
 
 # Optional settings
 # ==============================================
