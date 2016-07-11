@@ -50,14 +50,11 @@ makeSymLink()
     TARGET_NAME=$1
     LINK_NAME=$2
 
-
-    if [ -d $TARGET_NAME ]
-        then
-        if [  ! -d $LINK_NAME ]
-            then
+    if [[ -d $TARGET_NAME ]]; then
+        if [[ ! -d $LINK_NAME ]]; then
             ln -s $TARGET_NAME $LINK_NAME
         fi
-        else
+    else
         echo "Target directory $TARGET_NAME does not exist. Will not make symlink."
     fi
 }
