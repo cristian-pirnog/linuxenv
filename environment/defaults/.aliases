@@ -32,9 +32,9 @@ alias push='git push'
 
 #Aliases for 'ls' and variations
 if $(isMac); then
-    alias ls='/bin/ls --color=auto'
-else
     alias ls='/bin/ls -G'
+else
+    alias ls='/bin/ls --color=auto'
     alias rm='rm -I --preserve-root'
 fi
 

@@ -132,7 +132,7 @@ listBranches()
 
     local lPrefix="Project "
     local lSep=":"
-    if [[ ${lOption} = 'all' ]]; then
+    if [[ ${lOption} == 'all' ]]; then
 	printf "All branches: \n"
     elif [[ ${lOption} == 's' ]]; then
 	lPrefix=""
@@ -143,9 +143,11 @@ listBranches()
 
     gitVersion=$(git --version | awk '{print $NF}')
     listCommand='git branch --list'
-    if [[ $(echo ${gitVersion} | awk -F '.' '{print $1}') -lt 2 ]] && \
-       [[ $(echo ${gitVersion} | awk -F '.' '{print $2}') -lt 8 ]]; then
-        listCommand='git branch'
+    if ! $(isMac); then
+        if [[ $(echo ${gitVersion} | awk -F '.' '{print $1}') -lt 2 ]] && \
+           [[ $(echo ${gitVersion} | awk -F '.' '{print $2}') -lt 8 ]]; then
+           listCommand='git branch'
+        fi
     fi
 
     for p in ${lGitDirs}; do
@@ -341,7 +343,11 @@ mergeBranch()
 #----------------------------------------------
 shortOptions='hx:c:d:D:fs:t:m:l::'  # Add short options here
 longOptions='listOptions,help,exclude:,create:,delete:,deleteRemote:,DELETE:,fetch,switch:,track:,merge:,force'
-ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+if $(isMac); then
+    ARGS=`getopt ${shortOptions} $*`
+else
+    ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+fi
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then

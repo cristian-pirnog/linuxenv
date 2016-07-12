@@ -1,3 +1,3 @@
 #/bin/bash
 
-test $(uname -s) == 'Darwins'
+test $(uname -s) == 'Darwin'
