@@ -11,9 +11,7 @@ MakeCDAlias codm "${HOME}/code.master"
 MakeCDAlias cdf "${HOME}/production/framework"
 
 
-#alias cod='cd ${HOME}/code'
 alias n='next'
-alias br='branch'
 
 # Some standard aliases
 alias fut='from_unixtime_ms'

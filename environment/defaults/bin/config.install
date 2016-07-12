@@ -9,7 +9,7 @@ fif ${HOME}/bin/fif
 build ${HOME}/bin/build
 copyright ${HOME}/bin/copyright
 buildall ${HOME}/bin/buildall
-branch ${HOME}/bin/branch
+br ${HOME}/bin/br
 cmt ${HOME}/bin/cmt
 gitdif ${HOME}/bin/gitdif
 pula ${HOME}/bin/pula

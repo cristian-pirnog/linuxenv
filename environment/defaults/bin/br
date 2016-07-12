@@ -301,7 +301,7 @@ check_mergeBranch()
     local lFromBranch=${1}
     local lToBranch=${2}
 
-    checkLocalChanges merge || return 1
+    checkLocalChanges merg || return 1
     local lActiveBranches=$(printActiveBranches)
 
     # Check that there are no mixed branches
