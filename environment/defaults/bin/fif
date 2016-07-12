@@ -43,7 +43,12 @@ theDoCase=""
 theFind="find"
 thePattern='\.git'${NEW_LINE}'\.user'${NEW_LINE}'\.o'${NEW_LINE}'\.so'${NEW_LINE}'CMakeFiles'${NEW_LINE}'\.stack-work'${NEW_LINE}'\.dll'
 
-ARGS=$(getopt -o hix:s: -n "fif" -- "$@")
+supportedOptions="hix:s:"
+if $(isMac); then
+    args=`getopt ${supportedOptions} $*`
+else
+    args=$(getopt -o ${supportedOptions} -n "fif" -- "$@")
+fi
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -51,7 +56,7 @@ if [[ $? -ne 0 ]]; then
     exit 1;
 fi
 
-eval set -- "$ARGS"
+set -- $args
 
 #
 mySkipComments=0

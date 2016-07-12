@@ -11,7 +11,6 @@ alias u='cd ../'
 alias lc='/usr/bin/wc -l'
 alias revert='git checkout'
 #alias diff='colordiff'
-alias rm='rm -I --preserve-root'
 alias vi=vim
 
 printLastDir()
@@ -32,8 +31,14 @@ alias pull='git pull'
 alias push='git push'
 
 #Aliases for 'ls' and variations
-alias ls='/bin/ls --color=auto'
-alias l='/bin/ls --color=auto -dA */'
-alias la='/bin/ls --color=auto -lFh'
-alias ll='/bin/ls --color=auto -AFlh'
+if $(isMac); then
+    alias ls='/bin/ls --color=auto'
+else
+    alias ls='/bin/ls -G'
+    alias rm='rm -I --preserve-root'
+fi
+
+alias l='ls -dA */'
+alias la='ls -lFh'
+alias ll='ls -AFlh'
 alias lll='ll'

@@ -2,6 +2,7 @@ archive ${HOME}/bin/archive
 cleanfiles ${HOME}/bin/cleanfiles
 e ${HOME}/bin/e
 fp ${HOME}/bin/fp
+isMac ${HOME}/bin/isMac
 listTerminalColors ${HOME}/bin/listTerminalColors
 m ${HOME}/bin/m
 fif ${HOME}/bin/fif
