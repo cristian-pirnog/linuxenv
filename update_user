@@ -50,14 +50,11 @@ makeSymLink()
     TARGET_NAME=$1
     LINK_NAME=$2
 
-
-    if [ -d $TARGET_NAME ]
-        then
-        if [  ! -d $LINK_NAME ]
-            then
+    if [[ -d $TARGET_NAME ]]; then
+        if [[ ! -d $LINK_NAME ]]; then
             ln -s $TARGET_NAME $LINK_NAME
         fi
-        else
+    else
         echo "Target directory $TARGET_NAME does not exist. Will not make symlink."
     fi
 }
@@ -69,7 +66,11 @@ makeSymLink()
 #----------------------------------------------
 shortOptions='h'  # Add short options here
 longOptions='help,nopull,noask,batch,listOptions' # Add long options here
-ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+if $(environment/defaults/bin/isMac) ; then
+    ARGS=`getopt ${shortOptions} $*`
+else
+   ARGS=$(getopt -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+fi
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then

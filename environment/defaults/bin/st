@@ -26,9 +26,11 @@ stall()
 
     listOption="--list"
     gitVersion=$(git --version | awk '{print $NF}')
-    if [[ $(echo ${gitVersion} | awk -F '.' '{print $1}') -eq 1 ]] && \
-       [[ $(echo ${gitVersion} | awk -F '.' '{print $2}') -lt 8 ]]; then
-        listOption=""
+    if ! $(isMac); then
+        if [[ $(echo ${gitVersion} | awk -F '.' '{print $1}') -eq 1 ]] && \
+           [[ $(echo ${gitVersion} | awk -F '.' '{print $2}') -lt 8 ]]; then
+              listOption=""
+        fi
     fi
     
     local lOldPdw=${OLDPWD}

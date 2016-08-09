@@ -2,13 +2,14 @@ archive ${HOME}/bin/archive
 cleanfiles ${HOME}/bin/cleanfiles
 e ${HOME}/bin/e
 fp ${HOME}/bin/fp
+isMac ${HOME}/bin/isMac
 listTerminalColors ${HOME}/bin/listTerminalColors
 m ${HOME}/bin/m
 fif ${HOME}/bin/fif
 build ${HOME}/bin/build
 copyright ${HOME}/bin/copyright
 buildall ${HOME}/bin/buildall
-branch ${HOME}/bin/branch
+br ${HOME}/bin/br
 cmt ${HOME}/bin/cmt
 gitdif ${HOME}/bin/gitdif
 pula ${HOME}/bin/pula
