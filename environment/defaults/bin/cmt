@@ -86,7 +86,6 @@ emptyLogFile=true
 if test -s ${logFile}; then
     emptyLogFile=false
 fi
-echo emptyLogFile=${emptyLogFile}
 
 if [[ -n ${message} ]]; then
     if [[ ${emptyLogFile} == false ]]; then
