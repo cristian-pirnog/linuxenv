@@ -8,7 +8,7 @@ LinkStandardFile()
 	touch ${lFileName}
     fi
 
-    ln -sf ${lFileName} ${HOME}
+    ln -sfn ${lFileName} ${HOME}
 }
 
 

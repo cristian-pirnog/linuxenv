@@ -36,7 +36,7 @@
 	(insert "if $(isMac); then\n")
 	(insert "    ARGS=`getopt \"${shortOptions}\" $*`\n")
 	(insert "else\n")
-	(insert "    ARGS=$(getopt -o \"${shortOptions}\" -l \"${longOptions}\" -n \"$(basename ${0})\" -- \"$@\")\n\n")
+	(insert "    ARGS=$(getopt -u -o \"${shortOptions}\" -l \"${longOptions}\" -n \"$(basename ${0})\" -- \"$@\")\n\n")
 	(insert "fi\n\n")
 	(insert "# If wrong arguments, print usage and exit\n")
 	(insert "if [[ $? -ne 0 ]]; then\n")

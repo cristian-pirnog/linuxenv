@@ -74,7 +74,7 @@ UpdateFile()
     
     rm -rf $2 > /dev/null 2>&1      # Remove the current file
 
-    ln -s $1 $2         # Make symbolic link to the SOURCE_FILE 
+    ln -sn $1 $2         # Make symbolic link to the SOURCE_FILE 
     if [ ! $? ] 
     then
         printErrorMessage $1

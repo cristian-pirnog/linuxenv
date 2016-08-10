@@ -10,11 +10,11 @@
 .bashrc_default $HOME/.bashrc_default
 .bash_profile $HOME/.bash_profile
 .inputrc $HOME/.inputrc
-metacity $HOME/.gconf/apps
+metacity $HOME/.gconf/apps/metacity
 .userenv $HOME/.userenv
 .userfunctions $HOME/.userfunctions
 #CodingTemplates $HOME
-#completions $HOME
+completions $HOME/completions
 
 #
 # Files from the 'bin' directory
