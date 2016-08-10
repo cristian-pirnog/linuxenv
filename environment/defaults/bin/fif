@@ -47,7 +47,7 @@ supportedOptions="hix:s:"
 if $(isMac); then
     args=`getopt ${supportedOptions} $*`
 else
-    args=$(getopt -o ${supportedOptions} -n "fif" -- "$@")
+    args=$(getopt -u -o ${supportedOptions} -n "fif" -- "$@")
 fi
 
 # If wrong arguments, print usage and exit
@@ -90,12 +90,11 @@ while true; do
     esac
 done
 
-
 if [[ $# -eq 2 ]]; then
-    theDirectory="$1"
-    theSearchWord="$2"
+    theDirectory=${1}
+    theSearchWord=${2}
 elif [[ $# -eq 1 ]]; then
-    theSearchWord="$1"
+    theSearchWord=${1}
 else
     echo -e "Too many input arguments.\n"
     printUsage
@@ -113,20 +112,20 @@ cd $theDirectory
 myDir=`pwd`
 cd "$myOldDir"
 
+
 IFS=${NEW_LINE}
 for f in `$theFind -L $theDirectory -type f | grep -v "$thePattern"`
 do
-    myTemp=`file $f | awk '{printf $3};' | grep text`
-    if [ myTemp ]
-    then
-        myTemp=`cat -n $f | grep $theDoCase $theSearchWord`
-	
+    myTemp=`file $f | awk '{printf $NF};' | grep text`
+    if [[ -n ${myTemp} ]]; then
+        myTemp=`cat -n $f | grep ${theDoCase} ${theSearchWord}`
+
 	if [ $mySkipComments == "1" ]
 	then
 	    myTemp=`echo $myTemp | grep -v "$theComment"`
 	fi
 
-        if [ "$myTemp" != "" ]
+        if [[ -n ${myTemp} ]]
         then
             echo "-----------------------------------------------------------"
             echo "$f"
