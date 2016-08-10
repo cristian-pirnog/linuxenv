@@ -8,4 +8,7 @@
 CRON/cron.tab.baar ${HOME}/CRON/cron.tab.baar
 CRON/checkRolling.sh ${HOME}/CRON/checkRolling.sh
 
-/usr/local/MATLAB/R2013a/bin/matlab ${HOME}/bin/matlab
+#
+# Files from the 'bin' directory
+#
+bin/attachToContainer.sh $HOME/bin/attachToContainer.sh

@@ -35,13 +35,13 @@ Usage: `basename $0` [-i] [-x pattern] [-s character] [dir] expr
 
 #========================================================================
 
-NEW_LINE='
+NL='
 '
 
 theDirectory="."
 theDoCase=""
 theFind="find"
-thePattern='\.git'${NEW_LINE}'\.user'${NEW_LINE}'\.o'${NEW_LINE}'\.so'${NEW_LINE}'CMakeFiles'${NEW_LINE}'\.stack-work'${NEW_LINE}'\.dll'
+thePattern="\.git${NL}\.user${NL}\.o'${NL}\.so${NL}CMakeFiles${NL}\.stack-work${NL}\.dll${NL}\.tags"
 
 supportedOptions="hix:s:"
 if $(isMac); then
@@ -71,7 +71,7 @@ while true; do
 	    shift
             ;;
         -x)
-            thePattern=${thePattern}${NEW_LINE}${2}
+            thePattern=${thePattern}${NL}${2}
 	    shift 2
 	    ;;
 	-s)
@@ -112,8 +112,7 @@ cd $theDirectory
 myDir=`pwd`
 cd "$myOldDir"
 
-
-IFS=${NEW_LINE}
+IFS=${NL}
 for f in `$theFind -L $theDirectory -type f | grep -v "$thePattern"`
 do
     myTemp=`file $f | awk '{printf $NF};' | grep text`
