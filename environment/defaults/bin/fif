@@ -115,7 +115,8 @@ fi
 
 theSearchWord=$(StripQuotes "$*")
 
-grepCommand="grep ${theDoCase} -- '${theSearchWord}'"
+grepCommand="grep ${theDoCase} -- ${theSearchWord}"
+
 for f in $($theFind -L $theDirectory -type f | grep -v "$thePattern")
 do
     myTemp=`file -b $f | grep 'ASCII text'`
