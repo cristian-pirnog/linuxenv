@@ -119,7 +119,7 @@ grepCommand="grep ${theDoCase} -- ${theSearchWord}"
 
 for f in $($theFind -L $theDirectory -type f | grep -v "$thePattern")
 do
-    myTemp=`file -b $f | grep 'ASCII text'`
+    myTemp=`file -b $f | grep ' text '`
     if [[ -n ${myTemp} ]]; then
         myTemp=$(cat -n $f | ${grepCommand})
 	# Check if theSearchWord is only in the first column (i.e. the line number)
