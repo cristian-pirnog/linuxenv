@@ -90,6 +90,7 @@ fi
 if [[ -n ${message} ]]; then
     if [[ ${emptyLogFile} == false ]]; then
 	getAnswer "Git log file not empty: ${logFile}. Ignore and proceed?" || exit 0
+    >${logFile}
     fi
     git commit -m "${message}"
 else
