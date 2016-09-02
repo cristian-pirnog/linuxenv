@@ -43,9 +43,8 @@ endif
 # Default ACTION is EXTRACT
 set ACTION = 1   # EXTRACT
 
-# Default TAR_FILENAME is the complete file-path 
+# Default TAR_GZ_FILENAME is the complete file-path 
 # with ".tar" extention
-set TAR_FILENAME = "$FILENAME:r.tar"
 set TAR_GZ_FILENAME = "$FILENAME:r.tar.gz"
 
 # If is a directory
@@ -54,7 +53,6 @@ if ( -d "$FILENAME" ) then
     # Compress the directory
     set ACTION = 0
     # Make sure the ending "/" from directory name is not included
-    set TAR_FILENAME = "$FILENAME:h.tar"
     set TAR_GZ_FILENAME = "$FILENAME:h.tar.gz"
     set FILE_TYPE = 'directory'
 else if( "$FILENAME:e" == "zip") then

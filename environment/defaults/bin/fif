@@ -89,11 +89,11 @@ while true; do
 	    ;;
 	-s)
 	    mySkipComments=true
-	    theComment=${2}
+	    theComment=$(StripQuotes ${2})
 	    shift 2
 	    ;;
 	-d)
-	    theDirectory=${2}
+	    theDirectory=$(StripQuotes ${2})
 	    shift 2
 	    ;;
     	--)
@@ -115,30 +115,25 @@ fi
 
 theSearchWord=$(StripQuotes "$*")
 
-grepCommand="grep ${theDoCase} -- ${theSearchWord}"
 
+grepCommand="grep -nT ${theDoCase} -E '${theSearchWord}'"
 for f in $($theFind -L $theDirectory -type f | grep -v "$thePattern")
 do
-    myTemp=`file -b $f | grep -e ' text\( \|$\)'`
-    if [[ -n ${myTemp} ]]; then
-        myTemp=$(cat -n $f | ${grepCommand})
-	# Check if theSearchWord is only in the first column (i.e. the line number)
-	if [[ -z $(echo ${myTemp} | awk '{$1=""; print $0}' | ${grepCommand}) ]]; then
-	    myTemp=''
-	fi
+    textFileFlag=`file -b $f | grep -e ' text\( \|$\)'`
+    if [[ -n ${textFileFlag} ]]; then
 
-	if [[ ${mySkipComments} == true ]]
-	then
-	    myTemp=`echo $myTemp | grep -v "$theComment"`
-	fi
+    	if [[ ${mySkipComments} == true ]]; then
+            expression=$(eval ${grepCommand} ${f} | grep -v -P "${theComment}"'.*?'"${theSearchWord}")
+	else
+	    expression=$(eval ${grepCommand} ${f})
+        fi
 
-        if [[ -n ${myTemp} ]]
-        then
+        if [[ -n ${expression} ]]; then
             echo "-----------------------------------------------------------"
             echo "$f"
             echo "-----------------------------------------------------------"
             echo "" 
-            echo "$myTemp" | grep ${theDoCase} --color=auto -- "${theSearchWord}"
+            echo "$expression" | sed 's/://' | grep ${theDoCase} --color=auto -- "${theSearchWord}"
         fi
     fi
 done
