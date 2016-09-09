@@ -91,6 +91,9 @@ lower()
 }
 
 #----------------------------------------------
+# Lists all source files that match the given extensions
+# If an extesion doesn't have the '.' preffix, this will
+# be prepended automatically
 allSourceFiles()
 {
     local myHeaders=".h .hpp"
@@ -109,18 +112,16 @@ allSourceFiles()
         "-s")
             myExtensions="${mySources}"
             ;;
-	
-	'')
-	    myExtensions="${myHeaders} ${mySources}"
-	    ;;
-        
+        '')
+            myExtensions="${myHeaders} ${mySources}"
+            ;;
         *)
-            myExtensions=${@}
+            myExtensions=$(echo '.'"${@}"|sed 's/ / ./g'|sed 's/\.\././g')
             ;;
     esac 
     
     for e in ${myExtensions}; do
-	find . -name '*'$e
+	find . -name '*'"${e}"
     done
 }
 

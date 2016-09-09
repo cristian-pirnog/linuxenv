@@ -13,7 +13,7 @@ function GenerateSshEntries()
 	local lAlias=$(echo ${info}|awk '{print $1}')
 	local lHostName=$(echo ${info}|awk '{print $2}')
 	
-	if [[ -z $(grep ${lHostName} ${lConfigFile}) ]]; then
+	if [[ -z $(grep ${lHostName} ${lConfigFile} | grep " HostName ") ]]; then
 	    if [[ -n $(grep ${lAlias} ${lConfigFile}) ]]; then
 		echo "SSH alias ${lAlias} exists with host name different from ${lHostName}"
 		return
