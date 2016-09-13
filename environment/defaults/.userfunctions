@@ -120,7 +120,7 @@ allSourceFiles()
             ;;
     esac 
     
-    for e in ${myExtensions}; do
+    for e in "${myExtensions}"; do
 	find . -name '*'"${e}"
     done
 }
