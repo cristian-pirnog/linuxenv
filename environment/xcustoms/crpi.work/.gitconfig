@@ -1,0 +1,5 @@
+[core]
+	excludesfile = /home/cristian/.gitignore_global
+[user]
+	email = pirnog@gmail.com
+	name = Cristian Pirnog
