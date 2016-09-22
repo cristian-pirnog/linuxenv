@@ -1,0 +1,10 @@
+'atom-text-editor:not([mini])':
+  'alt-shift-down' : 'rectangle-selection:select-down'
+  'alt-shift-up'   : 'rectangle-selection:select-up'
+  'alt-shift-left' : 'rectangle-selection:select-left'
+  'alt-shift-right': 'rectangle-selection:select-right'
+  'alt-shift-home' : "rectangle-selection:select-to-beginning-Of-line"
+  'alt-shift-end'  : "rectangle-selection:select-to-end-of-line"
+
+'body':
+  'ctrl-x 3': 'pane:split-right-and-move-active-item'

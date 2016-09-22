@@ -6,7 +6,7 @@ synergy.home.pc.conf $HOME/.synergy.conf
 #
 # Files from '.ssh' directory
 #
-.ssh/config $HOME/.ssh/config
+.ssh/config.base $HOME/.ssh/config.base
 #
 # Files from bin directory
 #
@@ -16,5 +16,7 @@ bin/twoTerms $HOME/bin/twoTerms
 bin/coolSsh $HOME/bin/coolSsh
 bin/switchSynergy $HOME/bin/switchSynergy
 
-atom/atom.init.coffee $HOME/.atom/init.coffee
-atom/styles.less ${HOME}/.atom/styles.less
+atom/atom.init.coffee $HOME/.atom/atom.init.coffee
+atom/config.cson $HOME/.atom/config.cson
+atom/keymap.cson $HOME/.atom/keymap.cson
+atom/styles.less $HOME/.atom/styles.less
