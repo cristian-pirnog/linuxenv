@@ -8,10 +8,6 @@
 CRON/cron.tab.baar ${HOME}/CRON/cron.tab.baar
 CRON/checkRolling.sh ${HOME}/CRON/checkRolling.sh
 #
-# Files from '.ssh' directory
-#
-.ssh/config.user $HOME/.ssh/config.user
-#
 # Files from the 'bin' directory
 #
 bin/attachToContainer.sh $HOME/bin/attachToContainer.sh

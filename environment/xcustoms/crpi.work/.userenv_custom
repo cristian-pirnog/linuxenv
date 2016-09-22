@@ -8,7 +8,7 @@ function GenerateSshEntries()
 
     IFS='
 '
-    local lConfigFile="${HOME}/.ssh/config.user"
+    local lConfigFile="${HOME}/.ssh/config"
     for info in ${lHostInfo}; do
 	local lAlias=$(echo ${info}|awk '{print $1}')
 	local lHostName=$(echo ${info}|awk '{print $2}')
@@ -51,9 +51,9 @@ SSH_CONFIG_AMAZON_EDGE5="gluster-aws-1 ec2-54-154-236-218.eu-west-1.compute.amaz
 gluster-aws-2 ec2-54-171-162-249.eu-west-1.compute.amazonaws.com
 gluster-aws-3 ec2-54-171-7-54.eu-west-1.compute.amazonaws.com
 edge5ec2 ec2-176-34-70-247.eu-west-1.compute.amazonaws.com
-elasticsearch ec2-54-228-232-117.eu-west-1.compute.amazonaws.com
-elasticsearch-replica ec2-54-195-131-179.eu-west-1.compute.amazonaws.com"
-GenerateSshEntries "${SSH_CONFIG_AMAZON_EDGE5}" admin ~/.ssh/edge5-ec2-keypair-eu.pem
+elasticsearch ec2-54-195-141-79.eu-west-1.compute.amazonaws.com
+elasticsearch-replica ec2-54-228-53-239.eu-west-1.compute.amazonaws.com"
+GenerateSshEntries "${SSH_CONFIG_AMAZON_EDGE5}" ec2-user ~/.ssh/edge5-ec2-keypair-eu.pem
 
 # Devicetools exoscale servers
 SSH_CONFIG_EXOSCALE="kube-exo 159.100.250.184

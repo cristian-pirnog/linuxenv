@@ -11,6 +11,8 @@ fi
 
 shopt -sq cdspell cmdhist dotglob histappend no_empty_cmd_completion 
 
+# Copy all the ssh config files into the big one
+cat ~/.ssh/config.* > ~/.ssh/config
 
 # Optional settings
 # ==============================================
