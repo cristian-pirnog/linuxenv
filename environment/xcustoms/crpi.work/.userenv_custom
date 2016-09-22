@@ -8,7 +8,7 @@ function GenerateSshEntries()
 
     IFS='
 '
-    local lConfigFile="${HOME}/.ssh/config"
+    local lConfigFile="${HOME}/.ssh/config.user"
     for info in ${lHostInfo}; do
 	local lAlias=$(echo ${info}|awk '{print $1}')
 	local lHostName=$(echo ${info}|awk '{print $2}')
@@ -22,7 +22,7 @@ function GenerateSshEntries()
     HostName ${lHostName}
     Port 22
     User ${lUserName}
-    IdentityFile ${lIdentityFile}\n" >> ~/.ssh/config
+    IdentityFile ${lIdentityFile}\n" >> ${lConfigFile}
 	fi
     done
         

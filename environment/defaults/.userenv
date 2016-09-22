@@ -12,10 +12,6 @@ fi
 shopt -sq cdspell cmdhist dotglob histappend no_empty_cmd_completion 
 
 
-# Concatenate the default and user ssh config files into one
-cat ~/.ssh/config.* > ~/.ssh/config
-
-
 # Optional settings
 # ==============================================
 # Default editor: vi
@@ -37,4 +33,3 @@ fi
 if [[ -f ~/.dircolors ]]; then eval `dircolors ~/.dircolors`; fi
 
 if [[ -f ~/.userfunctions ]]; then source ~/.userfunctions; fi
-
