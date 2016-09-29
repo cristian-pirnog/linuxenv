@@ -6,10 +6,10 @@ printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) -h
-            $(basename ${0}) account
+            $(basename ${0}) account [region]
 
     Description:
-        PUT DESCRIPTION HERE
+        ssh to EXOSCALE minion.
 
     Options:
        -h
@@ -20,6 +20,8 @@ cat << %%USAGE%%
        account
 	     The name of the account (e.g. devicetools, swiss, etc.)
 
+	     The exoscale region. One of: dk2, gva2. Defaults to gva2.
+	     
 %%USAGE%%
 }
 
@@ -76,12 +78,17 @@ if [[ $# -lt 1 ]]; then
 fi
 
 account=${1}
+region=${2}
+
+if [[ -z ${region} ]]; then
+    region=gva2
+fi
 
 # When debuggin script, we echo all (most) commands, instead of executing them
 dbg=echo
 dbg=''
 
-hostIPs=($(cs listVirtualMachines name='%-'${account}'-%'| grep -P ipaddress\|displayname|awk '{print $NF}' | sed -e 's/"//g' -e 's/,//g'))
+hostIPs=($(cs --region ${region} listVirtualMachines name='%-'${account}'-%'| grep -P ipaddress\|displayname|awk '{print $NF}' | sed -e 's/"//g' -e 's/,//g'))
 hostsCount=$(( ${#hostIPs[@]} / 2 ))
 
 if [[ ${hostsCount} -eq 0 ]]; then

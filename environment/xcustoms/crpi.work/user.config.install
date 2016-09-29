@@ -11,3 +11,8 @@ CRON/checkRolling.sh ${HOME}/CRON/checkRolling.sh
 # Files from the 'bin' directory
 #
 bin/attachToContainer.sh $HOME/bin/attachToContainer.sh
+bin/sshToMinion.sh $HOME/bin/sshToMinion.sh
+#
+# Kubernetes config dir
+#
+.kube $HOME/.kube
