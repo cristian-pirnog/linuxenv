@@ -7,4 +7,4 @@
   'alt-shift-end'  : "rectangle-selection:select-to-end-of-line"
 
 'body':
-  'ctrl-x 3': 'pane:split-right-and-move-active-item'
+  'ctrl-k right': 'pane:split-right-and-move-active-item'
