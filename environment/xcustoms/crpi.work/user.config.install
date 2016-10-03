@@ -12,3 +12,7 @@ CRON/checkRolling.sh ${HOME}/CRON/checkRolling.sh
 # Files from the 'bin' directory
 #
 bin/attachToContainer.sh $HOME/bin/attachToContainer.sh
+
+# Git files
+.gitignore_global $HOME/.gitignore_global
+.gitconfig $HOME/.gitconfig
