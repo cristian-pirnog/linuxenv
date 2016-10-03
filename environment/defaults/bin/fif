@@ -5,7 +5,7 @@
 function printUsage()
 {
 cat << %%USAGE%%
-Usage: `basename $0` [-i] [-x pattern] [-s character] [-d dir] expr
+Usage: `basename $0` [-i] [-f pattern] [-x pattern] [-s character] [-d dir] expr
 
     Description:
         Tool for Checking existence of the searchword in a path
@@ -25,6 +25,8 @@ Usage: `basename $0` [-i] [-x pattern] [-s character] [-d dir] expr
                 Otherwise, if pattern does not contain the default pattern, 
                 this will be added to it.
 
+	-f	search only through files whose names match the pattern
+		
         -h      display this help message
 
 	-d dir
@@ -54,9 +56,9 @@ NL='
 theDirectory="."
 theDoCase=""
 theFind="find"
-thePattern="\.git${NL}\.user${NL}\.o'${NL}\.so${NL}CMakeFiles${NL}\.stack-work${NL}\.dll${NL}\.tags"
+theExcludePattern="\.git${NL}\.user${NL}\.o'${NL}\.so${NL}CMakeFiles${NL}\.stack-work${NL}\.dll${NL}\.tags"
 
-supportedOptions="hix:s:d:"
+supportedOptions="hix:s:d:f:"
 if $(isMac); then
     args=`getopt ${supportedOptions} $*`
 else
@@ -83,8 +85,12 @@ while true; do
             theDoCase="-i"
 	    shift
             ;;
+        -f)
+            theFilePattern=$(StripQuotes ${2})
+	    shift 2
+	    ;;
         -x)
-            thePattern=${thePattern}${NL}$(StripQuotes ${2})
+            theExcludePattern=${theExcludePattern}${NL}$(StripQuotes ${2})
 	    shift 2
 	    ;;
 	-s)
@@ -115,26 +121,31 @@ fi
 
 theSearchWord=$(StripQuotes "$*")
 
-
 grepCommand="grep -nT ${theDoCase} -E '${theSearchWord}'"
-for f in $($theFind -L $theDirectory -type f | grep -v "$thePattern")
+for f in $($theFind -L $theDirectory -type f | grep -v "$theExcludePattern")
 do
     textFileFlag=`file -b $f | grep -e ' text\( \|$\)'`
-    if [[ -n ${textFileFlag} ]]; then
+    if [[ -z ${theFilePattern} ]] && [[ -z ${textFileFlag} ]]; then
+	continue
+    fi
 
-    	if [[ ${mySkipComments} == true ]]; then
-            expression=$(eval ${grepCommand} ${f} | grep -v -P "${theComment}"'.*?'"${theSearchWord}")
-	else
-	    expression=$(eval ${grepCommand} ${f})
-        fi
+  
+    if [[ -z $(echo ${f} | grep -E -e "${theFilePattern}")  ]]; then
+	continue
+    fi
 
-        if [[ -n ${expression} ]]; then
-            echo "-----------------------------------------------------------"
-            echo "$f"
-            echo "-----------------------------------------------------------"
-            echo "" 
-            echo "$expression" | sed 's/://' | grep ${theDoCase} --color=auto -- "${theSearchWord}"
-        fi
+    if [[ ${mySkipComments} == true ]]; then
+        expression=$(eval ${grepCommand} ${f} | grep -v -P "${theComment}"'.*?'"${theSearchWord}")
+    else
+	expression=$(eval ${grepCommand} ${f})
+    fi
+    
+    if [[ -n ${expression} ]]; then
+        echo "-----------------------------------------------------------"
+        echo "$f"
+        echo "-----------------------------------------------------------"
+        echo "" 
+        echo "$expression" | sed 's/://' | grep ${theDoCase} --color=auto -- "${theSearchWord}"
     fi
 done
 

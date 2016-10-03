@@ -16,6 +16,10 @@ test -f ${HOME}/.userenv && source ${HOME}/.userenv
 test -f ${HOME}/.userenv_custom.base && source ${HOME}/.userenv_custom.base
 test -f ${HOME}/.userenv_custom && source ${HOME}/.userenv_custom
 
+# Concatenate the default and user ssh config files into one
+# This must be done after userenv_custom is sourced, since this file
+# might make changes to the config.user file
+
 ##
 # Source user aliases
 ##
