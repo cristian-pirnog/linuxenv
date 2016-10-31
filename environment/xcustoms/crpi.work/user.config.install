@@ -12,6 +12,10 @@ CRON/checkRolling.sh ${HOME}/CRON/checkRolling.sh
 #
 bin/attachToContainer.sh $HOME/bin/attachToContainer.sh
 bin/sshToMinion.sh $HOME/bin/sshToMinion.sh
+
+# Git files
+.gitignore_global $HOME/.gitignore_global
+.gitconfig $HOME/.gitconfig
 #
 # Kubernetes config dir
 #
