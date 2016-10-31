@@ -43,7 +43,7 @@ export PATH=${PATH}:${GOBIN}
 ## Devicetools amazon servers
 SSH_CONFIG_AMAZON="kube-aws ec2-52-18-32-155.eu-west-1.compute.amazonaws.com
 swissmom-minion ec2-54-194-176-148.eu-west-1.compute.amazonaws.com
-devicetools-minion ec2-54-194-82-106.eu-west-1.compute.amazonaws.com"
+devicetools-minion-aws ec2-54-194-82-106.eu-west-1.compute.amazonaws.com"
 GenerateSshEntries "${SSH_CONFIG_AMAZON}" admin ~/.ssh/devicetools-ec2-keypair-eu.pem
 
 ## Edge5 amazon servers
@@ -64,7 +64,8 @@ swiss-minion 159.100.248.80
 swisslogbook-minion 159.100.249.74
 friday-minion 159.100.248.35
 friday-ro-minion 159.100.249.25
-kube-test 185.19.29.178"
+kube-gva 185.19.29.178
+devicetools-minion-gva 185.19.30.180"
 GenerateSshEntries "${SSH_CONFIG_EXOSCALE}" debian ~/.ssh/devicetools-exoscale-keypair-ch.pem
 
 export NEWRELIC_LICENSE_KEY="06ff5e0fb72ca17c5b25cfe040945105043f7d08"
