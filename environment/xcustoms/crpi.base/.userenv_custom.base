@@ -1,3 +1,2 @@
 # -*- mode: sh -*- #
-
-export DOCUMENTATION_DIR='/home/crpi/documentation'
+export PATH=$PATH:/usr/local/go/bin
