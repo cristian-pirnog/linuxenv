@@ -94,26 +94,29 @@ dbg=''
 
 if [[ -z ${imageName} ]]; then
     images=$(listContainerImages)
-    while true; do
-	index=0
-	for img in ${images}; do
-	    index=$((index + 1))
-	    echo "[$index] " $img
-	done
-	printf "\nChoose image (1 to %d, q to quit): " ${index}
-	read answer
+    if [[ ${#images[@]} -gt 1 ]]; then
+	while true; do
+	    index=1
+	    for img in ${images}; do
+		echo "[$index] " $img
+		index=$((index + 1))
+	    done
+	    printf "\nChoose image (1 to %d, q to quit): " ${index}
+	    read answer
 	
-    if [[ ${answer} == 'q' ]]; then
-        exit 0
+	    if [[ ${answer} == 'q' ]]; then
+		exit 0
+	    fi
+
+	    if [[ ${answer} -gt 0 ]] && [[ ${answer} -le ${index} ]]; then
+		break
+	    else
+		printf "The choice must be a number between 1 and ${index}.\n\n"
+	    fi
+	done
+    else
+	answer=1
     fi
-
-	if [[ ${answer} -gt 0 ]] && [[ ${answer} -le ${index} ]]; then
-	    break
-	else
-	    printf "The choice must be a number between 1 and ${index}.\n\n"
-	fi
-    done
-
     imageName=$(echo ${images} | awk -v answer=${answer} '{print $answer}')
 fi
 

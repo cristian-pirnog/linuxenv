@@ -1,7 +1,10 @@
 #
 # Files from '.ssh' directory
 #
-
+#
+# Files from '.ssh' directory
+#
+.ssh/config.user $HOME/.ssh/config.user
 #
 # Files from 'bin' directory
 #

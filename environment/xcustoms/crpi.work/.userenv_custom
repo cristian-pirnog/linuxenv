@@ -13,7 +13,7 @@ function GenerateSshEntries()
 	local lAlias=$(echo ${info}|awk '{print $1}')
 	local lHostName=$(echo ${info}|awk '{print $2}')
 	
-	if [[ -z $(grep ${lHostName} ${lConfigFile}) ]]; then
+	if [[ -z $(grep ${lHostName} ${lConfigFile} | grep " HostName ") ]]; then
 	    if [[ -n $(grep ${lAlias} ${lConfigFile}) ]]; then
 		echo "SSH alias ${lAlias} exists with host name different from ${lHostName}"
 		return
@@ -22,7 +22,7 @@ function GenerateSshEntries()
     HostName ${lHostName}
     Port 22
     User ${lUserName}
-    IdentityFile ${lIdentityFile}\n" >> ~/.ssh/config
+    IdentityFile ${lIdentityFile}\n" >> ${lConfigFile}
 	fi
     done
         
@@ -41,30 +41,35 @@ export GOBIN=${GOPATH}/bin
 export PATH=${PATH}:${GOBIN}
 
 ## Devicetools amazon servers
-export SSH_CONFIG_AMAZON="kube-aws ec2-52-18-32-155.eu-west-1.compute.amazonaws.com
-swissmom-minion ec2-54-194-176-148.eu-west-1.compute.amazonaws.com"
+SSH_CONFIG_AMAZON="kube-aws ec2-52-18-32-155.eu-west-1.compute.amazonaws.com
+swissmom-minion ec2-54-194-176-148.eu-west-1.compute.amazonaws.com
+devicetools-minion-aws ec2-54-194-82-106.eu-west-1.compute.amazonaws.com"
 GenerateSshEntries "${SSH_CONFIG_AMAZON}" admin ~/.ssh/devicetools-ec2-keypair-eu.pem
 
 ## Edge5 amazon servers
-export SSH_CONFIG_AMAZON_EDGE5="gluster-aws-1 ec2-54-154-236-218.eu-west-1.compute.amazonaws.com
+SSH_CONFIG_AMAZON_EDGE5="gluster-aws-1 ec2-54-154-236-218.eu-west-1.compute.amazonaws.com
 gluster-aws-2 ec2-54-171-162-249.eu-west-1.compute.amazonaws.com
 gluster-aws-3 ec2-54-171-7-54.eu-west-1.compute.amazonaws.com
-edge5ec2 ec2-176-34-70-247.eu-west-1.compute.amazonaws.com
-elasticsearch ec2-54-228-232-117.eu-west-1.compute.amazonaws.com
-elasticsearch-replica ec2-54-195-131-179.eu-west-1.compute.amazonaws.com"
-GenerateSshEntries "${SSH_CONFIG_AMAZON_EDGE5}" admin ~/.ssh/edge5-ec2-keypair-eu.pem
+edge5ec2 ec2-176-34-177-246.eu-west-1.compute.amazonaws.com
+elasticsearch ec2-54-220-126-176.eu-west-1.compute.amazonaws.com
+elasticsearch-replica ec2-54-220-100-15.eu-west-1.compute.amazonaws.com"
+GenerateSshEntries "${SSH_CONFIG_AMAZON_EDGE5}" ec2-user ~/.ssh/edge5-ec2-keypair-eu.pem
 
 # Devicetools exoscale servers
-export SSH_CONFIG_EXOSCALE="kube-exo 159.100.250.184
-gluster-exo-1 159.100.249.235
-gluster-exo-2 159.100.248.159
+SSH_CONFIG_EXOSCALE="kube-exo 159.100.250.184
 kitag-minion 159.100.248.130
 ksgr-minion 159.100.249.86
 sunrise-minion 159.100.249.204
 swiss-minion 159.100.248.80
 swisslogbook-minion 159.100.249.74
 friday-minion 159.100.248.35
-friday-ro-minion 159.100.249.25"
-
+friday-ro-minion 159.100.249.25
+kube-gva 185.19.29.178
+devicetools-minion-gva 185.19.30.180"
 GenerateSshEntries "${SSH_CONFIG_EXOSCALE}" debian ~/.ssh/devicetools-exoscale-keypair-ch.pem
+
+export NEWRELIC_LICENSE_KEY="06ff5e0fb72ca17c5b25cfe040945105043f7d08"
+export NEWRELIC_NAME="Onboarding API"
+
+export MINONS=$(echo "${SSH_CONFIG_EXOSCALE} ${SSH_CONFIG_AMAZON}" | awk '{print $1}' | grep minion)
 
