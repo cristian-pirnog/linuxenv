@@ -71,5 +71,5 @@ GenerateSshEntries "${SSH_CONFIG_EXOSCALE}" debian ~/.ssh/devicetools-exoscale-k
 export NEWRELIC_LICENSE_KEY="06ff5e0fb72ca17c5b25cfe040945105043f7d08"
 export NEWRELIC_NAME="Onboarding API"
 
-export MINONS=$(echo "${SSH_CONFIG_EXOSCALE} ${SSH_CONFIG_AMAZON}" | awk '{print $1}' | grep minion)
+export MINIONS=$(echo "${SSH_CONFIG_EXOSCALE} ${SSH_CONFIG_AMAZON}" | awk '{print $1}' | grep minion)
 
