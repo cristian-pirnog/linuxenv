@@ -42,8 +42,8 @@ export PATH=${PATH}:${GOBIN}
 
 ## Devicetools amazon servers
 SSH_CONFIG_AMAZON="kube-aws ec2-52-18-32-155.eu-west-1.compute.amazonaws.com
-swissmom-minion ec2-54-194-176-148.eu-west-1.compute.amazonaws.com
-devicetools-minion-aws ec2-54-194-82-106.eu-west-1.compute.amazonaws.com"
+swissmom-minion ec2-54-171-198-144.eu-west-1.compute.amazonaws.com"
+#devicetools-minion-aws "
 GenerateSshEntries "${SSH_CONFIG_AMAZON}" admin ~/.ssh/devicetools-ec2-keypair-eu.pem
 
 ## Edge5 amazon servers

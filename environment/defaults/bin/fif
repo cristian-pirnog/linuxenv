@@ -124,7 +124,7 @@ theSearchWord=$(StripQuotes "$*")
 grepCommand="grep -nT ${theDoCase} -E '${theSearchWord}'"
 for f in $($theFind -L $theDirectory -type f | grep -v "$theExcludePattern")
 do
-    textFileFlag=`file -b $f | grep -e ' text\( \|$\)'`
+    textFileFlag=`file -i -b $f | grep -e '^text'`
     if [[ -z ${theFilePattern} ]] && [[ -z ${textFileFlag} ]]; then
 	continue
     fi
