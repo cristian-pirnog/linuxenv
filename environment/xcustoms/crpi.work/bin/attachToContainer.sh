@@ -29,12 +29,12 @@ cat << %%USAGE%%
 getContainer()
 {
     local lImage=${1}
-    docker ps | awk '{print $1, $2}' | tail -n +2 | egrep ' '${lImage}'$' | awk '{print $1}'
+    docker ps | awk '{print $1, $NF}' | tail -n +2 | egrep ' '${lImage}'$' | awk '{print $1}'
 }
 
 listContainerImages()
 {
-    docker ps | awk '{print $2}' | tail -n +2
+    docker ps | awk '{print $NF}' | tail -n +2
 }
 
 
@@ -91,17 +91,16 @@ dbg=echo
 dbg=''
 
 
-
 if [[ -z ${imageName} ]]; then
-    images=$(listContainerImages)
+    images=($(listContainerImages)) # images is an array of strings
     if [[ ${#images[@]} -gt 1 ]]; then
 	while true; do
 	    index=1
-	    for img in ${images}; do
-		echo "[$index] " $img
+	    for img in ${images[@]}; do
+		echo "[$index] "$img
 		index=$((index + 1))
 	    done
-	    printf "\nChoose image (1 to %d, q to quit): " ${index}
+	    printf "\nChoose container (1 to %d, q to quit): " ${index}
 	    read answer
 	
 	    if [[ ${answer} == 'q' ]]; then
@@ -117,9 +116,8 @@ if [[ -z ${imageName} ]]; then
     else
 	answer=1
     fi
-    imageName=$(echo ${images} | awk -v answer=${answer} '{print $answer}')
+    imageName=$(echo ${images[@]} | awk -v answer=${answer} '{print $answer}')
 fi
-
 
 containerId=$(getContainer ${imageName})
 if [[ $(echo $containerId|wc -w) -gt 1 ]]; then
