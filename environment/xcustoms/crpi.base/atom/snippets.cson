@@ -1,0 +1,20 @@
+'.source.go':
+    'return nil and error':
+      'prefix': 'rne'
+      'body': 'return nil, err'
+
+    'return err if err':
+      'prefix': 'iferr'
+      'body': """
+      if err != nil {
+          return err
+      }
+      """
+
+    'insert authorize check':
+        'prefix': 'auth'
+        'body': """
+if err := AuthorizeRole(db, r, accountID, models.${1:ADMIN}); err != nil {
+	return err
+}
+    """
