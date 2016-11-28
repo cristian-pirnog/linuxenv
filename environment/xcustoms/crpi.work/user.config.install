@@ -11,6 +11,7 @@
 #
 bin/attachToContainer.sh $HOME/bin/attachToContainer.sh
 bin/sshToMinion.sh $HOME/bin/sshToMinion.sh
+bin startVNC $HOME/bin/startVNC
 
 # Git files
 .gitignore_global $HOME/.gitignore_global
@@ -24,3 +25,10 @@ bin/sshToMinion.sh $HOME/bin/sshToMinion.sh
 # Atom stuf
 #
 atom.apiblueprint.cson $HOME/.atom/packages/language-api-blueprint/grammars/apiblueprint.cson
+
+#
+# VNC
+#
+vnc/config $HOME/.vnc/config
+vnc/passwd $HOME/.vnc/passwd
+vnc/xstartup $HOME/.vnc/xstartup
