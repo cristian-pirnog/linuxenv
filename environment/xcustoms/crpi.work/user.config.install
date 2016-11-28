@@ -11,7 +11,7 @@
 #
 bin/attachToContainer.sh $HOME/bin/attachToContainer.sh
 bin/sshToMinion.sh $HOME/bin/sshToMinion.sh
-bin startVNC $HOME/bin/startVNC
+bin/startVNC $HOME/bin/startVNC
 
 # Git files
 .gitignore_global $HOME/.gitignore_global
