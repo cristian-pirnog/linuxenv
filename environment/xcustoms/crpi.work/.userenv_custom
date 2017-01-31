@@ -28,6 +28,8 @@ function GenerateSshEntries()
         
 }
 
+export NVM_DIR="/home/cristian/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 
 test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
 
@@ -56,7 +58,7 @@ elasticsearch-replica ec2-54-220-100-15.eu-west-1.compute.amazonaws.com"
 GenerateSshEntries "${SSH_CONFIG_AMAZON_EDGE5}" ec2-user ~/.ssh/edge5-ec2-keypair-eu.pem
 
 # Devicetools exoscale servers
-SSH_CONFIG_EXOSCALE="kube-exo 159.100.250.184
+SSH_CONFIG_EXOSCALE="kube-dk2 159.100.250.184
 kitag-minion 159.100.248.130
 ksgr-minion 159.100.249.86
 sunrise-minion 159.100.249.204
@@ -65,7 +67,12 @@ swisslogbook-minion 159.100.249.74
 friday-minion 159.100.248.35
 friday-ro-minion 159.100.249.25
 kube-gva 185.19.29.178
-devicetools-minion-gva 185.19.30.180"
+devicetools-minion-gva 185.19.30.180
+devicetools-loadbalancer1-gva 185.19.28.154
+devicetools-loadbalancer2-gva 185.19.29.106
+devicetools-management 185.19.28.236
+devicetools-showcase 185.19.28.127
+"
 GenerateSshEntries "${SSH_CONFIG_EXOSCALE}" debian ~/.ssh/devicetools-exoscale-keypair-ch.pem
 
 export NEWRELIC_LICENSE_KEY="06ff5e0fb72ca17c5b25cfe040945105043f7d08"

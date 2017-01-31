@@ -1,4 +1,5 @@
 .tags
+.tags_swap
 .user
 .git.pull.log
 .git.push.log

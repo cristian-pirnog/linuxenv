@@ -9,6 +9,12 @@ alias codp='cd ~/code/go/src/bitbucket.org/devicetools/provider'
 alias codpo='cd ~/code/go/src/bitbucket.org/devicetools/pontus2'
 alias cods='cd ~/code/go/src/bitbucket.org/devicetools/segments'
 alias goi='go install'
+
+# Docker aliases
+alias dps='docker ps'
+alias dim='docker images'
+alias stopAllDockerContainers='docker stop $(docker ps | tail -n +2 | cut -f1 -d" ")'
 alias removeDockerContainers='docker ps -a | tail -n +2 | awk '"'"'{print $1}'"'"' | xargs docker rm'
 alias removeOldDockerImages='docker images | grep none | awk '"'"'{print $3}'"'"' | xargs docker rmi'
+
 alias genpw='pwgen -nys1 12 7'

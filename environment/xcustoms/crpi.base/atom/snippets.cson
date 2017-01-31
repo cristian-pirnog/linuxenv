@@ -11,6 +11,14 @@
       }
       """
 
+    'insert fmt.Println':
+      'prefix': 'println'
+      'body': 'fmt.Println(${1})'
+
+    'insert fmt.Printf':
+      'prefix': 'printf'
+      'body': 'fmt.Printf("${1} = ${2:%v}\\\\n", ${1})'
+
     'insert authorize check':
         'prefix': 'auth'
         'body': """

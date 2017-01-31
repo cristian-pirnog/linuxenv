@@ -115,6 +115,9 @@ allSourceFiles()
         '')
             myExtensions="${myHeaders} ${mySources}"
             ;;
+	'Dockerfile')
+	    myExtensions='Dockerfile'
+	    ;;
         *)
             myExtensions=$(echo '.'"${@}"|sed 's/ / ./g'|sed 's/\.\././g')
             ;;
