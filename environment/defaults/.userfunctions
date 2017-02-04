@@ -115,11 +115,14 @@ allSourceFiles()
         '')
             myExtensions="${myHeaders} ${mySources}"
             ;;
+	'Dockerfile')
+	    myExtensions='Dockerfile'
+	    ;;
         *)
             myExtensions=$(echo '.'"${@}"|sed 's/ / ./g'|sed 's/\.\././g')
             ;;
     esac 
-    
+
     for e in "${myExtensions}"; do
 	find . -name '*'"${e}"
     done

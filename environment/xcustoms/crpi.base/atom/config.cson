@@ -19,12 +19,26 @@
     ]
   editor:
     fontSize: 16
+    scrollPastEnd: true
+    showInvisibles: true
+    tabLength: 4
+    tabType: "soft"
   "exception-reporting":
     userId: "ed85997d-630e-8e3e-2de4-371ad5ccb4d0"
+  "file-icons": {}
   "haskell-ghc-mod": {}
   linter:
-    errorPanelHeight: 26
+    errorPanelHeight: 50
   "tree-view":
     hideVcsIgnoredFiles: true
   welcome:
     showOnStartup: false
+".apiary.source":
+  editor:
+    tabLength: 4
+".apib.gfm.html.markdown.source.text":
+  editor:
+    tabLength: 4
+".gfm.html.markdown.mson.source.text":
+  editor:
+    tabLength: 4

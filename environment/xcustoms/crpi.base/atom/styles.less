@@ -20,12 +20,23 @@ atom-workspace { background-color: @pitch-black; }
 .theme-one-dark-ui {
   atom-text-editor { background-color: @pitch-black; }
   .editor.mini { background-color: @pitch-black; }
-  .tree-view { background-color: @pitch-black;  }
+  .tree-view { background-color: @pitch-black; font-size: 13px; }
   .build-tab { background-color: @pitch-black;  }
   .status-bar { background-color: @pitch-black;  }
   .tool-panel { background-color: @pitch-black;  }
 }
 
+.list-group li:not(.list-nested-item),
+.list-tree li:not(.list-nested-item),
+.list-group li.list-nested-item > .list-item,
+.list-tree li.list-nested-item > .list-item {
+    line-height:22px;
+}
+
+.list-group .selected:before,
+.list-tree .selected:before {
+    height:22px;
+}
 
 atom-text-editor, atom-text-editor::shadow {
   // Box
@@ -43,5 +54,46 @@ atom-text-editor, atom-text-editor::shadow {
   // Light theme background (set in settings)
   .highlights .highlight-selected.light-theme.background .region {
     background-color: rgba(255, 128, 64, 0.2);
+  }
+}
+
+
+.symbols-view {
+  &.select-list ol.list-group li .primary-line,
+  &.select-list ol.list-group li .secondary-line {
+
+    font-family: Inconsolata;
+    font-size: 14px;
+
+    // let lines wrap
+    text-overflow: initial;
+    white-space: initial;
+    overflow: initial;
+
+    // reduce line-height
+    line-height: 1.0em;
+    padding-top: .1em;
+    padding-bottom: .0em;
+
+    // make sure wrapped lines get padding
+    // padding-left: 21px;
+    &.icon:before {
+      margin-left: -21px;
+    }
+
+    .character-match {
+        color: rgb(200, 200, 10) !important;
+    }
+  }
+}
+
+.symbols-view {
+  &.select-list ol.list-group li .secondary-line {
+      float: right;
+      margin-top: -12px;
+      padding-top: 0em;
+      padding-bottom: 0em;
+      font-size: 12px;
+      color: rgba(200, 200, 10, 0.8) !important;
   }
 }

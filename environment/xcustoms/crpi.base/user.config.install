@@ -20,3 +20,4 @@ atom/atom.init.coffee $HOME/.atom/atom.init.coffee
 atom/config.cson $HOME/.atom/config.cson
 atom/keymap.cson $HOME/.atom/keymap.cson
 atom/styles.less $HOME/.atom/styles.less
+atom/snippets.cson $HOME/.atom/snippets.cson
