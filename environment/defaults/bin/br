@@ -153,7 +153,7 @@ listBranches()
     for p in ${lGitDirs}; do
 	cd ${p}
 	if [[ ${lOption} = 'all' ]]; then
-        ${listComand}
+            #${listComand}
 	    printf "Project %s: \n%s\n\n" "${p}" "$(${listCommand})"
 	else
 	    n=$(( lAlignSize - ${#p} +1 ))
@@ -368,7 +368,7 @@ while true; do
 	    ;;
 	--listOptions)
             echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | \
-	 	sed 's/[^:]/-& /g') | sed 's/://g'
+	 	sed 's/[^:]/-& /g') | sed 's/://g' | tr ' ' '\n'
             exit 0
         ;;
 	-x|--exclude)

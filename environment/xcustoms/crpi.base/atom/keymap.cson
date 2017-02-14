@@ -8,3 +8,5 @@
 
 'body':
   'ctrl-k right': 'pane:split-right-and-move-active-item'
+  'ctrl-m right': 'window:move-active-item-to-pane-on-right'
+  'ctrl-m left':  'window:move-active-item-to-pane-on-left'

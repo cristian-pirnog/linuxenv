@@ -18,7 +18,7 @@
       "Thumbs.db .user"
     ]
   editor:
-    fontSize: 16
+    fontSize: 15
     scrollPastEnd: true
     showInvisibles: true
     tabLength: 4
