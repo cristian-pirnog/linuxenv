@@ -16,3 +16,4 @@ bin/startDropbox.sh $HOME/bin/startDropbox.sh
 bin/renamePics.sh $HOME/bin/renamePics.sh
 bin/switchWiredNetwork.sh $HOME/bin/switchWiredNetwork.sh
 bin/mountPhone.sh $HOME/bin/mountPhone.sh
+bin/syncMusicToPhone.sh $HOME/bin/syncMusicToPhone.sh

@@ -16,7 +16,7 @@
 if [[ -z ${DISPLAY} ]]; then
     geometryOption='-nw'
 else
-    geometryOption='-geometry 117x39'
+    geometryOption='-geometry 117x36'
 fi
 
 emacs ${geometryOption} "$@" #"$OFFSET" $OTHER_OPTS
