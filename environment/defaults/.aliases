@@ -12,6 +12,7 @@ alias lc='/usr/bin/wc -l'
 alias revert='git checkout'
 #alias diff='colordiff'
 alias vi=vim
+alias xargs='xargs -r'
 
 printLastDir()
 {

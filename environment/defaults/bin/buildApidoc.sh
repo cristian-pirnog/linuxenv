@@ -5,7 +5,7 @@ printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) -h
-            $(basename ${0}) filename [-o outFile]
+            $(basename ${0}) [filename] [-o outFile]
 
     Description:
         Builds an HTML apidoc file from the given (apib) file.
@@ -18,13 +18,16 @@ cat << %%USAGE%%
        -o outFile
 	     The name of the output file. Defaults to the name of the input
 	     file, with html extension.
-	     
+
     Arguments:
        filename
-	     The name of the file to be used as input.
+             The name of the file to be used as input. If not provided the
+	     script will attempt to find a file called doc/DIRNAME.apib, where
+	     DIRNAME is the name of the current directory. If no such file is
+	     found, it search for an apib file in the doc directory.
 
     Requires: aglio
-	     
+
 %%USAGE%%
 }
 
@@ -53,7 +56,7 @@ outputFile=''
 while true; do
     case ${1} in
     --listOptions)
-        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | 
+        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} |
             sed 's/[^:]/-& /g') | sed 's/://g'
         exit 0
         ;;
@@ -70,16 +73,16 @@ while true; do
         break
         ;;
     "")
-        # This is necessary for processing missing optional arguments 
+        # This is necessary for processing missing optional arguments
         shift
         ;;
     esac
 done
 
-if [[ $# -lt 1 ]]; then
-    printUsage
-    exit 1
-fi
+# if [[ $# -lt 1 ]]; then
+#     printUsage
+#     exit 1
+# fi
 
 # Check for aglio
 source ~/.userfunctions
@@ -89,6 +92,23 @@ fi
 
 
 inputFile="${1}"
+if [[ -z "${inputFile}" ]]; then
+    inputFile="doc/$(basename $(pwd)).apib"
+    if [[ ! -f ${inputFile} ]]; then
+        inputFile=`find doc -name '*.apib'`
+        fileCount=$(echo ${inputFile}|wc -w)
+        if [[ ${fileCount} -eq 0 ]]; then
+            echo "Could not find an apib file in doc directory"
+            exit 1
+        elif [[ ${fileCount} -gt 1 ]]; then
+            echo "Found multiple apib files in doc directory"
+        fi
+    fi
+fi
+
+
+
+
 if [[ -z "${outputFile}" ]]; then
     outputFile=${inputFile%.*}'.html'
 fi
