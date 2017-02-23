@@ -10,6 +10,7 @@ synergy.home.pc.conf $HOME/.synergy.conf
 #
 # Files from bin directory
 #
+bin/add $HOME/bin/add
 bin/from_unixtime_ms $HOME/bin/from_unixtime_ms
 bin/myXterm $HOME/bin/myXterm
 bin/twoTerms $HOME/bin/twoTerms

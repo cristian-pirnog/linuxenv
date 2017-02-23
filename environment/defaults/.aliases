@@ -27,7 +27,7 @@ alias cdt='cd $(date +%Y%m%d)'
 alias cdl='cd $(printLastDir)'
 
 # Git aliases
-alias add='git add --all'
+alias gadd='git add --all'
 alias pull='git pull'
 alias push='git push'
 
