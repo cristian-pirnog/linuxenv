@@ -26,3 +26,30 @@ if err := AuthorizeRole(db, r, accountID, models.${1:ADMIN}); err != nil {
 	return err
 }
     """
+
+    'insert check read scope':
+        'prefix': 'checkRead'
+        'body': """
+// May the device do READ operations?
+if err := api.CheckScope(r, model.ScopeRead); err != nil {
+	return err
+}
+    """
+
+    'insert check write scope':
+        'prefix': 'checkWrite'
+        'body': """
+// May the device do WRITE operations?
+if err := api.CheckScope(r, model.ScopeWrite); err != nil {
+	return err
+}
+    """
+
+    'insert new type template':
+        'prefix': 'typeTemplate'
+        'body': """
+// ${1} defines a ${2}
+type ${1} struct {
+	${3}
+}
+    """

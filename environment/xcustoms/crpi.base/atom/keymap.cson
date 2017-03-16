@@ -6,6 +6,7 @@
   'alt-shift-home' : "rectangle-selection:select-to-beginning-Of-line"
   'alt-shift-end'  : "rectangle-selection:select-to-end-of-line"
 
+
 'body':
   'ctrl-k right': 'pane:split-right-and-move-active-item'
   'ctrl-m right': 'window:move-active-item-to-pane-on-right'

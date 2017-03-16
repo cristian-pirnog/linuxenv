@@ -96,34 +96,36 @@ lower()
 # be prepended automatically
 allSourceFiles()
 {
-    local myHeaders=".h .hpp"
-    local mySources=".C .cpp"
+    local myHeaders=('.h' '.hpp')
+    local mySources=('.C' '.cpp' '.go')
+    declare -a myExtensions
     
-    local option=$1    
-    
-    case ${option} in
+    local option=${1}
+
+    case $(echo ${option}|tr '[:upper:]' '[:lower:]') in
         "?")
             echo "Usage: `basename allSourceFiles` [?|-h|-s|pattern]"
             return 0
             ;;
+	'')
+	    myExtensions=(${myHeaders[@]} ${mySources[@]})
+	    ;;
         "-h")
-            myExtensions="${myHeaders}"
+            myExtensions=(${myHeaders[@]})
             ;;
         "-s")
-            myExtensions="${mySources}"
+            myExtensions=(${mySources[@]})
             ;;
-        '')
-            myExtensions="${myHeaders} ${mySources}"
-            ;;
-	'Dockerfile')
+	'docker'|'dockerfile')
 	    myExtensions='Dockerfile'
 	    ;;
         *)
-            myExtensions=$(echo '.'"${@}"|sed 's/ / ./g'|sed 's/\.\././g')
+	    myExtensions=$(echo '.'"${@}"|sed 's/ / ./g'|sed 's/\.\././g')
             ;;
     esac 
 
-    for e in "${myExtensions}"; do
+    
+    for e in ${myExtensions[@]}; do
 	find . -name '*'"${e}"
     done
 }

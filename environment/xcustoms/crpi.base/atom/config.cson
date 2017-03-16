@@ -17,8 +17,9 @@
       "._*"
       "Thumbs.db .user"
     ]
+    telemetryConsent: "limited"
   editor:
-    fontSize: 15
+    fontSize: 17
     scrollPastEnd: true
     showInvisibles: true
     tabLength: 4
@@ -26,6 +27,8 @@
   "exception-reporting":
     userId: "ed85997d-630e-8e3e-2de4-371ad5ccb4d0"
   "file-icons": {}
+  "go-plus":
+    currentPanelHeight: "9.03072033898305vh"
   "haskell-ghc-mod": {}
   linter:
     errorPanelHeight: 50

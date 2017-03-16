@@ -2,6 +2,7 @@
 
 alias cdb='cd ~/deploy/master/Release/bin'
 alias codb='cd ~/code/go/src/bitbucket.org/devicetools'
+alias codc='cd ~/code/go/src/bitbucket.org/devicetools/coupon-management'
 alias codd='cd ~/code/go/src/bitbucket.org/devicetools/devmanagement'
 alias codg='cd ~/code/go/src/bitbucket.org/devicetools/golib'
 alias codgo='cd ~/code/go/src/bitbucket.org/devicetools'
@@ -15,10 +16,12 @@ alias goi='go install'
 # Docker aliases
 alias dps='docker ps'
 alias dim='docker images'
-alias stopAllDockerContainers='docker stop $(docker ps | tail -n +2 | cut -f1 -d" ")'
-alias removeDockerContainers='docker ps -a | grep Exited | awk '"'"'{print $1}'"'"' | xargs docker rm'
-alias removeOldDockerImages='docker images | grep none | awk '"'"'{print $3}'"'"' | xargs docker rmi'
+alias stopAllDockerContainers='docker ps|tail -n +2|grep -v "tomastomecek/sen"|cut -f1 -d" "|xargs docker stop'
+alias removeStoppedContainers='docker ps -a|grep Exited|awk '"'"'{print $1}'"'"'|xargs docker rm'
+alias removeOldDockerImages='docker images|grep none|awk '"'"'{print $3}'"'"'|xargs docker rmi'
 alias dcb='docker-compose build'
 alias dcr='docker-compose run --service-ports api bash'
+alias dcbr='dcb&&dcr'
+alias runSen='if [[ -z $(docker ps|grep tomastomecek/sen) ]]; then docker run --privileged -v /var/run/docker.sock:/run/docker.sock -ti -e TERM tomastomecek/sen; fi'
 
 alias genpw='pwgen -nys1 12 7'

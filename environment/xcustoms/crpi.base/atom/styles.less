@@ -1,5 +1,5 @@
-atom-text-editor::shadow .comment{color: #ffe600}
-atom-text-editor::shadow .string{color: #00ff00; font-style: italic}
+atom-text-editor.editor .syntax--comment{color: #ffe600}
+atom-text-editor.editor .syntax--string{color: #00ff00; font-style: italic}
 
 @pitch-black: hsl(222, 8%, 2%);
 
@@ -38,13 +38,13 @@ atom-workspace { background-color: @pitch-black; }
     height:22px;
 }
 
-atom-text-editor, atom-text-editor::shadow {
+atom-text-editor, atom-text-editor.editor {
   // Box
   .highlights .highlight-selected .region {
     border-color: #ddd;
   }
   // Background
-  .highlights .highlight-selected.background .region {
+  .highlights .highlight-selected.syntax--background .region {
     background-color: rgba(155, 149, 0, 0.6);
   }
   // Light theme box (set in settings)
@@ -52,11 +52,10 @@ atom-text-editor, atom-text-editor::shadow {
     border-color: rgba(255, 128, 64, 0.4);
   }
   // Light theme background (set in settings)
-  .highlights .highlight-selected.light-theme.background .region {
+  .highlights .highlight-selected.light-theme.syntax--background .region {
     background-color: rgba(255, 128, 64, 0.2);
   }
 }
-
 
 .symbols-view {
   &.select-list ol.list-group li .primary-line,

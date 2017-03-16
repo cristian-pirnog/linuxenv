@@ -106,15 +106,14 @@ if [[ -z "${inputFile}" ]]; then
     fi
 fi
 
-
-
-
 if [[ -z "${outputFile}" ]]; then
     outputFile=${inputFile%.*}'.html'
 fi
 
-# When debuggin script, we echo all (most) commands, instead of executing them
-dbg=echo
-dbg=''
+# Uncomment this for enabling debugging
+#set -x
 
-aglio -i ${inputFile} --theme-template triple -o ${outputFile}
+# Only build if the output file is older than the input file
+if [[ ${outputFile} -ot ${inputFile} ]]; then
+    aglio -i ${inputFile} --theme-template triple -o ${outputFile}
+fi

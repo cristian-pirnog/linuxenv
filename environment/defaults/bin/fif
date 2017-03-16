@@ -120,8 +120,10 @@ if [[ $# -eq 0 ]]; then
 fi
 
 theSearchWord=$(StripQuotes "$*")
+theSearchWord=$(echo "${theSearchWord}"|sed 's_\([\(\)]\)_\\\1_g')
 
 grepCommand="grep -nT ${theDoCase} -E '${theSearchWord}'"
+
 for f in $($theFind -L $theDirectory -type f | grep -v "$theExcludePattern")
 do
     textFileFlag=`file -i -b $f | grep -e '^text'`
@@ -145,7 +147,7 @@ do
         echo "$f"
         echo "-----------------------------------------------------------"
         echo "" 
-        echo "$expression" | sed 's/://' | grep ${theDoCase} --color=auto -- "${theSearchWord}"
+        echo "$expression" | sed 's/://' | grep ${theDoCase} -E --color=auto -- "${theSearchWord}"
     fi
 done
 
