@@ -15,6 +15,7 @@ alias goi='go install'
 
 # Docker aliases
 alias dps='docker ps'
+alias dpsa='docker ps -a'
 alias dim='docker images'
 alias stopAllDockerContainers='docker ps|tail -n +2|grep -v "tomastomecek/sen"|cut -f1 -d" "|xargs docker stop'
 alias removeStoppedContainers='docker ps -a|grep Exited|awk '"'"'{print $1}'"'"'|xargs docker rm'
@@ -23,5 +24,6 @@ alias dcb='docker-compose build'
 alias dcr='docker-compose run --service-ports api bash'
 alias dcbr='dcb&&dcr'
 alias runSen='if [[ -z $(docker ps|grep tomastomecek/sen) ]]; then docker run --privileged -v /var/run/docker.sock:/run/docker.sock -ti -e TERM tomastomecek/sen; fi'
+alias freshRestartDockerContainer='stopAllDockerContainers && removeStoppedContainers && dcb && removeOldDockerImages && dcr'
 
 alias genpw='pwgen -nys1 12 7'

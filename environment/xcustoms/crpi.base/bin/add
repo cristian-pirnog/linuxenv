@@ -65,7 +65,7 @@ source ~/.userfunctions
 
 # Build the api doc html file for go projects
 if [[ -n $(find . -name '*.go') ]] && [[ -d doc ]]; then
-    buildApidoc || exitWithError "Failed to build Api doc."
+    buildApidoc >/dev/null 2>&1 || exitWithError "Failed to build Api doc."
 fi
 
 ## Run git add

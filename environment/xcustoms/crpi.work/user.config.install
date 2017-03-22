@@ -11,6 +11,7 @@
 #
 bin/sshToMinion.sh $HOME/bin/sshToMinion.sh
 bin/startVNC $HOME/bin/startVNC
+bin/tagRelease.sh $HOME/bin/tagRelease.sh
 
 # Git files
 .gitignore_global $HOME/.gitignore_global
