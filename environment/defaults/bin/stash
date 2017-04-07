@@ -26,6 +26,7 @@ cat << %%USAGE%%
        --exclude prj1,prj2,...
              The listed projects will be excluded.
 
+       -a
        --all
              Lists the number of stashes each project has and all stash 
 	     ids for each project.
@@ -39,7 +40,6 @@ cat << %%USAGE%%
              Remove the stashed state with given id and apply it on top
 	     of the current working tree for each project. 
 
-       -a msg
        --apply msg
              Like pop, but do not remove the state from the stash list.
 
@@ -142,7 +142,16 @@ dropStash()
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-ARGS=$(getopt -o hx:s:p:a:d: -l "help,exclude:,all,stash:,pop:,apply:,drop:" -n "$(basename ${0})" -- "$@")
+shortOptions='hx:s:p:ad:'  # Add short options here
+longOptions='help,exclude:,all,stash:,pop:,apply:,drop:' # Add long options here
+if $(isMac); then
+    ARGS=`getopt "${shortOptions}" $*`
+else
+    ARGS=$(getopt -u -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+
+fi
+
+
 
 # If wrong arguments, print usage and exit
 if [[ $? -ne 0 ]]; then
@@ -177,7 +186,7 @@ while true; do
 	    arguments=${2}
 	    shift 2
 	    ;;
-	-a|--apply)
+	--apply)
 	    task='applyStash'
 	    arguments=${2}
 	    shift 2
@@ -187,7 +196,7 @@ while true; do
 	    arguments=${2}
 	    shift 2
 	    ;;
-	--all)
+	-a|--all)
 	    task='listStashes'
 	    arguments='all'
 	    shift

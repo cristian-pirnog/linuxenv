@@ -19,7 +19,7 @@
     ]
     telemetryConsent: "limited"
   editor:
-    fontSize: 18
+    fontSize: 17
     scrollPastEnd: true
     showInvisibles: true
     tabLength: 4
@@ -30,8 +30,7 @@
   "go-plus":
     currentPanelHeight: "9.03072033898305vh"
   "haskell-ghc-mod": {}
-  linter:
-    errorPanelHeight: 50
+  linter: {}
   "linter-ui-default":
     showPanel: true
   "tree-view":

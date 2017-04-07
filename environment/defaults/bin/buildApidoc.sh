@@ -79,11 +79,6 @@ while true; do
     esac
 done
 
-# if [[ $# -lt 1 ]]; then
-#     printUsage
-#     exit 1
-# fi
-
 # Check for aglio
 source ~/.userfunctions
 if [[ -z $(which aglio) ]]; then

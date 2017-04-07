@@ -44,7 +44,7 @@ export PATH=${PATH}:${GOBIN}
 
 ## Devicetools amazon servers
 SSH_CONFIG_AMAZON="kube-aws ec2-52-18-32-155.eu-west-1.compute.amazonaws.com
-swissmom-minion ec2-54-171-198-144.eu-west-1.compute.amazonaws.com"
+swissmom-minion ec2-54-194-245-32.eu-west-1.compute.amazonaws.com"
 #devicetools-minion-aws "
 GenerateSshEntries "${SSH_CONFIG_AMAZON}" admin ~/.ssh/devicetools-ec2-keypair-eu.pem
 
@@ -75,6 +75,11 @@ devicetools-management-2 185.19.28.161
 devicetools-management-3 185.19.28.127
 "
 GenerateSshEntries "${SSH_CONFIG_EXOSCALE}" debian ~/.ssh/devicetools-exoscale-keypair-ch.pem
+
+
+
+SSH_CONFIG_NEW_CLUSTER='devicetools-management-test 159.100.241.108'
+GenerateSshEntries "${SSH_CONFIG_NEW_CLUSTER}" core ~/.ssh/devicetools-exoscale-keypair-ch.pem
 
 export NEWRELIC_LICENSE_KEY="06ff5e0fb72ca17c5b25cfe040945105043f7d08"
 export NEWRELIC_NAME="Onboarding API"

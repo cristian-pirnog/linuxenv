@@ -47,8 +47,8 @@ eval set -- "$ARGS"
 while true; do
     case ${1} in
     --listOptions)
-        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | 
-            sed 's/[^:]/-& /g') | sed 's/://g'
+        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | \
+            sed 's/[^:]/-& /g') 'major minor patch' | sed 's/://g' | tr ' ' '\n'
         exit 0
         ;;
     -h|--help)
@@ -78,22 +78,23 @@ source ~/.userfunctions
 
 versionFile=.version
 if [[ ! -f ${versionFile} ]]; then
-    exitWithError 'Could not find version file: '${versionFile}
+    getAnswer "Could not find version file: ${versionFile}. Start with version 0.0.1?" || exit 0
+    version='0.0.0'
+else
+    version=$(cat ${versionFile})
+    if [[ ! ${version} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+	exitWithError "Version ${version} is not of the form: X.Y.Z"
+    fi
 fi
 
-version=$(cat ${versionFile})
-if [[ ! ${version} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    exitWithError "Version ${version} is not of the form: X.Y.Z"
-fi
-
-# Get the version component to increment
+## Get the version component to increment
 versionComponent=${1}
 case ${versionComponent} in
     major|M)
 	newVersion=$(echo ${version} | awk -F '.' '{print ($1+1)"."0"."0}')
 	;;
     minor|m)
-	newVersion=$(echo ${version} | awk -F '.' '{print $1"."(2+1)"."0}')
+	newVersion=$(echo ${version} | awk -F '.' '{print $1"."($2+1)"."0}')
 	;;
     patch|p)
 	newVersion=$(echo ${version} | awk -F '.' '{print $1"."$2"."($3+1)}')
@@ -104,15 +105,36 @@ case ${versionComponent} in
 	;;
 esac
 
+## Check that we're on the master branch
+branch=$(br -ls | awk '{print $NF}')
+if [[ ${branch} != master ]]; then
+    exitWithError 'You can only create tags in the "master" branch.'
+fi
 
+## Check that the local repo is up to date with the origin
+if [[ -z $(git status | grep 'Your branch is up-to-date') ]]; then
+    exitWithError 'The local repo is not up-to-date.'
+fi
+
+## Check that there are no changes in the local repo
+if [[ -z $(git status | grep 'nothing to commit') ]]; then
+    exitWithError 'There are changes in the local repo.'
+fi
+
+## Ask for confirmation
 echo -e "\nPrevious version is ${version}. New version will be ${newVersion}."
-getAnswer Continue? || exit 0
+getAnswer 'Continue?' || exit 0
 echo ''
 
-git tag -a ${newVersion} -m 'Version ${newVersion}' && \
-    echo ${newVersion} > ${versionFile} && \
-    git add ${versionFile} && \
-    git cmt 'updated version file'
+git tag -a ${newVersion} -m 'Version ${newVersion}'
 
-echo "Tagged current checkout with version ${newVersion}. To push to the server run: "
-echo -e "\t\tgit push origin ${newVersion}"
+getAnswer "Tagged current checkout with version ${newVersion}. Would you like to push to the server?" || exit 1
+
+echo ${newVersion} > ${versionFile} && \
+    git add ${versionFile} && \
+    git commit -m 'Updated version to ${newVersion}' && \
+    git push && \
+    git push origin ${newVersion}
+
+
+
