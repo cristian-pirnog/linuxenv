@@ -1,25 +1,26 @@
 #!/bin/bash
 
-
 #----------------------------------------------
 printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) -h
-            $(basename ${0}) fileName
+            $(basename ${0}) PUT ARGUMENTS AND OPTIONS HERE
 
     Description:
-        Takes a json file removes new lines and spaces, encloses the.
-	text in single quotes and prints it to stdout.
-	
+        PUT DESCRIPTION HERE
+
     Options:
        -h
        --help
              Print this help message and exit.
 
+       PUT MORE OPTIONS HERE
+	     AND DESCRIPTION HERE
+
     Arguments:
-       fileName
-	     The name of the json file to process.
+       PUT ARGUMENTS HERE
+	     AND DESCRIPTION HERE
 
 %%USAGE%%
 }
@@ -48,9 +49,9 @@ eval set -- "$ARGS"
 while true; do
     case ${1} in
     --listOptions)
-            echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | \
-	 	sed 's/[^:]/-& /g') | sed 's/://g' | tr ' ' '\n'
-            exit 0
+        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | 
+            sed 's/[^:]/-& /g') | sed 's/://g'
+        exit 0
         ;;
     -h|--help)
         printUsage
@@ -71,23 +72,21 @@ while true; do
     esac
 done
 
-if [[ $# -lt 1 ]]; then
-    printUsage
-    exit 1
-fi
-
 # Uncomment this for enabling debugging
 # set -x
 
-source ~/.userfunctions
+tags=$(git tag | tac)
 
-fileName=${1}
-
-if [[ ! -f ${fileName} ]]; then
-    exitWithError "\nCouldn't find file '${fileName}'."
-elif [[ ! $(jsonlint-php ${fileName}) ]]; then
-    exitWithError "\n'{fileName} is not a valid JSON file"
-fi
-
-
-cat ${fileName}|tr '\n' ' '|sed 's/ //g'|sed -r 's/([,:])/\1 /g'|awk '{print "'"'"'"$0"'"'"'"}'
+prevMinor='-'
+for t in ${tags}; do
+    # echo '=='$t
+    major=${t//.?*/}
+    minor=$(echo $t | awk -F'.' '{print $2}')
+    tab=''
+    if [[ ${prevMinor} != ${minor} ]]; then
+	echo ${major}.${minor}
+	prevMinor=${minor}
+    fi
+    
+    echo " |- ${t}"
+done

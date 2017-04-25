@@ -10,7 +10,7 @@ cat << %%USAGE%%
     Description:
         Tags the current checkout to the next release number, using
 	semantic versioning.
-	
+
     Options:
        -h
        --help
@@ -60,7 +60,7 @@ while true; do
         break
         ;;
     "")
-        # This is necessary for processing missing optional arguments 
+        # This is necessary for processing missing optional arguments
         shift
         ;;
     esac
@@ -75,6 +75,22 @@ fi
 # set -x
 
 source ~/.userfunctions
+
+## Check that we're on the master branch
+branch=$(br -ls | awk '{print $NF}')
+if [[ ${branch} != master ]]; then
+    exitWithError 'You can only create tags in the "master" branch.'
+fi
+
+## Check that the local repo is up to date with the origin
+if [[ -z $(git status | grep 'Your branch is up-to-date') ]]; then
+    exitWithError 'The local repo is not up-to-date.'
+fi
+
+## Check that there are no changes in the local repo
+if [[ -z $(git status | grep 'nothing to commit') ]]; then
+    exitWithError 'There are changes in the local repo.'
+fi
 
 versionFile=.version
 if [[ ! -f ${versionFile} ]]; then
@@ -105,36 +121,31 @@ case ${versionComponent} in
 	;;
 esac
 
-## Check that we're on the master branch
-branch=$(br -ls | awk '{print $NF}')
-if [[ ${branch} != master ]]; then
-    exitWithError 'You can only create tags in the "master" branch.'
-fi
-
-## Check that the local repo is up to date with the origin
-if [[ -z $(git status | grep 'Your branch is up-to-date') ]]; then
-    exitWithError 'The local repo is not up-to-date.'
-fi
-
-## Check that there are no changes in the local repo
-if [[ -z $(git status | grep 'nothing to commit') ]]; then
-    exitWithError 'There are changes in the local repo.'
-fi
-
 ## Ask for confirmation
 echo -e "\nPrevious version is ${version}. New version will be ${newVersion}."
 getAnswer 'Continue?' || exit 0
 echo ''
 
-git tag -a ${newVersion} -m 'Version ${newVersion}'
+
+# Check that there is an entry in the CHANGELOG.md file for the new version
+changelogFile=CHANGELOG.md
+while true; do
+if [[ ! -f ${changelogFile} ]] || \
+       [[ -z $(grep "## \[${newVersion}\]" ${changelogFile}) ]]; then
+    getAnswer "No entry for version ${newVersion} found in the ${changelogFile}. Would you like to add one now?" || exit 1
+    ${EDITOR} ${changelogFile}
+else
+    sed -i "s/## [${newVersion}] - ReleaseDate/## [${newVersion}] $(date +%Y.%m.%d)/" ${changelogFile}
+    break
+fi
+done
 
 getAnswer "Tagged current checkout with version ${newVersion}. Would you like to push to the server?" || exit 1
 
 echo ${newVersion} > ${versionFile} && \
-    git add ${versionFile} && \
-    git commit -m 'Updated version to ${newVersion}' && \
+    buildApidoc -f && \
+    git add --all && \
+    git commit -m "Updated version to ${newVersion}" && \
     git push && \
+    git tag -a ${newVersion} -m "Version ${newVersion}" && \
     git push origin ${newVersion}
-
-
-

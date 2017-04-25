@@ -35,8 +35,8 @@ cat << %%USAGE%%
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-shortOptions='ho:'  # Add short options here
-longOptions='help,listOptions' # Add long options here
+shortOptions='ho:f'  # Add short options here
+longOptions='help,listOptions,force' # Add long options here
 if $(isMac); then
     ARGS=`getopt "${shortOptions}" $*`
 else
@@ -53,6 +53,7 @@ fi
 eval set -- "$ARGS"
 
 outputFile=''
+force=false
 while true; do
     case ${1} in
     --listOptions)
@@ -63,6 +64,10 @@ while true; do
     -h|--help)
         printUsage
         exit 0
+        ;;
+    -f|--force)
+        force=true
+        shift
         ;;
     -o)
         outputFile=${2}
@@ -94,7 +99,7 @@ if [[ -z "${inputFile}" ]]; then
         fileCount=$(echo ${inputFile}|wc -w)
         if [[ ${fileCount} -eq 0 ]]; then
             echo "Could not find an apib file in doc directory"
-            exit 1
+            exit 0
         elif [[ ${fileCount} -gt 1 ]]; then
             echo "Found multiple apib files in doc directory"
         fi
@@ -109,6 +114,15 @@ fi
 #set -x
 
 # Only build if the output file is older than the input file
-if [[ ${outputFile} -ot ${inputFile} ]]; then
+if [[ ${force} == true ]] || [[ ${outputFile} -ot ${inputFile} ]]; then
+    versionFile=.version
+    if [[ -f ${versionFile} ]]; then
+	version=$(cat ${versionFile})
+	tmpFile=$(mktemp -p $(dirname ${inputFile}))
+	cat ${inputFile} | sed "s/__VERSION__/${version}/" > ${tmpFile}
+	inputFile=${tmpFile}
+    fi
+
     aglio -i ${inputFile} --theme-template triple -o ${outputFile}
+    test -f ${tmpFile} && rm ${tmpFile}
 fi

@@ -22,7 +22,12 @@ alias removeStoppedContainers='docker ps -a|grep Exited|awk '"'"'{print $1}'"'"'
 alias removeOldDockerImages='docker images|grep none|awk '"'"'{print $3}'"'"'|xargs docker rmi'
 alias dcb='docker-compose build'
 alias dcbr='dcb&&dcr'
+alias up='docker-compose up'
 alias runSen='if [[ -z $(docker ps|grep tomastomecek/sen) ]]; then docker run --privileged -v /var/run/docker.sock:/run/docker.sock -ti -e TERM tomastomecek/sen; fi'
 alias freshRestartDockerContainer='stopAllDockerContainers && removeStoppedContainers && dcb && removeOldDockerImages && dcr'
 
 alias genpw='pwgen -nys1 12 7'
+
+# Git aliases
+# alias tags='git tag | tac | head -n10'
+alias gg='git graph'

@@ -9,7 +9,7 @@ cat << %%USAGE%%
     Description:
         Does a 'git add', preceded by building the API doc html file
 	for go projects.
-	    
+
     Options:
        -h
        --help
@@ -42,7 +42,7 @@ eval set -- "$ARGS"
 while true; do
     case ${1} in
     --listOptions)
-        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | 
+        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} |
             sed 's/[^:]/-& /g') | sed 's/://g'
         exit 0
         ;;
@@ -55,7 +55,7 @@ while true; do
         break
         ;;
     "")
-        # This is necessary for processing missing optional arguments 
+        # This is necessary for processing missing optional arguments
         shift
         ;;
     esac
@@ -65,7 +65,7 @@ source ~/.userfunctions
 
 # Build the api doc html file for go projects
 if [[ -n $(find . -name '*.go') ]] && [[ -d doc ]]; then
-    buildApidoc >/dev/null 2>&1 || exitWithError "Failed to build Api doc."
+    buildApidoc >/dev/null || exitWithError "Failed to build Api doc."
 fi
 
 ## Run git add

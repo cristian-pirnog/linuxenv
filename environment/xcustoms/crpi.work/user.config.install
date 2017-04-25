@@ -11,6 +11,7 @@
 #
 bin/sshToMinion.sh $HOME/bin/sshToMinion.sh
 bin/startVNC $HOME/bin/startVNC
+bin/tags $HOME/bin/tags
 bin/tagRelease.sh $HOME/bin/tagRelease.sh
 bin/dcr $HOME/bin/dcr
 bin/compactizeJson $HOME/bin/compactizeJson 
