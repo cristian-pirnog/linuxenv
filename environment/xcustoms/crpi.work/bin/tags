@@ -4,23 +4,20 @@
 printUsage()
 {
 cat << %%USAGE%%
-     Usage: $(basename ${0}) -h
-            $(basename ${0}) PUT ARGUMENTS AND OPTIONS HERE
+    Usage: $(basename ${0}) -h
+            $(basename ${0}) count
 
     Description:
-        PUT DESCRIPTION HERE
+        Lists the git tags of the current repository in a nice format.
 
     Options:
        -h
        --help
              Print this help message and exit.
 
-       PUT MORE OPTIONS HERE
-	     AND DESCRIPTION HERE
-
     Arguments:
-       PUT ARGUMENTS HERE
-	     AND DESCRIPTION HERE
+       count
+	     (integer) The maximum number of tags to list.
 
 %%USAGE%%
 }
@@ -75,7 +72,16 @@ done
 # Uncomment this for enabling debugging
 # set -x
 
-tags=$(git tag | tac)
+maxCount=${1}
+
+if [[ -z ${maxCount} ]]; then
+    maxCount=10
+elif [[ -n $(echo ${maxCount}|grep '[^0-9]')  ]]; then
+    echo -e "\nInput argument 'count' must be an integer\n"
+    printUsage
+fi
+
+tags=$(git tag | tac | head -n${maxCount})
 
 prevMinor='-'
 for t in ${tags}; do

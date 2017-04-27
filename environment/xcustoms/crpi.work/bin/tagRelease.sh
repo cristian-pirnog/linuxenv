@@ -135,7 +135,7 @@ if [[ ! -f ${changelogFile} ]] || \
     getAnswer "No entry for version ${newVersion} found in the ${changelogFile}. Would you like to add one now?" || exit 1
     ${EDITOR} ${changelogFile}
 else
-    sed -i "s/## [${newVersion}] - ReleaseDate/## [${newVersion}] $(date +%Y.%m.%d)/" ${changelogFile}
+    sed -i "s/## \[${newVersion}\] - ReleaseDate/## [${newVersion}] $(date +%Y.%m.%d)/" ${changelogFile}
     break
 fi
 done

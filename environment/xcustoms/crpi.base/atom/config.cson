@@ -23,7 +23,7 @@
     ]
     telemetryConsent: "limited"
   editor:
-    fontSize: 17
+    fontSize: 20
     scrollPastEnd: true
     showInvisibles: true
     tabLength: 4
@@ -32,7 +32,7 @@
     userId: "ed85997d-630e-8e3e-2de4-371ad5ccb4d0"
   "file-icons": {}
   "go-plus":
-    currentPanelHeight: "9.03072033898305vh"
+    currentPanelHeight: "4.734848484848484vh"
   "haskell-ghc-mod": {}
   linter: {}
   "linter-ui-default":
