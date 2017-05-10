@@ -85,11 +85,11 @@ tags=$(git tag | tac | head -n${maxCount})
 
 prevMinor='-'
 for t in ${tags}; do
-    # echo '=='$t
     major=${t//.?*/}
     minor=$(echo $t | awk -F'.' '{print $2}')
     tab=''
     if [[ ${prevMinor} != ${minor} ]]; then
+	echo '---------'
 	echo ${major}.${minor}
 	prevMinor=${minor}
     fi

@@ -1,3 +1,5 @@
+.synergy.conf $HOME/.synergy.conf
+
 #
 # Files from '.ssh' directory
 #

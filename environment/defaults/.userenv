@@ -22,7 +22,7 @@ export EDITOR=vi
 # If Emacs exist, set it as EDITOR
 which emacs > /dev/null  2>&1
 if [ $? -ne 1 ]; then
-    export EDITOR='emacs -nw'
+    export EDITOR='emacs'
 fi
 
 # Make keychain reuse the existing ssh agent (if keychain is installed)

@@ -23,7 +23,7 @@
     ]
     telemetryConsent: "limited"
   editor:
-    fontSize: 20
+    fontSize: 16
     scrollPastEnd: true
     showInvisibles: true
     tabLength: 4
@@ -33,6 +33,27 @@
   "file-icons": {}
   "go-plus":
     currentPanelHeight: "4.734848484848484vh"
+    lint:
+      args: [
+        "--vendor"
+        "--disable-all"
+        "--enable=vet"
+        "--enable=vetshadow"
+        "--enable=golint"
+        "--enable=ineffassign"
+        "--enable=goconst"
+        "--enable=deadcode"
+        "--enable=varcheck"
+        "--enable=errcheck"
+        "--enable=dupl"
+        "--enable=unconvert"
+        "--enable=gosimple"
+        "--enable=staticcheck"
+        "--enable=unparam"
+        "--tests"
+        "--json"
+        "."
+      ]
   "haskell-ghc-mod": {}
   linter: {}
   "linter-ui-default":

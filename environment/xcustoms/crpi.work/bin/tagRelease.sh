@@ -84,7 +84,7 @@ fi
 
 ## Check that the local repo is up to date with the origin
 if [[ -z $(git status | grep 'Your branch is up-to-date') ]]; then
-    exitWithError 'The local repo is not up-to-date.'
+    exitWithError 'The local repo is not in sync with origin/master.'
 fi
 
 ## Check that there are no changes in the local repo
@@ -146,6 +146,13 @@ echo ${newVersion} > ${versionFile} && \
     buildApidoc -f && \
     git add --all && \
     git commit -m "Updated version to ${newVersion}" && \
-    git push && \
-    git tag -a ${newVersion} -m "Version ${newVersion}" && \
+    git push
+
+if [[ ! $? ]]; then
+    echo "There was an error pushing the changes. Exiting"
+    exit 1
+fi
+
+# Tag the relese and push it to the repo
+git tag -a ${newVersion} -m "Version ${newVersion}" && \
     git push origin ${newVersion}
