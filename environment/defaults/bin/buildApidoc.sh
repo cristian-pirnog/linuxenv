@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ~/.userfunctions
+
 #----------------------------------------------
 printUsage()
 {
@@ -57,8 +59,7 @@ force=false
 while true; do
     case ${1} in
     --listOptions)
-        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} |
-            sed 's/[^:]/-& /g') | sed 's/://g'
+        listOptions
         exit 0
         ;;
     -h|--help)
@@ -85,7 +86,6 @@ while true; do
 done
 
 # Check for aglio
-source ~/.userfunctions
 if [[ -z $(which aglio) ]]; then
     exitWithError 'Could not find aglio on your system\n'
 fi

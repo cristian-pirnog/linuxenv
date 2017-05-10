@@ -367,8 +367,7 @@ while true; do
 	    exit 0
 	    ;;
 	--listOptions)
-            echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | \
-	 	sed 's/[^:]/-& /g') | sed 's/://g' | tr ' ' '\n'
+	    listOptions
             exit 0
         ;;
 	-x|--exclude)

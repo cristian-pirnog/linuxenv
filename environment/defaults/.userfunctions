@@ -239,9 +239,11 @@ ric()
 	echo "Usage: ric from to [filePattern]"
 	return 1
     fi
-    
-    from=$1
-    to=$2
+
+
+    # First escape all backslashes, then escape all slashes
+    from=$(echo ${1}|sed 's_\\_\\\\_g'|sed 's_/_\\/_g')
+    to=$(echo ${2}|sed 's_\\_\\\\_g'|sed 's_/_\\/_g')
     shift 2
     
     myFiles=`allSourceFiles $*`
@@ -250,10 +252,8 @@ ric()
 	echo "No source files found. Exiting."
 	return 1
     fi
-    
-    IFS=$'\n'
-    replace "$from" "$to" -- ${myFiles}
-    unset IFS
+
+    sed "s/$from/$to/g" -i ${myFiles}
 }
 
 #----------------------------------------------
@@ -269,239 +269,242 @@ getIpAddress()
 }
 
 
-
-# The environment overrides
-if [ -f $HOME/.userenv_overrides ]; then
-    . $HOME/.userenv_overrides
-fi
-
 #----------------------------------------------
-# TrueCrypt functions
-#----------------------------------------------
-mapLoopDevice()
+listOptions()
 {
-    local fileName="${1}"
-
-    # Check that the file is not already mapped
-    local deviceName=$(losetup -j "${fileName}" | cut -d ' ' -f 1)
-    if [[ -n ${deviceName} ]]; then
-	echo "File ${fileName} already mapped as " $(mount | grep ${deviceName} | cut -d ' ' -f 3)
-	return 1
-    fi
-    
-    deviceName=$(sudo losetup -f --show "${fileName}")
-    echo ${deviceName}
+    echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | \
+	 	sed 's/[^:]/-& /g') | sed 's/://g' | tr ' ' '\n'
 }
 
-#----------------------------------------------
-getNextMapping()
-{
-    local mappingName=""
-    # Get the next available trucryptX name in /dev/mapper
-    for i in $(seq -w 1 10); do
-	mappingName="truecrypt${i}"
-	if [[ -n $(ls /dev/mapper | grep ${mappingName}) ]]; then
-	    if [[ ${i} == 10 ]]; then
-		# All 10 device mapping points are used. Will exit without mapping
-		return 1
-	    fi
-	else
-	    break
-	fi
-    done
-    
-    echo ${mappingName}
-}
-
-#----------------------------------------------
-tc()
-{
-    if [[ $# -lt 1 ]]; then
-	echo "Usage: tc <usb|deviceName> [mountPoint]"
-	return 1
-    fi
-
-    deviceName=${1}
-    mountPoint=${2}
-
-    if [[ $(lower ${deviceName}) == "usb" ]]; then
-	echo "Fetching the last usb device mounted"
-	deviceName="/dev/"$(dmesg  | grep ': sd' | tail -1 | awk '{print $NF}')
-    fi
-
-    ! getAnswer "About to mount device '${deviceName}'. Continue? " && return 1
-
-    # If the device is actually a file on the disk, map it to a loop device
-    if [[ -z $(echo ${deviceName} | grep '/dev/sd') ]]; then
-	# ! getAnswer "Looks like you're trying to mount a TC file. Continue?" && return 1
-
-	fileName="${deviceName}"	
-	deviceName=$(mapLoopDevice "${fileName}")
-	echo deviceName=${deviceName}
-	if [[ $? -eq 1 ]]; then
-	    echo ${deviceName}
-	    return 1
-	fi
-    fi
-
-    # TODO: Check if the device was already mapped
-    mappingName=$(getNextMapping)
-    if [[ -z ${mappingName} ]]; then
-	echo "Could not get device mapping. Exiting."
-	return 1
-    fi
-
-    # Get the next available mapping point
-    if [[ -z ${mountPoint} ]]; then
-	baseMountDir="$HOME/truecrypt"
-	for i in $(seq -w 1 10); do
-	    mountPoint=${baseMountDir}/tc${i}
-	    if [[ -n $(mount | grep ${mountPoint}) ]]; then
-		echo "Mount point ${mountPoint} is already used"
-		if [[ ${i} == 10 ]]; then
-		    echo "All 10 mount points are used. Will exit without mapping."
-		    return 1
-		fi
-	    else
-		break
-	    fi
-	done
-    fi
-
-    mkdir -p ${mountPoint}
-    sudo /sbin/cryptsetup -y -c aes -s 256 -h sha256 create ${mappingName} ${deviceName}
-    sudo mount /dev/mapper/${mappingName} ${mountPoint}
-
-    echo "TC Device ${deviceName} mapped as ${mountPoint}"
-}
-
-#----------------------------------------------
-untc()
-{
-    if [[ $# -lt 1 ]]; then
-	echo "Usage: untc mountPoint"
-	return 1
-    fi
-
-    mountPoint=$(realpath ${1})
-
-    devName=$(mount | grep " ${mountPoint} " | cut -d ' ' -f 1)
-    if [[ -z ${devName} ]]; then
-	echo "Mount point ${mountPoint} is not in the mount table. Aborting"
-	return 1
-    fi
-    loopDevice=$(sudo cryptsetup status ${devName} | grep device | awk '{print $NF}')
-
-    if [[ -z ${loopDevice} ]]; then
-	echo "Could not find the loop device"
-	echo mountPoint=${mountPoint}
-	echo devName=${devName}
-	echo loopDevice=${loopDevice}
-
-	return 1
-    fi
-
-    sudo umount ${mountPoint}
-    sudo /sbin/cryptsetup close ${devName}
-    sudo losetup -d ${loopDevice}
-
-    if [[ -n $(ls ${mountPoint}) ]]; then
-	echo "Mount point ${mountPoint} not empty. Will not remove"
-	return 1
-    else
-	rm -rf ${mountPoint}
-    fi
-}
-
-
-#----------------------------------------------
-tcnew()
-{
-    if [[ $# -lt 2 ]]; then
-	echo "Usage: tcnew fileName fileSize"
-	return 1
-    fi
-
-    fileName="${1}"
-    fileSize=${2}
-
-    # Check if the file exists
-    if [[ -f ${fileName} ]]; then
-	echo "File exists: ${fileName}"
-	return 1
-    fi
-
-    local lCount=1
-    local lBaseSize=64 #MB
-    if [[ ${fileSize: -1} == 'M' ]]; then
-	lCount=$((${fileSize:0:-1} / lBaseSize))
-    elif [[ ${fileSize: -1} == 'G' ]]; then
-	lCount=$((1024 * ${fileSize:0:-1} / lBaseSize))
-    else
-	echo "fileSize must end with M or G"
-	return 1
-    fi
-
-    # Create the file
-    dd if=/dev/urandom of="${fileName}" bs=${lBaseSize}M count=${lCount}
-    # Map it to a loop device
-    deviceName=$(mapLoopDevice "${fileName}")
-    if [[ $? -eq 1 ]]; then
-	echo ${deviceName}
-	return 1
-    fi
-    
-    # Create the volume
-    echo "About to create the TrueCrypt volume"
-    sudo tcplay -c -d ${deviceName} -a whirlpool -b AES-256-XTS
-    
-    if [[ $? -ne 0 ]]; then
-	echo "Could not create the TrueCrypt volume. Exiting"
-
-	# Delete the mapping
-	sudo losetup -d ${deviceName}
-
-	return 1
-    fi
-
-    echo deviceName=${deviceName}
-    return 1
-
-    # Delete the mapping
-    sudo losetup -d ${deviceName}
-
-    # 
-    sudo tcplay --map=${mappingName} --device=${deviceName}
-    mkfs.ext4 /dev/mapper
-
-    # Mount the volume
-    tc ${fileName}
-}
-
-
-mountMarketData()
-{
-#    mountMarketData2 /mnt/MD_crypt/zorro "/mnt/MD2"
-    mountMarketData2 /mnt/MD_crypt/disk.crypt "/mnt/MD"
-}
-
-
-mountMarketData2()
-{
-    local cryptFile=${1}
-    local targetDir=${2}
-    if [[ -n $(mount | grep " ${targetDir} ") ]]; then
-	echo $(mount | grep " ${targetDir} " | awk '{print $1 " is already mounted on " $3". Exiting."}')
-	return 0
-    fi	
-    tc ${cryptFile} ${targetDir}
-
-    
-}
-
-
-unmountMarketData()
-{
-    untc /mnt/MD
-#    untc /mnt/MD2
-}
+#-# 
+#-# #----------------------------------------------
+#-# # TrueCrypt functions
+#-# #----------------------------------------------
+#-# mapLoopDevice()
+#-# {
+#-#     local fileName="${1}"
+#-# 
+#-#     # Check that the file is not already mapped
+#-#     local deviceName=$(losetup -j "${fileName}" | cut -d ' ' -f 1)
+#-#     if [[ -n ${deviceName} ]]; then
+#-# 	echo "File ${fileName} already mapped as " $(mount | grep ${deviceName} | cut -d ' ' -f 3)
+#-# 	return 1
+#-#     fi
+#-#     
+#-#     deviceName=$(sudo losetup -f --show "${fileName}")
+#-#     echo ${deviceName}
+#-# }
+#-# 
+#-# #----------------------------------------------
+#-# getNextMapping()
+#-# {
+#-#     local mappingName=""
+#-#     # Get the next available trucryptX name in /dev/mapper
+#-#     for i in $(seq -w 1 10); do
+#-# 	mappingName="truecrypt${i}"
+#-# 	if [[ -n $(ls /dev/mapper | grep ${mappingName}) ]]; then
+#-# 	    if [[ ${i} == 10 ]]; then
+#-# 		# All 10 device mapping points are used. Will exit without mapping
+#-# 		return 1
+#-# 	    fi
+#-# 	else
+#-# 	    break
+#-# 	fi
+#-#     done
+#-#     
+#-#     echo ${mappingName}
+#-# }
+#-# 
+#-# #----------------------------------------------
+#-# tc()
+#-# {
+#-#     if [[ $# -lt 1 ]]; then
+#-# 	echo "Usage: tc <usb|deviceName> [mountPoint]"
+#-# 	return 1
+#-#     fi
+#-# 
+#-#     deviceName=${1}
+#-#     mountPoint=${2}
+#-# 
+#-#     if [[ $(lower ${deviceName}) == "usb" ]]; then
+#-# 	echo "Fetching the last usb device mounted"
+#-# 	deviceName="/dev/"$(dmesg  | grep ': sd' | tail -1 | awk '{print $NF}')
+#-#     fi
+#-# 
+#-#     ! getAnswer "About to mount device '${deviceName}'. Continue? " && return 1
+#-# 
+#-#     # If the device is actually a file on the disk, map it to a loop device
+#-#     if [[ -z $(echo ${deviceName} | grep '/dev/sd') ]]; then
+#-# 	# ! getAnswer "Looks like you're trying to mount a TC file. Continue?" && return 1
+#-# 
+#-# 	fileName="${deviceName}"	
+#-# 	deviceName=$(mapLoopDevice "${fileName}")
+#-# 	echo deviceName=${deviceName}
+#-# 	if [[ $? -eq 1 ]]; then
+#-# 	    echo ${deviceName}
+#-# 	    return 1
+#-# 	fi
+#-#     fi
+#-# 
+#-#     # TODO: Check if the device was already mapped
+#-#     mappingName=$(getNextMapping)
+#-#     if [[ -z ${mappingName} ]]; then
+#-# 	echo "Could not get device mapping. Exiting."
+#-# 	return 1
+#-#     fi
+#-# 
+#-#     # Get the next available mapping point
+#-#     if [[ -z ${mountPoint} ]]; then
+#-# 	baseMountDir="$HOME/truecrypt"
+#-# 	for i in $(seq -w 1 10); do
+#-# 	    mountPoint=${baseMountDir}/tc${i}
+#-# 	    if [[ -n $(mount | grep ${mountPoint}) ]]; then
+#-# 		echo "Mount point ${mountPoint} is already used"
+#-# 		if [[ ${i} == 10 ]]; then
+#-# 		    echo "All 10 mount points are used. Will exit without mapping."
+#-# 		    return 1
+#-# 		fi
+#-# 	    else
+#-# 		break
+#-# 	    fi
+#-# 	done
+#-#     fi
+#-# 
+#-#     mkdir -p ${mountPoint}
+#-#     sudo /sbin/cryptsetup -y -c aes -s 256 -h sha256 create ${mappingName} ${deviceName}
+#-#     sudo mount /dev/mapper/${mappingName} ${mountPoint}
+#-# 
+#-#     echo "TC Device ${deviceName} mapped as ${mountPoint}"
+#-# }
+#-# 
+#-# #----------------------------------------------
+#-# untc()
+#-# {
+#-#     if [[ $# -lt 1 ]]; then
+#-# 	echo "Usage: untc mountPoint"
+#-# 	return 1
+#-#     fi
+#-# 
+#-#     mountPoint=$(realpath ${1})
+#-# 
+#-#     devName=$(mount | grep " ${mountPoint} " | cut -d ' ' -f 1)
+#-#     if [[ -z ${devName} ]]; then
+#-# 	echo "Mount point ${mountPoint} is not in the mount table. Aborting"
+#-# 	return 1
+#-#     fi
+#-#     loopDevice=$(sudo cryptsetup status ${devName} | grep device | awk '{print $NF}')
+#-# 
+#-#     if [[ -z ${loopDevice} ]]; then
+#-# 	echo "Could not find the loop device"
+#-# 	echo mountPoint=${mountPoint}
+#-# 	echo devName=${devName}
+#-# 	echo loopDevice=${loopDevice}
+#-# 
+#-# 	return 1
+#-#     fi
+#-# 
+#-#     sudo umount ${mountPoint}
+#-#     sudo /sbin/cryptsetup close ${devName}
+#-#     sudo losetup -d ${loopDevice}
+#-# 
+#-#     if [[ -n $(ls ${mountPoint}) ]]; then
+#-# 	echo "Mount point ${mountPoint} not empty. Will not remove"
+#-# 	return 1
+#-#     else
+#-# 	rm -rf ${mountPoint}
+#-#     fi
+#-# }
+#-# 
+#-# 
+#-# #----------------------------------------------
+#-# tcnew()
+#-# {
+#-#     if [[ $# -lt 2 ]]; then
+#-# 	echo "Usage: tcnew fileName fileSize"
+#-# 	return 1
+#-#     fi
+#-# 
+#-#     fileName="${1}"
+#-#     fileSize=${2}
+#-# 
+#-#     # Check if the file exists
+#-#     if [[ -f ${fileName} ]]; then
+#-# 	echo "File exists: ${fileName}"
+#-# 	return 1
+#-#     fi
+#-# 
+#-#     local lCount=1
+#-#     local lBaseSize=64 #MB
+#-#     if [[ ${fileSize: -1} == 'M' ]]; then
+#-# 	lCount=$((${fileSize:0:-1} / lBaseSize))
+#-#     elif [[ ${fileSize: -1} == 'G' ]]; then
+#-# 	lCount=$((1024 * ${fileSize:0:-1} / lBaseSize))
+#-#     else
+#-# 	echo "fileSize must end with M or G"
+#-# 	return 1
+#-#     fi
+#-# 
+#-#     # Create the file
+#-#     dd if=/dev/urandom of="${fileName}" bs=${lBaseSize}M count=${lCount}
+#-#     # Map it to a loop device
+#-#     deviceName=$(mapLoopDevice "${fileName}")
+#-#     if [[ $? -eq 1 ]]; then
+#-# 	echo ${deviceName}
+#-# 	return 1
+#-#     fi
+#-#     
+#-#     # Create the volume
+#-#     echo "About to create the TrueCrypt volume"
+#-#     sudo tcplay -c -d ${deviceName} -a whirlpool -b AES-256-XTS
+#-#     
+#-#     if [[ $? -ne 0 ]]; then
+#-# 	echo "Could not create the TrueCrypt volume. Exiting"
+#-# 
+#-# 	# Delete the mapping
+#-# 	sudo losetup -d ${deviceName}
+#-# 
+#-# 	return 1
+#-#     fi
+#-# 
+#-#     echo deviceName=${deviceName}
+#-#     return 1
+#-# 
+#-#     # Delete the mapping
+#-#     sudo losetup -d ${deviceName}
+#-# 
+#-#     # 
+#-#     sudo tcplay --map=${mappingName} --device=${deviceName}
+#-#     mkfs.ext4 /dev/mapper
+#-# 
+#-#     # Mount the volume
+#-#     tc ${fileName}
+#-# }
+#-# 
+#-# 
+#-# mountMarketData()
+#-# {
+#-# #    mountMarketData2 /mnt/MD_crypt/zorro "/mnt/MD2"
+#-#     mountMarketData2 /mnt/MD_crypt/disk.crypt "/mnt/MD"
+#-# }
+#-# 
+#-# 
+#-# mountMarketData2()
+#-# {
+#-#     local cryptFile=${1}
+#-#     local targetDir=${2}
+#-#     if [[ -n $(mount | grep " ${targetDir} ") ]]; then
+#-# 	echo $(mount | grep " ${targetDir} " | awk '{print $1 " is already mounted on " $3". Exiting."}')
+#-# 	return 0
+#-#     fi	
+#-#     tc ${cryptFile} ${targetDir}
+#-# 
+#-#     
+#-# }
+#-# 
+#-# 
+#-# unmountMarketData()
+#-# {
+#-#     untc /mnt/MD
+#-# #    untc /mnt/MD2
+#-# }
+#-# 

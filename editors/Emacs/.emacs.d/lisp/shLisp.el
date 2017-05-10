@@ -8,6 +8,7 @@
 	  (y-or-n-p "Script initialization should only be done on empty buffers. Continue?"))
       (progn
 	(insert "#!/bin/bash\n\n")
+	(insert "source  ~/.userfunctions\n\n")
 	(insert "#----------------------------------------------\n")
 	(insert "printUsage()\n")
 	(insert "{\n")
@@ -47,8 +48,7 @@
 	(insert "while true; do\n")
 	(insert "    case ${1} in\n")
 	(insert "    --listOptions)\n")
-	(insert "        echo '--'$(sed 's/,/ --/g' <<< ${longOptions}) $(echo ${shortOptions} | \ \n")
-	(insert "            sed 's/[^:]/-& /g') | sed 's/://g'\n")
+	(insert "        listOptions\n")
 	(insert "        exit 0\n")
 	(insert "        ;;\n")
 	(insert "    -h|--help)\n")
