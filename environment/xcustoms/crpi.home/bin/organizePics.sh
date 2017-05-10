@@ -13,7 +13,7 @@ GetTimeStamp()
     local lFileName="$1"
     local lTag="$2"
 
-    exiftool -d "%Y%m%d_%H-%M-%S" ${lFileName} | grep "$lTag" | head -1 | awk -F ':' '{print $NF}' | replace ' ' '' | replace '\-' ':' | replace '_' '-'
+    exiftool -d "%Y%m%d-%H%M%S" ${lFileName} | grep "$lTag" | head -1 | awk -F ':' '{print $NF}' | replace ' ' ''
 }
 
 
@@ -119,7 +119,7 @@ ProcessFile()
     if [[ -z ${lTimeStamp} ]]; then
 	if [[ -z ${myUseFileModifDate} ]]; then
 	    echo -e "\nCould not get date for file: ${lFile}."
-	    GetTimeStamp ${lFile} 'File Modification Date'
+	    echo "File modification date is: "$(GetTimeStamp ${lFile} 'File Modification Date')
 	    echo "Would you like to use it for all similar files [y/n]?"
 	    read myUseFileModifDate
 	    myUseFileModifDate=$(echo ${myUseFileModifDate} | tr [:upper:] [:lower:])
