@@ -49,7 +49,6 @@
         "--enable=unconvert"
         "--enable=gosimple"
         "--enable=staticcheck"
-        "--enable=unparam"
         "--tests"
         "--json"
         "."
