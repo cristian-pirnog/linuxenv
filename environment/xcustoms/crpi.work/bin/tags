@@ -81,7 +81,7 @@ elif [[ -n $(echo ${maxCount}|grep '[^0-9]')  ]]; then
     printUsage
 fi
 
-tags=$(git tag | tac | head -n${maxCount})
+tags=$(git tag --sort=-tag| head -n${maxCount})
 
 prevMinor='-'
 for t in ${tags}; do

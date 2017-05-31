@@ -86,3 +86,4 @@ export NEWRELIC_NAME="Onboarding API"
 
 export MINIONS=$(echo "${SSH_CONFIG_EXOSCALE} ${SSH_CONFIG_AMAZON}" | awk '{print $1}' | grep minion)
 
+export OPTOOLS_DIR=~/code/optools

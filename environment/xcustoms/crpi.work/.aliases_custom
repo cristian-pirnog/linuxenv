@@ -1,23 +1,27 @@
 # -*- mode: sh -*- #
 
-alias cdb='cd ~/deploy/master/Release/bin'
-alias codb='cd ~/code/go/src/bitbucket.org/devicetools'
-alias codc='cd ~/code/go/src/bitbucket.org/devicetools/coupon-management'
-alias codd='cd ~/code/go/src/bitbucket.org/devicetools/devmanagement'
-alias codg='cd ~/code/go/src/bitbucket.org/devicetools/golib'
-alias codgo='cd ~/code/go/src/bitbucket.org/devicetools'
-alias codm='cd ~/code/go/src/bitbucket.org/devicetools/management'
-alias codp='cd ~/code/go/src/bitbucket.org/devicetools/provider'
-alias codpu='cd ~/code/go/src/bitbucket.org/devicetools/push'
-alias codpo='cd ~/code/go/src/bitbucket.org/devicetools/pontus2'
-alias cods='cd ~/code/go/src/bitbucket.org/devicetools/segments'
+alias genpw='pwgen -nys1 12 7'
+
+alias cdb='cd ~/bin'
+alias cdo="cd ${OPTOOLS_DIR}"
+
+# Golang aliases
+alias gogo='cd ~/code/go/src/bitbucket.org/devicetools'
+alias goc='cd ~/code/go/src/bitbucket.org/devicetools/coupon-management'
+alias god='cd ~/code/go/src/bitbucket.org/devicetools/devmanagement'
+alias golib='cd ~/code/go/src/bitbucket.org/devicetools/golib'
+alias gom='cd ~/code/go/src/bitbucket.org/devicetools/management'
+alias gop='cd ~/code/go/src/bitbucket.org/devicetools/provider'
+alias gopu='cd ~/code/go/src/bitbucket.org/devicetools/push'
+alias gopo='cd ~/code/go/src/bitbucket.org/devicetools/pontus2'
+alias gods='cd ~/code/go/src/bitbucket.org/devicetools/segments'
 alias goi='go install'
 
 # Docker aliases
 alias dps='docker ps'
 alias dpsa='docker ps -a'
 alias dim='docker images'
-alias stopAllDockerContainers='docker ps|tail -n +2|grep -v "tomastomecek/sen"|grep -v kubeenv|cut -f1 -d" "|xargs docker stop'
+alias stopAllDockerContainers='docker ps|tail -n +2|grep -v "tomastomecek/sen"|grep -v kubeenv|grep -v " registry$"|cut -f1 -d" "|xargs docker stop'
 alias removeStoppedContainers='docker ps -a|grep Exited|awk '"'"'{print $1}'"'"'|xargs docker rm'
 alias removeOldDockerImages='docker images|grep none|awk '"'"'{print $3}'"'"'|xargs docker rmi'
 alias dcb='docker-compose build'
@@ -26,7 +30,20 @@ alias up='docker-compose up'
 alias runSen='if [[ -z $(docker ps|grep tomastomecek/sen) ]]; then docker run --privileged -v /var/run/docker.sock:/run/docker.sock -ti -e TERM tomastomecek/sen; fi'
 alias freshRestartDockerContainer='stopAllDockerContainers && removeStoppedContainers && dcb && removeOldDockerImages && dcr'
 
-alias genpw='pwgen -nys1 12 7'
+# kubectl aliases
+alias del='k delete'
+alias desc='k describe'
+alias dp='desc pods'
+alias edep='k edit deployment'
+alias gcm='k get configMaps'
+alias gcmj='k get configMaps -o json'
+alias gdep='k get deployments'
+alias get='k get -o wide'
+alias gp='get pods'
+alias k='kubectl --namespace=${KUBE_NAMESPACE}'
+alias ll='ls -AFl'
+alias setNamespace='upvar KUBE_NAMESPACE '
+
 
 # Git aliases
 # alias tags='git tag | tac | head -n10'

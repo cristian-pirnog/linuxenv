@@ -67,5 +67,10 @@ if [[ -n $(find . -name '*.go') ]] && [[ -d doc ]]; then
     buildApidoc >/dev/null || exitWithError "Failed to build Api doc."
 fi
 
+# Convert the CHANGELOG markdown to HTML
+if [[ -f doc/CHANGELOG.md ]]; then
+    markdown doc/CHANGELOG.md > doc/CHANGELOG.html
+fi
+
 ## Run git add
 git add --all
