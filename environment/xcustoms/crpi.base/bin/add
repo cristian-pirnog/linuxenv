@@ -73,4 +73,8 @@ if [[ -f doc/CHANGELOG.md ]]; then
 fi
 
 ## Run git add
-git add --all
+if [[ ${#*} > 0 ]]; then
+    git add ${@} doc/CHANGELOG.* doc/apidoc.html
+else
+    git add --all
+fi

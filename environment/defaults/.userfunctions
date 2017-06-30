@@ -1,7 +1,7 @@
 # -*- mode: sh -*- #
 
 shopt -s expand_aliases
-. ~/.aliases
+test -f ~/.aliases && source ~/.aliases
 
 
 #----------------------------------------------
@@ -14,8 +14,8 @@ getAnswer()
     if [[ -z ${question} ]]; then
 	question="Would you like to continue?"
     fi
-    question="${question} [y\n]"
-    printf "%s " "${question}"
+    question="${question} [y\\\n] "
+    printf "${question}"
 
     # Get the answer
     local answer
@@ -245,15 +245,26 @@ ric()
     from=$(echo ${1}|sed 's_\\_\\\\_g'|sed 's_/_\\/_g')
     to=$(echo ${2}|sed 's_\\_\\\\_g'|sed 's_/_\\/_g')
     shift 2
-    
-    myFiles=`allSourceFiles $*`
+
+    myFiles=`allSourceFiles ${@}`
 
     if [[ -z ${myFiles} ]]; then
 	echo "No source files found. Exiting."
 	return 1
     fi
 
-    sed "s/$from/$to/g" -i ${myFiles}
+    for f in ${myFiles}; do
+	# Ignore file, if not at least match found
+	grep -q "${from}" ${f} || continue
+	
+	# Replace the text in the file
+	tmpFile=/tmp/$(basename ${f}).tmp
+	sed "s/$from/$to/g" ${f} > ${tmpFile}
+	if [[ -n $(diff -q ${tmpFile} ${f}) ]]; then
+	    mv ${tmpFile} ${f}
+	    printf  'Replaced in file "%s"\n' ${f}
+	fi
+    done
 }
 
 #----------------------------------------------

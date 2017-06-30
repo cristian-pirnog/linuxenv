@@ -53,3 +53,21 @@ type ${1} struct {
 	${3}
 }
     """
+
+    'insert new function template':
+        'prefix': 'funcTemplate'
+        'body': """
+// ${1} ${4}
+func ${1}(${2}) ${3} {
+	${5}
+}
+    """
+
+    'insert new test function template':
+        'prefix': 'testTemplate'
+        'body': """
+// Test${1} test for ${1}
+func Test${1}(t *testing.T) {
+	${2}
+}
+    """

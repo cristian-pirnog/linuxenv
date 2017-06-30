@@ -1,13 +1,16 @@
 # -*- mode: sh -*- #
 
 alias genpw='pwgen -nys1 12 7'
+alias pyOn='if [[ -f env/bin/activate ]]; then source env/bin/activate; else echo "Could not find a Python env."; fi'
+alias pyOff='if [[ $(type -t deactivate) == function ]]; then deactivate; else echo "You are not in a python env."; fi'
 
 alias cdb='cd ~/bin'
 alias cdo="cd ${OPTOOLS_DIR}"
 
 # Golang aliases
 alias gogo='cd ~/code/go/src/bitbucket.org/devicetools'
-alias goc='cd ~/code/go/src/bitbucket.org/devicetools/coupon-management'
+alias gocn='cd ~/code/go/src/bitbucket.org/devicetools/content-management'
+alias gocp='cd ~/code/go/src/bitbucket.org/devicetools/coupon-management'
 alias god='cd ~/code/go/src/bitbucket.org/devicetools/devmanagement'
 alias golib='cd ~/code/go/src/bitbucket.org/devicetools/golib'
 alias gom='cd ~/code/go/src/bitbucket.org/devicetools/management'
@@ -27,6 +30,7 @@ alias removeOldDockerImages='docker images|grep none|awk '"'"'{print $3}'"'"'|xa
 alias dcb='docker-compose build'
 alias dcbr='dcb&&dcr'
 alias up='docker-compose up'
+alias down='docker-compose down'
 alias runSen='if [[ -z $(docker ps|grep tomastomecek/sen) ]]; then docker run --privileged -v /var/run/docker.sock:/run/docker.sock -ti -e TERM tomastomecek/sen; fi'
 alias freshRestartDockerContainer='stopAllDockerContainers && removeStoppedContainers && dcb && removeOldDockerImages && dcr'
 

@@ -128,7 +128,7 @@ echo ''
 
 
 # Check that there is an entry in the CHANGELOG.md file for the new version
-changelogFile=CHANGELOG.md
+changelogFile=doc/CHANGELOG.md
 while true; do
 if [[ ! -f ${changelogFile} ]] || \
        [[ -z $(grep "## \[${newVersion}\]" ${changelogFile}) ]]; then
