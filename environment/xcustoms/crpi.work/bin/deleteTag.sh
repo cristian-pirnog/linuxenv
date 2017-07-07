@@ -1,30 +1,28 @@
 #!/bin/bash
 
-source ~/.userfunctions
+source  ~/.userfunctions
 
 #----------------------------------------------
 printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) -h
-            $(basename ${0}) [-u id] fileName
+            $(basename ${0}) PUT ARGUMENTS AND OPTIONS HERE
 
     Description:
-        Takes a json file removes new lines and spaces, encloses the.
-	text in single quotes and prints it to stdout.
-	
+        PUT DESCRIPTION HERE
+
     Options:
        -h
        --help
              Print this help message and exit.
 
-       -u id
-             Generate the output as an sql UPDATE statement for the
-	     'service_versions' table.
-	     
+       PUT MORE OPTIONS HERE
+	     AND DESCRIPTION HERE
+
     Arguments:
-       fileName
-	     The name of the json file to process.
+       PUT ARGUMENTS HERE
+	     AND DESCRIPTION HERE
 
 %%USAGE%%
 }
@@ -33,7 +31,7 @@ cat << %%USAGE%%
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-shortOptions='hu:'  # Add short options here
+shortOptions='h'  # Add short options here
 longOptions='help,listOptions' # Add long options here
 if $(isMac); then
     ARGS=`getopt "${shortOptions}" $*`
@@ -50,23 +48,20 @@ fi
 
 eval set -- "$ARGS"
 
-postCmd=''
 while true; do
     case ${1} in
     --listOptions)
-	listOptions
+        listOptions
         exit 0
         ;;
     -h|--help)
         printUsage
         exit 0
         ;;
-    -u)
-	prefix='UPDATE service_versions SET service_spec='
-	suffix=" WHERE id = ${2};"
-	clip=true
-        shift 2
-        ;;
+#    --OPTION)
+#        DO SOMETHING
+#        shift
+#        ;;
     --)
         shift
         break
@@ -86,23 +81,13 @@ fi
 # Uncomment this for enabling debugging
 # set -x
 
-source ~/.userfunctions
+tag=${1}
 
-fileName=${1}
-
-if [[ ! -f ${fileName} ]]; then
-    exitWithError "\nCouldn't find file '${fileName}'."
-elif [[ ! $(jsonlint-php ${fileName}) ]]; then
-    exitWithError "\n'{fileName} is not a valid JSON file"
+if [[ -z $(git tag|egrep "^${tag}$") ]]; then
+    exitWithError "Could not find tag ${tag} in the repository."
 fi
 
+getAnswer "About to delete tag '${tag}'. Continue?" || exit
 
-output=$(echo ${prefix}$(cat ${fileName}|tr '\n' ' '|sed 's/ //g'|sed -r 's/([,])/\1 /g'|awk '{print "'"'"'"$0"'"'"'"}')${suffix})
-
-echo
-echo ${output}
-if [[ -n ${clip} ]]; then
-    echo ${output}|xclip
-    printf 'Output also copied to clipboard...\n'
-fi
-echo
+git tag -d ${tag}
+git push origin :refs/tags/${tag}

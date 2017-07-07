@@ -74,7 +74,9 @@ fi
 
 ## Run git add
 if [[ ${#*} > 0 ]]; then
-    git add ${@} doc/CHANGELOG.* doc/apidoc.html
+    changelogFiles=$(ls doc/CHANGELOG.* 2>/dev/null)
+    apidocFiles=$(ls doc/apidoc.html 2>/dev/null)
+    git add ${@} ${changelogFiles} ${apidocFiles}
 else
     git add --all
 fi

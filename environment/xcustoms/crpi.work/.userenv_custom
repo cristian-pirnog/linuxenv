@@ -35,6 +35,9 @@ test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
 
 export PATH=/usr/local/go/bin:${HOME}/.local/bin:$PATH:/usr/local/bin:${HOME}/.local/bin
 
+# Add path to Maven (for Lufthansa)
+export PATH=${PATH}:${HOME}/Downloads/apache-maven-3.5.0/bin
+
 # Inhibits some crap WARNING from Emacs (Couldn't register with accessibility bus...)
 export NO_AT_BRIDGE=1
 

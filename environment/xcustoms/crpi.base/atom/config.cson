@@ -53,8 +53,12 @@
         "--json"
         "."
       ]
+    test:
+      coverageDisplayMode: "gutter"
+      coverageHighlightMode: "covered"
   "haskell-ghc-mod": {}
-  linter: {}
+  linter:
+    lintOnChange: false
   "linter-ui-default":
     showPanel: true
   "tree-view": {}

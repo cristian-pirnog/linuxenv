@@ -17,7 +17,7 @@ cat << %%USAGE%%
 
     Arguments:
        count
-	     (integer) The maximum number of tags to list.
+	     (integer) The maximum number of tags to list. Defaults to ${maxCount}.
 
 %%USAGE%%
 }
@@ -42,6 +42,8 @@ if [[ $? -ne 0 ]]; then
 fi
 
 eval set -- "$ARGS"
+
+maxCount=10
 
 while true; do
     case ${1} in
@@ -72,13 +74,12 @@ done
 # Uncomment this for enabling debugging
 # set -x
 
-maxCount=${1}
-
-if [[ -z ${maxCount} ]]; then
-    maxCount=10
-elif [[ -n $(echo ${maxCount}|grep '[^0-9]')  ]]; then
-    echo -e "\nInput argument 'count' must be an integer\n"
-    printUsage
+if [[ ! -z ${1} ]]; then
+    maxCount=${1}
+    if [[ -n $(echo ${maxCount}|grep '[^0-9]')  ]]; then
+	echo -e "\nInput argument 'count' must be an integer\n"
+	printUsage
+    fi
 fi
 
 tags=$(git tag --sort=-tag| head -n${maxCount})
