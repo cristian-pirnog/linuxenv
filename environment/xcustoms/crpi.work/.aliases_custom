@@ -1,6 +1,6 @@
 # -*- mode: sh -*- #
 
-alias genpw='pwgen -nys1 12 7'
+alias genpw='pwgen -ns1 17 7'
 alias pyOn='if [[ -f env/bin/activate ]]; then source env/bin/activate; else echo "Could not find a Python env."; fi'
 alias pyOff='if [[ $(type -t deactivate) == function ]]; then deactivate; else echo "You are not in a python env."; fi'
 

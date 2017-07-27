@@ -24,13 +24,32 @@ cat << %%USAGE%%
     Arguments:
        filename
              The name of the file to be used as input. If not provided the
-	     script will attempt to find a file called doc/DIRNAME.apib, where
-	     DIRNAME is the name of the current directory. If no such file is
-	     found, it search for an apib file in the doc directory.
+	     script will build all apib files in the doc directory.
 
     Requires: aglio
 
 %%USAGE%%
+}
+
+
+function buildFile()
+{
+    local lInputFile=${1}
+    local lOutputFile=${2}
+    
+    # Only build if the output file is older than the input file
+    if [[ ${force} == true ]] || [[ ${lOutputFile} -ot ${lInputFile} ]]; then
+	versionFile=.version
+	if [[ -f ${versionFile} ]]; then
+	    version=$(cat ${versionFile})
+	    tmpFile=$(mktemp -p $(dirname ${lInputFile}))
+	    cat ${lInputFile} | sed "s/__VERSION__/${version}/" > ${tmpFile}
+	    lInputFile=${tmpFile}
+	fi
+
+	aglio -i ${lInputFile} --theme-template triple -o ${lOutputFile}
+	test -f ${tmpFile} && rm ${tmpFile}
+    fi
 }
 
 
@@ -92,37 +111,26 @@ fi
 
 
 inputFile="${1}"
-if [[ -z "${inputFile}" ]]; then
-    inputFile="doc/$(basename $(pwd)).apib"
-    if [[ ! -f ${inputFile} ]]; then
-        inputFile=`find doc -name '*.apib'`
-        fileCount=$(echo ${inputFile}|wc -w)
-        if [[ ${fileCount} -eq 0 ]]; then
-            echo "Could not find an apib file in doc directory"
-            exit 0
-        elif [[ ${fileCount} -gt 1 ]]; then
-            echo "Found multiple apib files in doc directory"
-        fi
+if [[ -z ${inputFile} ]]; then
+    inputFiles=( $(find doc -name '*.apib') )
+    if [[ -z ${#inputFiles[@]} ]]; then
+        echo "Could not find an apib file in doc directory"
+        exit 0
     fi
+else
+    inputFiles=(${inputFile})
 fi
 
-if [[ -z "${outputFile}" ]]; then
-    outputFile=${inputFile%.*}'.html'
+if [[ ${#inputFiles[@]} -gt 1 ]] && [[ -n "${outputFile}" ]]; then
+    exitWithError 'Cannot provide an output file when multiple apib files exist'
 fi
+
 
 # Uncomment this for enabling debugging
-#set -x
+# set -x
 
-# Only build if the output file is older than the input file
-if [[ ${force} == true ]] || [[ ${outputFile} -ot ${inputFile} ]]; then
-    versionFile=.version
-    if [[ -f ${versionFile} ]]; then
-	version=$(cat ${versionFile})
-	tmpFile=$(mktemp -p $(dirname ${inputFile}))
-	cat ${inputFile} | sed "s/__VERSION__/${version}/" > ${tmpFile}
-	inputFile=${tmpFile}
-    fi
-
-    aglio -i ${inputFile} --theme-template triple -o ${outputFile}
-    test -f ${tmpFile} && rm ${tmpFile}
-fi
+for inputFile in ${inputFiles[@]}; do
+    outputFile=${inputFile%.*}'.html'
+    echo Building ${inputFile} to ${outputFile}
+    buildFile ${inputFile} ${outputFile}
+done

@@ -1,0 +1,134 @@
+#!/bin/bash
+
+source  ~/.userfunctions
+
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) -h
+            $(basename ${0}) [-u id|-i serviceId:version] dirName
+
+    Description:
+        Exports the service version stuff from the given directory to SQL.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       -u id
+	     Produces an SQL UPDATE statement.
+
+       -i serviceId:version
+	     Produces an SQL INSERT statement.
+
+	     
+    Arguments:
+       dirName
+	     The name of the directory that contains the service specs.
+
+
+	     
+%%USAGE%%
+}
+
+function update() {
+        echo 'UPDATE service_versions SET service_spec ='${service_spec}', settings_spec='${settings_spec}', scopes_spec='${scopes_spec}' WHERE id = '${id}';'
+}
+
+function insert() {
+    echo "INSERT INTO service_versions (service_id, version, service_spec, settings_spec, scopes_spec) VALUES ('${serviceInfo[0]}','${serviceInfo[1]}',${service_spec},${settings_spec},${scopes_spec});"|tr '\n' ' '
+    echo
+}
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+shortOptions='hu:i:'  # Add short options here
+longOptions='help,listOptions,update:' # Add long options here
+if $(isMac); then
+    ARGS=`getopt "${shortOptions}" $*`
+else
+    ARGS=$(getopt -u -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+
+fi
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+while true; do
+    case ${1} in
+    --listOptions)
+        listOptions
+        exit 0
+        ;;
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    -u|--update)
+        action=update
+	id=${2}
+        shift 2
+        ;;
+    -i|--insert)
+        action=insert
+	serviceInfo=(${2//:/ })
+        shift 2
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # This is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
+
+if [[ -z ${action} ]]; then
+    printUsage
+    exitWithError "At least one of -i or -u optios must be provided."
+fi
+
+if [[ $# -lt 1 ]]; then
+    printUsage
+    exit 1
+fi
+
+# Uncomment this for enabling debugging
+#set -x
+
+dirName=${1}
+
+# Parse the input files 
+serviceTemplateFile=$(ls ${dirName} | grep service.template.json$)
+scopesFile=$(ls ${dirName} | grep scopes.json$)
+settingsFile=$(ls ${dirName} | grep settings.json$)
+
+if [[ -z ${serviceTemplateFile} ]]; then
+    exitWithError "Could not find a service template file in the directory ${dirName}"
+fi
+
+service_spec=$(compactizeJson ${dirName}/${serviceTemplateFile})
+
+scopes_spec=NULL
+if [[ -n ${scopesFile} ]]; then
+    scopes_spec=$(compactizeJson ${dirName}/${scopesFile})
+fi
+
+settings_spec=NULL
+if [[ -n ${settingsFile} ]]; then
+    settings_spec=$(compactizeJson ${dirName}/${settingsFile})
+fi
+
+## Handle the UPDATE case
+${action}

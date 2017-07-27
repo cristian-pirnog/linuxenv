@@ -82,7 +82,7 @@ if [[ ! -z ${1} ]]; then
     fi
 fi
 
-tags=$(git tag --sort=-tag| head -n${maxCount})
+tags=$(git tag --sort=-version:refname| head -n${maxCount})
 
 prevMinor='-'
 for t in ${tags}; do

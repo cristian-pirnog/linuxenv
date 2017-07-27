@@ -51,6 +51,7 @@ fi
 eval set -- "$ARGS"
 
 postCmd=''
+sqlUpdate=false
 while true; do
     case ${1} in
     --listOptions)
@@ -62,7 +63,7 @@ while true; do
         exit 0
         ;;
     -u)
-	prefix='UPDATE service_versions SET service_spec='
+	sqlUpdate=true
 	suffix=" WHERE id = ${2};"
 	clip=true
         shift 2
@@ -96,8 +97,15 @@ elif [[ ! $(jsonlint-php ${fileName}) ]]; then
     exitWithError "\n'{fileName} is not a valid JSON file"
 fi
 
+if [[ ${sqlUpdate} == true ]]; then
+    column=service_spec
+    if [[ -z $(grep components ${fileName}) ]]; then
+	column=settings_spec
+    fi
+    prefix="UPDATE service_versions SET ${column}="
+fi
 
-output=$(echo ${prefix}$(cat ${fileName}|tr '\n' ' '|sed 's/ //g'|sed -r 's/([,])/\1 /g'|awk '{print "'"'"'"$0"'"'"'"}')${suffix})
+output=$(echo ${prefix}$(cat ${fileName}|tr '\n' ' '|sed 's/  / /g'|sed -r 's/([,])/\1 /g'|awk '{print "'"'"'"$0"'"'"'"}')${suffix})
 
 echo
 echo ${output}

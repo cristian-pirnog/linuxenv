@@ -20,4 +20,4 @@ runOpts.sh ${HOME}/bin/runOpts.sh
 st ${HOME}/bin/st
 runRollingOpts.sh ${HOME}/bin/runRollingOpts.sh
 listRepos ${HOME}/bin/listRepos
-buildApidoc.sh ${HOME}/buildApidoc
+buildApidoc.sh ${HOME}/bin/buildApidoc

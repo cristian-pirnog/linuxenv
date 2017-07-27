@@ -17,6 +17,7 @@ bin/tags $HOME/bin/tags
 bin/tagRelease.sh $HOME/bin/tagRelease.sh
 bin/dcr $HOME/bin/dcr
 bin/compactizeJson $HOME/bin/compactizeJson 
+bin/exportServiceVersion ${HOME}/bin/exportServiceVersion
 
 # Git files
 .gitignore_global $HOME/.gitignore_global
