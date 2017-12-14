@@ -20,6 +20,9 @@ alias gopo='cd ~/code/go/src/bitbucket.org/devicetools/pontus2'
 alias gods='cd ~/code/go/src/bitbucket.org/devicetools/segments'
 alias goi='go install'
 
+# DT aliases
+alias decode='manageScopes.sh -d'
+
 # Docker aliases
 alias dps='docker ps'
 alias dpsa='docker ps -a'
@@ -27,13 +30,14 @@ alias dim='docker images'
 alias stopAllDockerContainers='docker ps|tail -n +2|grep -v "tomastomecek/sen"|grep -v kubeenv|grep -v " registry$"|cut -f1 -d" "|xargs docker stop'
 alias removeStoppedContainers='docker ps -a|grep Exited|awk '"'"'{print $1}'"'"'|xargs docker rm'
 alias removeOldDockerImages='docker images|grep none|awk '"'"'{print $3}'"'"'|xargs docker rmi'
+alias removeDanglingDockerVolumes='docker volume ls -qf dangling=true | xargs -r docker volume rm'
 alias dcb='docker-compose build'
 alias dcbr='dcb&&dcr'
 alias up='docker-compose up'
 alias down='docker-compose down'
 alias runSen='if [[ -z $(docker ps|grep tomastomecek/sen) ]]; then docker run --privileged -v /var/run/docker.sock:/run/docker.sock -ti -e TERM tomastomecek/sen; fi'
 alias freshRestartDockerContainer='stopAllDockerContainers && removeStoppedContainers && dcb && removeOldDockerImages && dcr'
-
+alias runBehaviorTests='up -d api && sleep 15 && dcr behavior_tests && down'
 # kubectl aliases
 alias del='k delete'
 alias desc='k describe'
@@ -45,7 +49,7 @@ alias gdep='k get deployments'
 alias get='k get -o wide'
 alias gp='get pods'
 alias k='kubectl --namespace=${KUBE_NAMESPACE}'
-alias ll='ls -AFl'
+alias ll='ls -AFlh'
 alias setNamespace='upvar KUBE_NAMESPACE '
 
 

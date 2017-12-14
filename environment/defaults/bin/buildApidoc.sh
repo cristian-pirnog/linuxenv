@@ -37,18 +37,31 @@ function buildFile()
     local lInputFile=${1}
     local lOutputFile=${2}
     
-    # Only build if the output file is older than the input file
-    if [[ ${force} == true ]] || [[ ${lOutputFile} -ot ${lInputFile} ]]; then
-	versionFile=.version
-	if [[ -f ${versionFile} ]]; then
-	    version=$(cat ${versionFile})
+
+    local lVersionFile=.version
+    # Only build if force
+    if [[ ${force} == true ]] || \
+	   # OR the output file doesn't exist
+	   [[ ! -f ${lOutputFile} ]] || \
+	   # OR the output file is older than the input file
+	   [[ ${lOutputFile} -ot ${lInputFile} ]] || \
+	   # OR the output file is older than the version file
+           [[ ${lOutputFile} -ot ${lVersionFile} ]]; then
+	echo Building ${lInputFile} to ${lOutputFile}
+
+	# If version file found, use it
+	if [[ -f ${lVersionFile} ]]; then
+	    version=$(cat ${lVersionFile})
 	    tmpFile=$(mktemp -p $(dirname ${lInputFile}))
 	    cat ${lInputFile} | sed "s/__VERSION__/${version}/" > ${tmpFile}
 	    lInputFile=${tmpFile}
 	fi
 
 	aglio -i ${lInputFile} --theme-template triple -o ${lOutputFile}
-	test -f ${tmpFile} && rm ${tmpFile}
+
+	if [[ -n ${tmpFile} ]]; then
+	    test -f ${tmpFile} && rm ${tmpFile}
+	fi
     fi
 }
 
@@ -112,7 +125,7 @@ fi
 
 inputFile="${1}"
 if [[ -z ${inputFile} ]]; then
-    inputFiles=( $(find doc -name '*.apib') )
+    inputFiles=( $(find doc -name 'apidoc*.apib') )
     if [[ -z ${#inputFiles[@]} ]]; then
         echo "Could not find an apib file in doc directory"
         exit 0
@@ -131,6 +144,5 @@ fi
 
 for inputFile in ${inputFiles[@]}; do
     outputFile=${inputFile%.*}'.html'
-    echo Building ${inputFile} to ${outputFile}
     buildFile ${inputFile} ${outputFile}
 done

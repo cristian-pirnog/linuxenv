@@ -135,12 +135,16 @@ if [[ ! -f ${changelogFile} ]] || \
     getAnswer "No entry for version ${newVersion} found in the ${changelogFile}. Would you like to add one now?" || exit 1
     ${EDITOR} ${changelogFile}
 else
-    sed -i "s/## \[${newVersion}\] - ReleaseDate/## [${newVersion}] $(date +%Y.%m.%d)/" ${changelogFile}
     break
 fi
 done
 
 getAnswer "Tagged current checkout with version ${newVersion}. Would you like to push to the server?" || exit 1
+
+# Replace the ReleaseDate tag with the current date
+sed -i "s/## \[${newVersion}\] - ReleaseDate/## [${newVersion}] $(date +%Y.%m.%d)/" ${changelogFile}
+# Add a new section for the next release
+sed -i -E '/http:\/\/semver.org.*/a\\n## [NextRelease] - ReleaseDate\n### Added\n- \n\n### Changed\n- ' ${changelogFile}
 
 echo ${newVersion} > ${versionFile} && \
     buildApidoc -f && \

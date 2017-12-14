@@ -1,0 +1,210 @@
+#!/bin/bash
+
+source  ~/.userfunctions
+
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) -h
+            $(basename ${0}) [options] [tag]
+
+    Description:
+        Builds a docker image from the current directory.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       --push
+             If successful, push the build to Docker Hub.
+
+       --tiny
+             Build a tiny image.
+
+
+    Arguments:
+       tag
+	     (optional) If provided, it will tag the image with the given string. Default: ${defaultTag}.
+
+%%USAGE%%
+}
+
+
+#----------------------------------------------
+function buildImage() {
+    docker build . -t ${image}
+}
+
+#----------------------------------------------
+function checkForDockerTiny() {
+    if [[ ! -f Dockerfile.tiny ]]; then
+	echo "Couldn't find file Dockerfile.tiny"
+	exit 1
+    fi
+}
+
+#----------------------------------------------
+function buildTinyGolang() {
+    checkForDockerTiny
+
+    printf "Building the go binary           "
+    docker run --rm -it \
+	   -v "$GOPATH":/gopath \
+	   -v "$(pwd)":/app \
+	   -e "GOPATH=/gopath" \
+	   -w /app golang:1.9 sh -c "CGO_ENABLED=0 go build -a --installsuffix cgo --ldflags=\"-s\" -o ${project} && chmod o+w ${project}"
+    echo "[Done]"
+
+    printf "Copying the build dir to image   "
+    docker build --rm --tag=${image} -f Dockerfile.tiny . > /dev/null
+    echo "[Done]"
+
+    printf "Removing the build dir           "
+    rm ${project}
+    echo "[Done]"
+}
+
+#----------------------------------------------
+function buildTinyNode() {
+    if [[ ! -f Dockerfile.tiny ]]; then
+	echo "Couldn't find file Dockerfile.tiny"
+	exit 1
+    fi
+
+    baseImage=$(grep FROM Dockerfile|awk '{print $2}')
+    
+    printf "Building the node stuff        "
+    docker run --rm -it \
+	   -v "$(pwd)":/app \
+	   -w /app ${baseImage} sh -c "yarn && yarn build && chmod -R o+rwX build node_modules"
+    echo "[Done]"
+
+    printf "Copying the build dir to image    "
+    docker build --rm --tag=${image} -f Dockerfile.tiny . > /dev/null
+    echo "[Done]"
+
+    printf "Removing the build directory     "
+    rm -rf bin
+    echo "[Done]"
+}
+
+#----------------------------------------------
+function getBuildInfo() {
+    infoFile='.docker.nfo'
+    buildType=$(grep TYPE ${infoFile} | awk '{print $NF}')
+    if [[ -z ${buildType} ]]; then
+	echo "Could not find the buildType"
+	exit 1
+    fi
+
+    project=$(grep NAME ${infoFile} | awk '{print $NF}')
+    if [[ -z ${project} ]]; then
+	echo "Could not find the image project"
+	exit 1
+    fi
+    image=devicetools/${project}:${tag}
+
+}
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+shortOptions='h'  # Add short options here
+longOptions='help,listOptions,push,tiny' # Add long options here
+if $(isMac); then
+    ARGS=`getopt "${shortOptions}" $*`
+else
+    ARGS=$(getopt -u -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+
+fi
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+defaultTag=latest
+pushToHub=false
+buildFunction=buildImage
+while true; do
+    case ${1} in
+    --listOptions)
+        listOptions
+        exit 0
+        ;;
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    --push)
+	pushToHub=true
+	shift
+	;;
+    --tiny)
+	buildFunction=buildTiny
+	shift
+	;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # This is necessary for processing missing optional arguments
+        shift
+        ;;
+    esac
+done
+
+#if [[ $# -lt 1 ]]; then
+#    printUsage
+#    exit 1
+#fi
+
+# Uncomment this for enabling debugging
+# set -x
+
+## Check for a Dockerfile
+if [[ ! -f Dockerfile ]]; then
+    exitWithError "Dockerfile not found in current directory."
+fi
+
+
+## Handle the build tag
+tag=${1}
+if [[ -z ${tag} ]]; then
+    tag=${defaultTag}
+fi
+
+# Get the build info
+getBuildInfo
+
+## Go for it!
+printf '\nBuilding image: %s\n\n' ${image}
+
+## Set to exit if the build command fails
+set -e
+
+## For library projects that have a buildDocker.sh script, run it
+if [[ -x buildDocker.sh ]]; then
+    ./buildDocker.sh -s -t ${tag}
+## For all other projects, run docker build
+else
+    if [[ ${buildFunction} == 'buildTiny' ]]; then
+	if [[ -z ${buildType} ]]; then
+	    echo "Could not get the build type from the Dockerfile.tiny"
+	    exit 1
+	fi
+	${buildFunction}${buildType}
+    fi
+fi
+
+if [[ ${pushToHub} == true ]]; then
+    printf "\nPushing image '%s' to docker hub\n\n" ${image}
+    docker push ${image}
+fi

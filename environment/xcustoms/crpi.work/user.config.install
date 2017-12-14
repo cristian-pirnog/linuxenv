@@ -7,10 +7,13 @@
 #
 # Files from 'CRON' directory
 #
+CRON/cron.tab ${HOME}/CRON/cron.tab
+CRON/cleanupDocker.sh ${HOME}/CRON/cleanupDocker.sh
 
 #
 # Files from the 'bin' directory
 #
+bin/build $HOME/bin/build
 bin/sshToMinion.sh $HOME/bin/sshToMinion.sh
 bin/startVNC $HOME/bin/startVNC
 bin/tags $HOME/bin/tags
@@ -22,10 +25,6 @@ bin/exportServiceVersion ${HOME}/bin/exportServiceVersion
 # Git files
 .gitignore_global $HOME/.gitignore_global
 .gitconfig $HOME/.gitconfig
-#
-# Kubernetes config dir
-#
-.kube $HOME/.kube
 
 #
 # Atom stuf

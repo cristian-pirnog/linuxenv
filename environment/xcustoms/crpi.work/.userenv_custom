@@ -28,15 +28,16 @@ function GenerateSshEntries()
         
 }
 
-export NVM_DIR="/home/cristian/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-
 test -f ~/.userenv_custom.base && source ~/.userenv_custom.base
 
 export PATH=/usr/local/go/bin:${HOME}/.local/bin:$PATH:/usr/local/bin:${HOME}/.local/bin
 
+export NVM_DIR="/home/cristian/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+
+
 # Add path to Maven (for Lufthansa)
-export PATH=${PATH}:${HOME}/Downloads/apache-maven-3.5.0/bin
+# export PATH=${PATH}:${HOME}/Downloads/apache-maven-3.5.0/bin
 
 # Inhibits some crap WARNING from Emacs (Couldn't register with accessibility bus...)
 export NO_AT_BRIDGE=1
@@ -47,15 +48,11 @@ export PATH=${PATH}:${GOBIN}
 
 ## Devicetools amazon servers
 SSH_CONFIG_AMAZON="kube-aws ec2-52-18-32-155.eu-west-1.compute.amazonaws.com
-swissmom-minion ec2-54-194-245-32.eu-west-1.compute.amazonaws.com"
-#devicetools-minion-aws "
+swissmom-minion ec2-54-246-248-187.eu-west-1.compute.amazonaws.com"
 GenerateSshEntries "${SSH_CONFIG_AMAZON}" admin ~/.ssh/devicetools-ec2-keypair-eu.pem
 
 ## Edge5 amazon servers
-SSH_CONFIG_AMAZON_EDGE5="gluster-aws-1 ec2-54-154-236-218.eu-west-1.compute.amazonaws.com
-gluster-aws-2 ec2-54-171-162-249.eu-west-1.compute.amazonaws.com
-gluster-aws-3 ec2-54-171-7-54.eu-west-1.compute.amazonaws.com
-edge5ec2 ec2-176-34-177-246.eu-west-1.compute.amazonaws.com
+SSH_CONFIG_AMAZON_EDGE5="edge5ec2 ec2-176-34-177-246.eu-west-1.compute.amazonaws.com
 elasticsearch ec2-54-220-126-176.eu-west-1.compute.amazonaws.com
 elasticsearch-replica ec2-54-220-100-15.eu-west-1.compute.amazonaws.com"
 GenerateSshEntries "${SSH_CONFIG_AMAZON_EDGE5}" ec2-user ~/.ssh/edge5-ec2-keypair-eu.pem
@@ -69,20 +66,10 @@ swiss-minion 159.100.248.80
 swisslogbook-minion 159.100.249.74
 friday-minion 159.100.248.35
 friday-ro-minion 159.100.249.25
-kube-gva 185.19.29.178
-devicetools-minion-gva 185.19.30.180
-devicetools-loadbalancer1-gva 185.19.28.154
-devicetools-loadbalancer2-gva 185.19.29.106
-devicetools-management-1 185.19.28.236
-devicetools-management-2 185.19.28.161
-devicetools-management-3 185.19.28.127
+devicetools-management 185.19.28.66
 "
 GenerateSshEntries "${SSH_CONFIG_EXOSCALE}" debian ~/.ssh/devicetools-exoscale-keypair-ch.pem
 
-
-
-SSH_CONFIG_NEW_CLUSTER='devicetools-management-test 159.100.241.108'
-GenerateSshEntries "${SSH_CONFIG_NEW_CLUSTER}" core ~/.ssh/devicetools-exoscale-keypair-ch.pem
 
 export NEWRELIC_LICENSE_KEY="06ff5e0fb72ca17c5b25cfe040945105043f7d08"
 export NEWRELIC_NAME="Onboarding API"

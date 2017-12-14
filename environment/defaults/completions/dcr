@@ -1,9 +1,21 @@
+parseDockerCompose() {
+   dcr --listOptions
+
+   test -f docker-compose.yml || return
+   if [[ -n $(sed -n -e 's/^  \([^[:space:]]*\):$/\1/p' docker-compose.yml) ]]; then
+      sed -n -e 's/^  \([^[:space:]]*\):$/\1/p' docker-compose.yml
+   else
+      sed -n -e 's/^    \([^[:space:]]*\):$/\1/p' docker-compose.yml	
+   fi
+}
+
+
 _dcr()
 {
     cur=${COMP_WORDS[COMP_CWORD]}
     # The list of branches comes on the next line, otherwise the last option and the
     # first branch will be considered as one unit
-  COMPREPLY=( $( compgen -W "$(test -f docker-compose.yml && sed -n 's/^    \([^ ]*\):$/\1/p' docker-compose.yml)" -- $cur ) )
+  COMPREPLY=( $( compgen -W "$(parseDockerCompose)" -- $cur ) )
 }
 
 complete -o filenames -F _dcr dcr

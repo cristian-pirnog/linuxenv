@@ -1,3 +1,18 @@
+# Snippets for CHANGELOG.md
+'.source.gfm':
+    'insert next release template':
+        'prefix': 'note'
+        'body': """
+## [${1}] - ReleaseDate
+### Added
+-
+
+### Changed
+- ${2}
+
+"""
+
+# Snippets for golang
 '.source.go':
     'return nil and error':
       'prefix': 'rne'
@@ -17,7 +32,7 @@
 
     'insert fmt.Printf':
       'prefix': 'printf'
-      'body': 'fmt.Printf("${1} = ${2:%v}\\\\n", ${1})'
+      'body': 'fmt.Printf("${1} = ${2:%+v}\\\\n", ${1})'
 
     'insert authorize check':
         'prefix': 'auth'
@@ -27,11 +42,20 @@ if err := AuthorizeRole(db, r, accountID, models.${1:ADMIN}); err != nil {
 }
     """
 
+    'insert generic check scope':
+        'prefix': 'checkScopeGeneric'
+        'body': """
+// May the device do ${1} operations?
+if err := api.CheckScope(r, Scope${1}); err != nil {
+	return err
+}
+    """
+
     'insert check read scope':
         'prefix': 'checkRead'
         'body': """
 // May the device do READ operations?
-if err := api.CheckScope(r, model.ScopeRead); err != nil {
+if err := api.CheckScope(r, ScopeRead); err != nil {
 	return err
 }
     """
@@ -40,7 +64,7 @@ if err := api.CheckScope(r, model.ScopeRead); err != nil {
         'prefix': 'checkWrite'
         'body': """
 // May the device do WRITE operations?
-if err := api.CheckScope(r, model.ScopeWrite); err != nil {
+if err := api.CheckScope(r, ScopeWrite); err != nil {
 	return err
 }
     """

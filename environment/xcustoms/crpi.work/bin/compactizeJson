@@ -99,8 +99,10 @@ fi
 
 if [[ ${sqlUpdate} == true ]]; then
     column=service_spec
-    if [[ -z $(grep components ${fileName}) ]]; then
+    if [[ ${fileName} == *settings*.json ]] || [[ -n $(grep '"type"' ${fileName}) ]]; then
 	column=settings_spec
+    elif [[ ${fileName} == *scopes*.json ]] || [[ -n $(grep '"May the device"' ${fileName}) ]]; then
+	column=scopes_spec
     fi
     prefix="UPDATE service_versions SET ${column}="
 fi
