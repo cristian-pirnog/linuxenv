@@ -106,7 +106,6 @@ else
     st  --untracked-files=no
     
     if [[ ${emptyLogFile} == true ]]; then
-        echo emptyLogFile=${emptyLogFile}
         echo "The log file is empty. Aborting."
         exit 1
     fi

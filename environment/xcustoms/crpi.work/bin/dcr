@@ -7,7 +7,7 @@ printUsage()
 {
 cat << %%USAGE%%
      Usage: $(basename ${0}) -h
-            $(basename ${0}) [-n|--nobash] [serviceName]
+            $(basename ${0}) [-n|--nobash] [serviceName [command]]
 
     Description:
         Wrapper for 'docker-compose run'
@@ -22,9 +22,14 @@ cat << %%USAGE%%
 
     Arguments:
        serviceName
-	     Optional argument for naming which service it should start.
-	     Defaults to one of (in this order): api, frontend.
+             [optional] names which service it should start. Defaults to one of
+	     (in this order): api, frontend.
 
+       command
+	     [optional] the command to be executed. Defaults to bash (unless --nobash
+	     is provided, in which case it defaults to the default Docker command
+	     for the container).
+	     
 %%USAGE%%
 }
 
@@ -79,6 +84,9 @@ done
 # set -x
 
 service=${1}
+if [[ -n ${2} ]]; then
+    cmd=${2}
+fi
 
 # Behavior tests use default command
 if [[ ${service} == "behavior_tests" ]]; then
@@ -93,4 +101,5 @@ if [[ -z ${service} ]]; then
 #    fi
 fi
 
+set -x
 docker-compose run --service-ports ${service} ${cmd}

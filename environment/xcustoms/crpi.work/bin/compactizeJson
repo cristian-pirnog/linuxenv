@@ -107,7 +107,7 @@ if [[ ${sqlUpdate} == true ]]; then
     prefix="UPDATE service_versions SET ${column}="
 fi
 
-output=$(echo ${prefix}$(cat ${fileName}|tr '\n' ' '|sed 's/  / /g'|sed -r 's/([,])/\1 /g'|awk '{print "'"'"'"$0"'"'"'"}')${suffix})
+output=$(echo ${prefix}"'"$(cat ${fileName}|jq -c .)"'"${suffix})
 
 echo
 echo ${output}

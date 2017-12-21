@@ -61,7 +61,7 @@ function buildTinyGolang() {
     docker build --rm --tag=${image} -f Dockerfile.tiny . > /dev/null
     echo "[Done]"
 
-    printf "Removing the build dir           "
+    printf "Removing the build artefact      "
     rm ${project}
     echo "[Done]"
 }
@@ -86,7 +86,7 @@ function buildTinyNode() {
     echo "[Done]"
 
     printf "Removing the build directory     "
-    rm -rf bin
+    rm -rf build
     echo "[Done]"
 }
 
@@ -129,7 +129,7 @@ fi
 
 eval set -- "$ARGS"
 
-defaultTag=latest
+defaultTag=local
 pushToHub=false
 buildFunction=buildImage
 while true; do
@@ -196,11 +196,10 @@ if [[ -x buildDocker.sh ]]; then
 ## For all other projects, run docker build
 else
     if [[ ${buildFunction} == 'buildTiny' ]]; then
-	if [[ -z ${buildType} ]]; then
-	    echo "Could not get the build type from the Dockerfile.tiny"
-	    exit 1
-	fi
 	${buildFunction}${buildType}
+    else
+	docker build . -t ${image}
+				       
     fi
 fi
 
