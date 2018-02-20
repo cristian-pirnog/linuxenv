@@ -23,7 +23,7 @@
     ]
     telemetryConsent: "limited"
   editor:
-    fontSize: 16
+    fontSize: 17
     scrollPastEnd: true
     showInvisibles: true
     tabLength: 4

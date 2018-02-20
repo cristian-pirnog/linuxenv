@@ -1,6 +1,6 @@
 # -*- mode: sh -*- #
 
-alias genpw='pwgen -ns1 17 7'
+alias genpw='pwgen -ns1 16 5'
 alias pyOn='if [[ -f env/bin/activate ]]; then source env/bin/activate; else echo "Could not find a Python env."; fi'
 alias pyOff='if [[ $(type -t deactivate) == function ]]; then deactivate; else echo "You are not in a python env."; fi'
 
@@ -28,7 +28,7 @@ alias dps='docker ps'
 alias dpsa='docker ps -a'
 alias dim='docker images'
 alias stopAllDockerContainers='docker ps|tail -n +2|grep -v "tomastomecek/sen"|grep -v kubeenv|grep -v " registry$"|cut -f1 -d" "|xargs docker stop'
-alias removeStoppedContainers='docker ps -a|grep Exited|awk '"'"'{print $1}'"'"'|xargs docker rm'
+alias removeStoppedContainers='docker ps -a|grep -e '"'"'Exited\|Created'"'"'|awk '"'"'{print $1}'"'"'|xargs docker rm'
 alias removeOldDockerImages='docker images|grep none|awk '"'"'{print $3}'"'"'|xargs docker rmi'
 alias removeDanglingDockerVolumes='docker volume ls -qf dangling=true | xargs -r docker volume rm'
 alias dcb='docker-compose build'

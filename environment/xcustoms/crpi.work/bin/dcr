@@ -54,7 +54,7 @@ fi
 
 eval set -- "$ARGS"
 
-cmd='/bin/bash'
+cmd='/bin/sh'
 while true; do
     case ${1} in
     --listOptions)

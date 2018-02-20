@@ -54,11 +54,12 @@ function buildTinyGolang() {
 	   -v "$GOPATH":/gopath \
 	   -v "$(pwd)":/app \
 	   -e "GOPATH=/gopath" \
-	   -w /app golang:1.9 sh -c "CGO_ENABLED=0 go build -a --installsuffix cgo --ldflags=\"-s\" -o ${project} && chmod o+w ${project}"
+	   -w /app devicetools/golib:3.0.0 sh -c "CGO_ENABLED=0 go build -a --installsuffix cgo --ldflags=\"-s\" -o ${project} && chmod o+w ${project}"
     echo "[Done]"
 
-    printf "Copying the build dir to image   "
-    docker build --rm --tag=${image} -f Dockerfile.tiny . > /dev/null
+    printf "Copying the build artifact to image   "
+    docker build --rm --tag=${image} -f Dockerfile.tiny .
+    # > /dev/null
     echo "[Done]"
 
     printf "Removing the build artefact      "
@@ -74,7 +75,7 @@ function buildTinyNode() {
     fi
 
     baseImage=$(grep FROM Dockerfile|awk '{print $2}')
-    
+
     printf "Building the node stuff        "
     docker run --rm -it \
 	   -v "$(pwd)":/app \
@@ -199,7 +200,7 @@ else
 	${buildFunction}${buildType}
     else
 	docker build . -t ${image}
-				       
+
     fi
 fi
 
