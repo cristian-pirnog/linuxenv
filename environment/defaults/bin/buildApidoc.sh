@@ -21,6 +21,9 @@ cat << %%USAGE%%
 	     The name of the output file. Defaults to the name of the input
 	     file, with html extension.
 
+       --version version
+  	     The version number/tag to use for the apidoc.html file.
+
     Arguments:
        filename
              The name of the file to be used as input. If not provided the
@@ -36,7 +39,7 @@ function buildFile()
 {
     local lInputFile=${1}
     local lOutputFile=${2}
-    
+    local lVersion=${3}
 
     local lVersionFile=.version
     # Only build if force
@@ -44,18 +47,26 @@ function buildFile()
 	   # OR the output file doesn't exist
 	   [[ ! -f ${lOutputFile} ]] || \
 	   # OR the output file is older than the input file
-	   [[ ${lOutputFile} -ot ${lInputFile} ]] || \
+       [[ ${lOutputFile} -ot ${lInputFile} ]] || \
+       # OR a version is given
+	   [[ -n ${version} ]] || \
 	   # OR the output file is older than the version file
            [[ ${lOutputFile} -ot ${lVersionFile} ]]; then
 	echo Building ${lInputFile} to ${lOutputFile}
 
 	# If version file found, use it
-	if [[ -f ${lVersionFile} ]]; then
-	    version=$(cat ${lVersionFile})
-	    tmpFile=$(mktemp -p $(dirname ${lInputFile}))
-	    cat ${lInputFile} | sed "s/__VERSION__/${version}/" > ${tmpFile}
-	    lInputFile=${tmpFile}
-	fi
+	if [[ -z ${lVersion} ]]; then
+        if [[ -f ${lVersionFile} ]]; then
+    	    lVersion=$(cat ${lVersionFile})
+        else
+            lVersion='N\/A'
+        fi
+    fi
+
+    echo version = ${lVersion}
+    tmpFile=$(mktemp -p $(dirname ${lInputFile}))
+    cat ${lInputFile} | sed "s/__VERSION__/${lVersion}/" > ${tmpFile}
+    lInputFile=${tmpFile}
 
 	aglio -i ${lInputFile} --theme-template triple -o ${lOutputFile}
 
@@ -70,7 +81,7 @@ function buildFile()
 # Main script
 #----------------------------------------------
 shortOptions='ho:f'  # Add short options here
-longOptions='help,listOptions,force' # Add long options here
+longOptions='help,listOptions,force,version:' # Add long options here
 if $(isMac); then
     ARGS=`getopt "${shortOptions}" $*`
 else
@@ -104,6 +115,10 @@ while true; do
         ;;
     -o)
         outputFile=${2}
+        shift 2
+        ;;
+    --version)
+        version=${2}
         shift 2
         ;;
     --)
@@ -144,5 +159,5 @@ fi
 
 for inputFile in ${inputFiles[@]}; do
     outputFile=${inputFile%.*}'.html'
-    buildFile ${inputFile} ${outputFile}
+    buildFile ${inputFile} ${outputFile} ${version}
 done

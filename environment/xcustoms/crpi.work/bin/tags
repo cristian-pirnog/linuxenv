@@ -89,10 +89,11 @@ for t in ${tags}; do
     major=${t//.?*/}
     minor=$(echo $t | awk -F'.' '{print $2}')
     tab=''
-    if [[ ${prevMinor} != ${minor} ]]; then
+    if [[ ${prevMajor} != ${major} ]] || [[ ${prevMinor} != ${minor} ]]; then
 	echo '---------'
 	echo ${major}.${minor}
 	prevMinor=${minor}
+	prevMajor=${major}
     fi
     
     echo " |- ${t}"
