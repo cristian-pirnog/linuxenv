@@ -15,6 +15,8 @@ bin/myXterm $HOME/bin/myXterm
 bin/twoTerms $HOME/bin/twoTerms
 bin/coolSsh $HOME/bin/coolSsh
 bin/switchSynergy $HOME/bin/switchSynergy
+bin/attachToContainer.sh $HOME/bin/
+bin/logContainer.sh $HOME/bin/
 
 atom/atom.init.coffee $HOME/.atom/atom.init.coffee
 atom/config.cson $HOME/.atom/config.cson
