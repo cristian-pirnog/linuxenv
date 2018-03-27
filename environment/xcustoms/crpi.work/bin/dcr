@@ -17,6 +17,10 @@ cat << %%USAGE%%
        --help
              Print this help message and exit.
 
+       -t imageTag
+       --tag imageTag
+             Use the given docker imageTag when running. Defaults to 'local'.
+
      --nobash
              Don\'t run bash when starting the container, but the default command.
 
@@ -37,8 +41,8 @@ cat << %%USAGE%%
 #----------------------------------------------
 # Main script
 #----------------------------------------------
-shortOptions='hn'  # Add short options here
-longOptions='help,nobash,listOptions' # Add long options here
+shortOptions='hnt:'  # Add short options here
+longOptions='help,nobash,listOptions,tag:' # Add long options here
 if $(isMac); then
     ARGS=`getopt "${shortOptions}" $*`
 else
@@ -54,6 +58,7 @@ fi
 
 eval set -- "$ARGS"
 
+imageTag='local'
 cmd='/bin/sh'
 while true; do
     case ${1} in
@@ -68,6 +73,10 @@ while true; do
     -n|--nobash)
         cmd=''
 	shift
+        ;;
+    -t|--tag)
+        imageTag="${2}"
+        shift 2
         ;;
     --)
         shift
@@ -86,6 +95,8 @@ done
 service=${1}
 if [[ -n ${2} ]]; then
     cmd=${2}
+elif [[ ${imageTag} == 'local' ]]; then
+    cmd='/bin/bash'
 fi
 
 # Behavior tests use default command
@@ -95,11 +106,6 @@ fi
 
 if [[ -z ${service} ]]; then
     service=api
-#    composeFile=docker-compose.yml
-#    if [[ -f ${composeFile} ]] && [[ -n $(grep -E '^ +frontend:' ${composeFile}) ]]; then
-#	service=frontend
-#    fi
 fi
 
-set -x
-docker-compose run --service-ports ${service} ${cmd}
+TAG=${imageTag} docker-compose run --service-ports ${service} ${cmd}

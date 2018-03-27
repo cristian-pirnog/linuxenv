@@ -6,6 +6,9 @@
 [push]
 	default = simple
 
+[url "git@bitbucket.org:"]
+    insteadOf = https://bitbucket.org/
+
 [alias]
     lg = !"git lg1"
     lg1 = !"git lg1-specific --all"
