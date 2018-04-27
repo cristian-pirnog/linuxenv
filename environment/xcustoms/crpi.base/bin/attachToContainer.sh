@@ -113,7 +113,7 @@ dockerExecCommand="${sudo} docker exec ${containerId}"
 ## Initialize the command
 cmd="${@}"
 if [[ -z ${cmd} ]]; then
-    cmd=bash
+    cmd=/bin/bash
 fi
 
 echo -e "\nAttaching to container ${containerId} (image ${imageName})\n"
@@ -124,8 +124,8 @@ if [[ -n $(echo ${imageName} | grep sql) ]]; then
         read answer
     fi
 
-    if [[ ${answer} == 'y' ]] && [[ ${attachToDB} == true ]]; then
-	    mysqlPwd=$(getContainerEnvVariable ${containerId} MYSQL_ROOT_PASSWORD)
+    if [[ ${answer} == 'y' ]] || [[ ${attachToDB} == true ]]; then
+	mysqlPwd=$(getContainerEnvVariable ${containerId} MYSQL_ROOT_PASSWORD)
 
     	if [[ -z ${mysqlPwd} ]]; then
     	    echo "Could not retrieve the password for mysql."

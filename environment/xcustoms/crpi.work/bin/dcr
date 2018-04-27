@@ -33,7 +33,7 @@ cat << %%USAGE%%
 	     [optional] the command to be executed. Defaults to bash (unless --nobash
 	     is provided, in which case it defaults to the default Docker command
 	     for the container).
-	     
+
 %%USAGE%%
 }
 
