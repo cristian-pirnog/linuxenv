@@ -16,7 +16,7 @@ alias golib='cd ~/code/go/src/bitbucket.org/devicetools/golib'
 alias gom='cd ~/code/go/src/bitbucket.org/devicetools/management'
 alias gop='cd ~/code/go/src/bitbucket.org/devicetools/provider'
 alias gopu='cd ~/code/go/src/bitbucket.org/devicetools/push'
-alias gopo='cd ~/code/go/src/bitbucket.org/devicetools/pontus2'
+alias gos='cd ~/code/go/src/bitbucket.org/devicetools/segments'
 alias gods='cd ~/code/go/src/bitbucket.org/devicetools/segments'
 alias goi='go install'
 

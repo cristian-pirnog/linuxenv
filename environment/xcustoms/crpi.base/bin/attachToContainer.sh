@@ -87,7 +87,7 @@ while true; do
 done
 
 # Uncomment this for enabling debugging
-# set -x
+#set -x
 
 noAsk=false
 attachToDB=false
@@ -103,6 +103,7 @@ if [[ ${hasDoubleDash} != true ]] || [[ ${hasFilter} == true ]]; then
     shift
 fi
 
+
 source containerUtils.sh
 selectContainer containerId imageName ${filter}
 
@@ -117,8 +118,9 @@ if [[ -z ${cmd} ]]; then
 fi
 
 echo -e "\nAttaching to container ${containerId} (image ${imageName})\n"
+echo attachToDB=${attachToDB}
 if [[ -n $(echo ${imageName} | grep sql) ]]; then
-    answer='y'
+    answer='n'
     if [[ $noAsk == false ]]; then
         printf "You're attaching to a 'mysql' container. Would you like to connect to the DB? [y/n] "
         read answer
