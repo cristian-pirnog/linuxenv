@@ -108,4 +108,9 @@ if [[ -z ${service} ]]; then
     service=api
 fi
 
-TAG=${imageTag} docker-compose run --service-ports ${service} ${cmd}
+dockerFile=$(mktemp -p .)
+echo "Using tmp file ${dockerFile}"
+sed 's/${TAG}_test/${TAG}/g' docker-compose.yml > ${dockerFile}
+
+TAG=${imageTag} docker-compose -f ${dockerFile} run --service-ports ${service} ${cmd}
+rm ${dockerFile}

@@ -56,20 +56,20 @@ function buildFile()
 
 	# If version file found, use it
 	if [[ -z ${lVersion} ]]; then
-        if [[ -f ${lVersionFile} ]]; then
-    	    lVersion=$(cat ${lVersionFile})
-        else
-            lVersion='N\/A'
-        fi
-    fi
-
-    echo version = ${lVersion}
-    tmpFile=$(mktemp -p $(dirname ${lInputFile}))
-    cat ${lInputFile} | sed "s/__VERSION__/${lVersion}/" > ${tmpFile}
-    lInputFile=${tmpFile}
-
+            if [[ -f ${lVersionFile} ]]; then
+    		lVersion=$(cat ${lVersionFile})
+            else
+		lVersion='N\/A'
+            fi
+	fi
+	
+	echo version = ${lVersion}
+	tmpFile=$(mktemp -p $(dirname ${lInputFile}))
+	cat ${lInputFile} | sed "s/__VERSION__/${lVersion}/" > ${tmpFile}
+	lInputFile=${tmpFile}
+	
 	aglio -i ${lInputFile} --theme-template triple -o ${lOutputFile}
-
+	
 	if [[ -n ${tmpFile} ]]; then
 	    test -f ${tmpFile} && rm ${tmpFile}
 	fi

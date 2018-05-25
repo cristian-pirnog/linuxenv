@@ -8,9 +8,9 @@ printUsage()
 cat << %%USAGE%%
      Usage: $(basename ${0}) [-h]
             $(basename ${0}) [options] <-c|--create>  branchName
-            $(basename ${0}) [options] <-d|--delete>  branchName
+            $(basename ${0}) [options] <-d|--delete>  branchName1 branchName2...
             $(basename ${0}) [options] --deleteRemote branchName
-            $(basename ${0}) [options] <-D|--DELETE>  branchName
+            $(basename ${0}) [options] <-D|--DELETE>  branchName1 branchName2...
             $(basename ${0}) [options] <-f|--fetch> 
             $(basename ${0}) [options] <-s|--switch>  branchName [--force]
             $(basename ${0}) [options] <-t|--track>   [branchName]
@@ -35,17 +35,19 @@ cat << %%USAGE%%
              Create branches branchName (one for each project). 
 
        -d branchName
-       --delete branchName
-             Delete branches branchName (one for each project).
+       --delete branchName1 branchName2
+             Delete branches branchName (one for each project). Multiple branches
+	     should be used only for single projects.
 
        --deleteRemote branchName
              Delete branches branchName (one for each project) on the remote
 	     server.
 
-       -D branchName
-       --DELETE branchName
+       -D branchName1 branchName2
+       --DELETE branchName1 branchName2
              Deletes branches branchName (one for each project) irrespective 
-	     of their merged status.
+	     of their merged status. Multiple branches should be used only for
+	     single projects.
 
        -f 
        --fetch
@@ -205,7 +207,7 @@ check_forceDeleteBranch()
 #----------------------------------------------
 forceDeleteBranch()
 {
-    git branch -D ${1}
+    git branch -D $@
 }
 
 #----------------------------------------------
@@ -217,9 +219,7 @@ check_deleteBranch()
 #----------------------------------------------
 deleteBranch()
 {
-    git branch -d ${1}
-    rm -rf ~/deploy/${1}
-    rm -rf ~/build/${1}
+    git branch -d $@
 }
 
 #----------------------------------------------
