@@ -11,12 +11,15 @@ metacity $HOME/.gconf/apps/metacity
 #
 bin/add $HOME/bin/add
 bin/from_unixtime_ms $HOME/bin/from_unixtime_ms
+bin/inspectContainer.sh $HOME/bin/inspectContainer.sh
 bin/myXterm $HOME/bin/myXterm
 bin/twoTerms $HOME/bin/twoTerms
 bin/coolSsh $HOME/bin/coolSsh
 bin/switchSynergy $HOME/bin/switchSynergy
-bin/attachToContainer.sh $HOME/bin/
-bin/logContainer.sh $HOME/bin/
+bin/attachToContainer.sh $HOME/bin/attachToContainer.sh
+bin/logContainer.sh $HOME/bin/logContainer.sh
+bin/makeVersion $HOME/bin/makeVersion
+bin/up $HOME/bin/up
 
 atom/atom.init.coffee $HOME/.atom/atom.init.coffee
 atom/config.cson $HOME/.atom/config.cson

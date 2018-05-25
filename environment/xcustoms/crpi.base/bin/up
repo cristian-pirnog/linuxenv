@@ -1,0 +1,101 @@
+#!/bin/bash
+
+source  ~/.userfunctions
+
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) -h
+            $(basename ${0}) [component] [-t tag]
+
+    Description:
+        Wrapper arround docker-compose up.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       -t
+       --tag
+             The tag of the docker images to be used with the docker-compose.yml file.
+             Defaults to 'latest'.
+
+       -d
+             Start the containers in detached mode.
+
+    Arguments:
+       component
+             (Optional) The component to start. Defaults to the first component in the
+	     docker-compose.yml file.
+%%USAGE%%
+}
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+shortOptions='ht:d'  # Add short options here
+longOptions='help,listOptions,tag:' # Add long options here
+if $(isMac); then
+    ARGS=`getopt "${shortOptions}" $*`
+else
+    ARGS=$(getopt -u -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+
+fi
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+options=''
+while true; do
+    case ${1} in
+    --listOptions)
+        listOptions
+        exit 0
+        ;;
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    -t|--tag)
+        tag=${2}
+        shift 2
+        ;;
+    -d)
+        options=${options}' -d'
+        shift
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # This is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
+
+
+if [[ -z ${tag} ]]; then
+    tag=latest
+    printf "\nNo tag provided. Will use '%s'.\n\n" "${tag}"
+fi
+
+# Component is the first argument (default to empty)
+component=${1}
+
+# Uncomment this for enabling debugging
+# set -x
+
+dockerFile=docker-file_up.yml
+sed 's/${TAG}_test/${TAG}/g' docker-file.yml > ${dockerFile}
+
+TAG=${tag} docker-compose up ${options} -f ${dockerFile} ${component}

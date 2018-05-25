@@ -1,0 +1,112 @@
+#!/bin/bash
+
+source  ~/.userfunctions
+
+#----------------------------------------------
+printUsage()
+{
+cat << %%USAGE%%
+     Usage: $(basename ${0}) -h
+            $(basename ${0}) [-v version]
+
+    Description:
+        Make versioned images for the backend and frontend of a service.
+
+    Options:
+       -h
+       --help
+             Print this help message and exit.
+
+       -v version
+	     Use the provided version, instead of the one from the .version file.
+
+%%USAGE%%
+}
+
+
+#----------------------------------------------
+# Main script
+#----------------------------------------------
+shortOptions='hv:'  # Add short options here
+longOptions='help,listOptions' # Add long options here
+if $(isMac); then
+    ARGS=`getopt "${shortOptions}" $*`
+else
+    ARGS=$(getopt -u -o "${shortOptions}" -l "${longOptions}" -n "$(basename ${0})" -- "$@")
+
+fi
+
+# If wrong arguments, print usage and exit
+if [[ $? -ne 0 ]]; then
+    printUsage
+    exit 1;
+fi
+
+eval set -- "$ARGS"
+
+while true; do
+    case ${1} in
+    --listOptions)
+        listOptions
+        exit 0
+        ;;
+    -h|--help)
+        printUsage
+        exit 0
+        ;;
+    -v)
+        version=${2}
+        shift 2
+        ;;
+    --)
+        shift
+        break
+        ;;
+    "")
+        # This is necessary for processing missing optional arguments 
+        shift
+        ;;
+    esac
+done
+
+#if [[ $# -lt 1 ]]; then
+#    printUsage
+#    exit 1
+#fi
+
+# Uncomment this for enabling debugging
+# set -x
+
+if [[ -z ${version} ]]; then
+    versionFile=.version
+    if [[ ! -f ${versionFile} ]]; then
+	exitWithError "Could not find ${versionFile} file"
+    fi
+    version=$(cat ${versionFile})
+fi
+
+echo -e "\nBuilding Docker images for version ${version}\n"
+
+buildDirs=('.' 'frontend')
+if [[ -d frontend/console ]]; then
+    buildDirs=('.' 'frontend/console' 'frontend/onboarding')
+fi
+
+# Check that we have all the Makefiles that we want
+for d in ${buildDirs[@]}; do
+    makefile="${d}/Makefile"
+    if [[ ! -f ${makefile} ]]; then
+	exitWithError "Could not find Makefile in ${d}"
+    fi
+done
+
+if [[ -f doc/apidoc.apib ]]; then
+    buildApidoc || exitWithError "Could not build the API doc"
+fi
+
+# Build and push all the images
+for d in ${buildDirs[@]}; do
+    makefile="${d}/Makefile"
+    cd ${d} && make VERSION=${version} push && cd ->/dev/null
+done
+
