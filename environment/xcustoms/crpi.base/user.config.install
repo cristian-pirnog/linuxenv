@@ -11,6 +11,7 @@ metacity $HOME/.gconf/apps/metacity
 #
 bin/add $HOME/bin/add
 bin/from_unixtime_ms $HOME/bin/from_unixtime_ms
+bin/containerUtils.sh $HOME/bin/containerUtils.sh
 bin/inspectContainer.sh $HOME/bin/inspectContainer.sh
 bin/myXterm $HOME/bin/myXterm
 bin/twoTerms $HOME/bin/twoTerms

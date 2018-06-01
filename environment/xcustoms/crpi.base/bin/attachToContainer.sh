@@ -118,7 +118,6 @@ if [[ -z ${cmd} ]]; then
 fi
 
 echo -e "\nAttaching to container ${containerId} (image ${imageName})\n"
-echo attachToDB=${attachToDB}
 if [[ -n $(echo ${imageName} | grep sql) ]]; then
     answer='n'
     if [[ $noAsk == false ]]; then

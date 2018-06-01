@@ -95,7 +95,7 @@ component=${1}
 # Uncomment this for enabling debugging
 # set -x
 
-dockerFile=docker-file_up.yml
-sed 's/${TAG}_test/${TAG}/g' docker-file.yml > ${dockerFile}
+dockerFile=docker-compose_up.yml
+sed 's/${TAG}_test/${TAG}/g' docker-compose.yml > ${dockerFile}
 
-TAG=${tag} docker-compose up ${options} -f ${dockerFile} ${component}
+TAG=${tag} docker-compose -f ${dockerFile} up ${options} ${component}
