@@ -3,6 +3,7 @@
 alias genpw='pwgen -ns1 16 5'
 alias pyOn='if [[ -f env/bin/activate ]]; then source env/bin/activate; else echo "Could not find a Python env."; fi'
 alias pyOff='if [[ $(type -t deactivate) == function ]]; then deactivate; else echo "You are not in a python env."; fi'
+alias activateOpt='. ${OPTOOLS_DIR}/env/bin/activate'
 
 alias cdb='cd ~/bin'
 alias cdo="cd ${OPTOOLS_DIR}"

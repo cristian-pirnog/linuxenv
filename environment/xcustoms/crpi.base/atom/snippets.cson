@@ -18,6 +18,13 @@
       'prefix': 'rne'
       'body': 'return nil, err'
 
+    'insert log scoping':
+      'prefix': 'log'
+      'body': """
+log.Printf("${1} <----------")
+defer log.Printf("${1} ---------->")
+"""
+
     'return err if err':
       'prefix': 'iferr'
       'body': """
