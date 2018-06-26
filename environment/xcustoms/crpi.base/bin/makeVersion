@@ -87,10 +87,14 @@ fi
 
 echo -e "\nBuilding Docker images for version ${version}\n"
 
-buildDirs=('.' 'frontend')
-if [[ -d frontend/console ]]; then
-    buildDirs=('.' 'frontend/console' 'frontend/onboarding')
-fi
+supportedBuildDirs=('frontend' 'frontend/console' 'frontend/onboarding')
+
+buildDirs=('.')
+for d in ${supportedBuildDirs[@]}; do
+    if [[ -d ${d} ]]; then
+	buildDirs+=(${d})
+    fi
+done
 
 # Check that we have all the Makefiles that we want
 for d in ${buildDirs[@]}; do
