@@ -12,7 +12,7 @@ fi
 shopt -sq cdspell cmdhist dotglob histappend no_empty_cmd_completion 
 
 # Copy all the ssh config files into the big one
-cat ~/.ssh/config.* > ~/.ssh/config
+#test -f~/.ssh/config.* && cat ~/.ssh/config.* > ~/.ssh/config
 
 # Optional settings
 # ==============================================
@@ -32,6 +32,12 @@ if [[ $? -eq 0 ]]; then
 fi
 
 # Use custom colors for 'ls' instead of the default ones
-if [[ -f ~/.dircolors ]]; then eval `dircolors ~/.dircolors`; fi
+if [[ -f ~/.dircolors ]]; then
+    if [[ isMac ]]; then
+        eval `gdircolors ~/.dircolors`
+    else
+        eval `dircolors ~/.dircolors`
+    fi
+fi
 
 if [[ -f ~/.userfunctions ]]; then source ~/.userfunctions; fi

@@ -13,20 +13,20 @@ Usage: `basename $0` [-i] [-f pattern] [-x pattern] [-s character] [-d dir] expr
     Options:
         -i      perform case Insensitive search
 
-    	-s      skip lines that have the character before the searchword. 
-                 Useful for ignored out-commented lines.
+    	-s      skip lines that have the character before the searchword.
+                Useful for ignored out-commented lines.
 
-        -x      exclude from search any directories/files that contain the 
+        -x      exclude from search any directories/files that contain the
                 pattern. For multiple patterns to exclude, you must provide
                 one -x option for each pattern.
 
-                If this option is not provided, the default pattern will be 
-                      '$(echo ${thePattern})'. 
-                Otherwise, if pattern does not contain the default pattern, 
+                If this option is not provided, the default pattern will be
+                      '$(echo ${thePattern})'.
+                Otherwise, if pattern does not contain the default pattern,
                 this will be added to it.
 
-	-f	search only through files whose names match the pattern
-		
+        -f	search only through files whose names match the pattern
+
         -h      display this help message
 
 	-d dir
@@ -41,7 +41,12 @@ Usage: `basename $0` [-i] [-f pattern] [-x pattern] [-s character] [-d dir] expr
 #------------------------------------------------------------------------
 function StripQuotes()
 {
-    echo ${1:1:-1}
+    if [[ isMac ]]; then
+        echo ${1}
+        #echo ${1:1:$((${#1}-2))}
+    else
+        echo ${1:1:-1}
+    fi
 }
 
 
@@ -81,16 +86,16 @@ while true; do
 	    printUsage
 	    exit 0
 	    ;;
-        -i)      
-            theDoCase="-i"
+    -i)
+        theDoCase="-i"
 	    shift
-            ;;
-        -f)
-            theFilePattern=$(StripQuotes ${2})
+        ;;
+    -f)
+        theFilePattern=$(StripQuotes ${2})
 	    shift 2
 	    ;;
-        -x)
-            theExcludePattern=${theExcludePattern}${NL}$(StripQuotes ${2})
+    -x)
+        theExcludePattern=${theExcludePattern}${NL}$(StripQuotes ${2})
 	    shift 2
 	    ;;
 	-s)
@@ -107,7 +112,7 @@ while true; do
 	    break
 	    ;;
 	"")
-	    # This is necessary for processing missing optional arguments 
+	    # This is necessary for processing missing optional arguments
 	    shift
 	    ;;
     esac
@@ -122,18 +127,20 @@ fi
 theSearchWord=$(StripQuotes "$*")
 theSearchWord=$(echo "${theSearchWord}"|sed 's_\([\(\)]\)_\\\1_g')
 
-grepCommand="grep -nT ${theDoCase} -E '${theSearchWord}'"
+initialTabOption=$(test isMac || echo T)
+grepCommand="grep -n${initialTabOption} ${theDoCase} -E '${theSearchWord}'"
+mimeArgument=$(test isMac && echo -I || echo -i)
+fileCommand="file -b ${mimeArgument}"
 
 for f in $($theFind -L $theDirectory -type f | grep -v "$theExcludePattern")
 do
-    textFileFlag=`file -i -b $f | grep -e '^text'`
+    textFileFlag=`${fileCommand} "${f}" | grep -e '^text'`
     if [[ -z ${theFilePattern} ]] && [[ -z ${textFileFlag} ]]; then
-	continue
+        continue
     fi
 
-  
     if [[ -z $(echo ${f} | grep -E -e "${theFilePattern}")  ]]; then
-	continue
+        continue
     fi
 
     if [[ ${mySkipComments} == true ]]; then
@@ -141,13 +148,12 @@ do
     else
 	expression=$(eval ${grepCommand} ${f})
     fi
-    
+
     if [[ -n ${expression} ]]; then
         echo "-----------------------------------------------------------"
         echo "$f"
         echo "-----------------------------------------------------------"
-        echo "" 
+        echo ""
         echo "$expression" | sed 's/://' | grep ${theDoCase} -E --color=auto -- "${theSearchWord}"
     fi
 done
-

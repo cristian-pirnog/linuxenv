@@ -83,7 +83,14 @@ if [[ -z ${gitDirs} ]]; then
     exit 0
 fi
 
-dirs=$(dirname ${gitDirs})
+if [[ isMac ]]; then
+    dirs=""
+    for d in ${gitDirs}; do
+        dirs=$(echo ${dirs} $(dirname "${d}"))
+    done
+else
+    dirs=$(dirname ${gitDirs})
+fi
 
 # Filter out the nested repos, if required
 if [[ ${keepNested} == false ]]; then

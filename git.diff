@@ -1,0 +1,160 @@
+diff --git a/base.sh b/base.sh
+index 94a89d1..1bc3c5c 100644
+--- a/base.sh
++++ b/base.sh
+@@ -59,7 +59,7 @@ UpdateFile()
+     fi
+ 
+     # Take action only if the target dir of the symlink exists
+-    TARGET_PATH=`GetFilePath $2` 
++    TARGET_PATH=`dirname $2` 
+     if [ ! -d $TARGET_PATH ]; then
+         echo "        Creating target directory: $TARGET_PATH"
+         mkdir -p ${TARGET_PATH} || (echo "        Failed to create directory" && exit 1)
+diff --git a/environment/defaults/.bash_profile b/environment/defaults/.bash_profile
+index 76822a6..f0f7941 100644
+--- a/environment/defaults/.bash_profile
++++ b/environment/defaults/.bash_profile
+@@ -6,3 +6,8 @@ fi
+ 
+ unset USERNAME
+ 
++
++# Setting PATH for Python 2.7
++# The original version is saved in .bash_profile.pysave
++PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
++export PATH
+diff --git a/environment/defaults/.bashrc b/environment/defaults/.bashrc
+index 1387079..f8f5c90 100644
+--- a/environment/defaults/.bashrc
++++ b/environment/defaults/.bashrc
+@@ -30,6 +30,5 @@ for f in ~/completions/*; do
+     source $f
+ done
+ 
+-
+ # Set the file masks
+ umask 002
+diff --git a/environment/defaults/.bashrc_default b/environment/defaults/.bashrc_default
+index a5f83b7..47653ba 100644
+--- a/environment/defaults/.bashrc_default
++++ b/environment/defaults/.bashrc_default
+@@ -56,10 +56,16 @@ if [ -n "$force_color_prompt" ]; then
+     fi
+ fi
+ 
++hostPrompt='\h'
++if [[ -f ${HOME}/bin/isMac ]] && isMac; then
++    hostPrompt="iMac"
++fi
++
++
+ if [ "$color_prompt" = yes ]; then
+-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
++    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@${hostPrompt}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+ else
+-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
++    PS1='${debian_chroot:+($debian_chroot)}\u@${hostPrompt}:\w\$ '
+ fi
+ unset color_prompt force_color_prompt
+ 
+@@ -76,8 +82,6 @@ esac
+ if [ -x /usr/bin/dircolors ]; then
+     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+     alias ls='ls --color=auto'
+-    #alias dir='dir --color=auto'
+-    #alias vdir='vdir --color=auto'
+ 
+     alias grep='grep --color=auto'
+     alias fgrep='fgrep --color=auto'
+diff --git a/environment/defaults/.userenv b/environment/defaults/.userenv
+index 7cc78b7..996a24f 100644
+--- a/environment/defaults/.userenv
++++ b/environment/defaults/.userenv
+@@ -30,7 +30,8 @@ if [[ $? -eq 0 ]]; then
+ fi
+ 
+ # Use custom colors for 'ls' instead of the default ones
+-if [[ -f ~/.dircolors ]]; then eval `dircolors ~/.dircolors`; fi
++# This feature is already enabled in .bashrc_default
++#if [[ -f ~/.dircolors ]]; then eval `dircolors ~/.dircolors`; fi
+ 
+ if [[ -f ~/.userfunctions ]]; then source ~/.userfunctions; fi
+ 
+diff --git a/environment/defaults/.userfunctions b/environment/defaults/.userfunctions
+index ca1c2e4..c09ab19 100644
+--- a/environment/defaults/.userfunctions
++++ b/environment/defaults/.userfunctions
+@@ -245,9 +245,15 @@ ric()
+ 	return 1
+     fi
+     
++    if isMac; then
++        for f in ${myFiles}; do
++            sed -i '' -e "s/$from/$to/g" "${f}"
++        done
++    else
+     IFS=$'\n'
+-    replace "$from" "$to" -- ${myFiles}
++        replace "$from" "$to" -- ${myFiles}
+     unset IFS
++    fi
+ }
+ 
+ #----------------------------------------------
+diff --git a/environment/defaults/bin/br b/environment/defaults/bin/br
+index 8ce5ba2..d4df94b 100755
+--- a/environment/defaults/bin/br
++++ b/environment/defaults/bin/br
+@@ -93,7 +93,7 @@ printCurrentBranch()
+ printProjectsForBranch()
+ {
+     local lAll=${1}
+-    listBranches ${lAll} | sed -n "/Project/,/${lBranch}/p" | grep Project | replace Project ""
++    listBranches ${lAll} | sed -n "/Project/,/${lBranch}/p" | grep Project | sed 's/Project//g'
+ }
+ 
+ 
+@@ -341,7 +341,7 @@ mergeBranch()
+ #----------------------------------------------
+ # Main script
+ #----------------------------------------------
+-shortOptions='hx:c:d:D:fs:t:m:l::'  # Add short options here
++shortOptions='lhx:c:d:D:fs:t:m:l::'  # Add short options here
+ longOptions='listOptions,help,exclude:,create:,delete:,deleteRemote:,DELETE:,fetch,switch:,track:,merge:,force'
+ if $(isMac); then
+     ARGS=`getopt ${shortOptions} $*`
+diff --git a/environment/defaults/completions/branch.sh b/environment/defaults/completions/branch.sh
+index 484e36f..4c652fd 100644
+--- a/environment/defaults/completions/branch.sh
++++ b/environment/defaults/completions/branch.sh
+@@ -1,7 +1,7 @@
+ _branch()
+ {
+   cur=${COMP_WORDS[COMP_CWORD]}
+-  COMPREPLY=( $( compgen -W "$(br --listOptions) $(br -lall | replace '*' ' ' | grep '^ ' | sort | uniq)" -- $cur ) )
++  COMPREPLY=( $( compgen -W "$(br -l) $(br -lall | sed 's/*/ /g' | grep '^ ' | sort | uniq)" -- $cur ) )
+ }
+ 
+ complete -o default -o filenames -F _branch br
+diff --git a/update_user b/update_user
+index ff1f472..b4c878b 100755
+--- a/update_user
++++ b/update_user
+@@ -116,14 +116,14 @@ source base.sh
+ 
+ TARGET_DIRECTORY=$HOME/.${USER}_config
+ 
+-BASE_DIRECTORY=`GetFilePath $0`
++BASE_DIRECTORY=`dirname $0`
+ 
+ if [[ $(pwd) != ${TARGET_DIRECTORY} ]]; then
+     echo -e "\nThe checkout must be located in: ${TARGET_DIRECTORY}. Exiting.\n"
+     exit 1
+ fi
+ 
+-if [[ ${BASE_DIRECTORY} != "./" ]]; then
++if [[ ${BASE_DIRECTORY} != "." ]]; then
+    echo "This script must be run from the directory where it resides: $BASE_DIRECTORY"
+    exit 1
+ fi

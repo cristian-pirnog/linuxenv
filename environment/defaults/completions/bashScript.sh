@@ -6,7 +6,7 @@ _bashScript()
 
 scriptDirs=("${HOME}/CRON" "${HOME}/bin" "${HOME}/.${USER}_config")
 for d in ${scriptDirs[@]}; do
-    files=$(find "${d}" \( -type f -o -type l \) -executable)
+    files=$(findExecutable "${d}" \( -type f -o -type l \) )
     if [[ -n ${files} ]]; then
 	supportedScripts=${supportedScripts}' '$(grep -l -d skip -- --listOptions ${files} 2> /dev/null)
     fi

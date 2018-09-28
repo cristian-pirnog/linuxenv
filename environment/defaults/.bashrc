@@ -30,7 +30,7 @@ test -f ${HOME}/.aliases_custom && source ${HOME}/.aliases_custom
 ##
 # And do stuff for completions
 ##
-for f in ~/completions/*; do
+for f in ~/completions/*.sh; do
     source $f
 done
 

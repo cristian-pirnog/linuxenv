@@ -1,7 +1,8 @@
 # -*- mode: sh -*- #
 
-shopt -s expand_aliases
-test -f ~/.aliases && source ~/.aliases
+## We don't want to depend on aliases
+#shopt -s expand_aliases
+#test -f ~/.aliases && source ~/.aliases
 
 
 #----------------------------------------------
@@ -89,6 +90,18 @@ lower()
 {
     echo $* | tr [:upper:] [:lower:]
 }
+
+#----------------------------------------------
+findExecutable()
+{
+    execArg='--executable'
+    if [[ isMac ]]; then
+       execArg='-perm +111'
+    fi
+
+    find "$@" ${lExecArg}
+}
+
 
 #----------------------------------------------
 # Lists all source files that match the given extensions

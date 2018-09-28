@@ -26,12 +26,14 @@ for h in $(grep '^Host' ~/.ssh/config | awk '{print $2}'); do
 done
 
 # Make distribution-independent aliases for package management
-for c in apt apt-get dnf yum; do
-    if [[ -n $(which ${c} 2>/dev/null) ]]; then
-	alias install='sudo '${c}' install'
-	alias remove='sudo '${c}' remove'
-	alias update='sudo '${c}' update'
-	break
-    fi
-done
+if [[ ! isMac ]]; then
+    for c in apt apt-get dnf yum; do
+        if [[ -n $(which ${c} 2>/dev/null) ]]; then
+    	    alias install='sudo '${c}' install'
+        	alias remove='sudo '${c}' remove'
+    	    alias update='sudo '${c}' update'
+    	    break
+        fi
+    done
+fi
 

@@ -462,9 +462,8 @@ fi
 ## Run checks for the given task
 check_${task} ${arguments} $* || exit 1
 
-
-if [[ $(echo "${toExclude}"|grep ' '|lc) > 0 ]]; then
-    echo "Projects to exclude contain spaces, which is not supported."
+if [[ -n $(echo "${toExclude}"|grep ' ') ]]; then
+    echo "Projects to exclude contain spaces, which is not supported: '${toExclude}'."
     exit 1
 fi
 

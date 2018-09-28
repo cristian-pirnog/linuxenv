@@ -13,6 +13,7 @@
 metacity $HOME/.gconf/apps/metacity
 .userenv $HOME/.userenv
 .userfunctions $HOME/.userfunctions
+.goto.bash ${HOME}/.goto.bash
 #CodingTemplates $HOME
 completions $HOME/completions
 
