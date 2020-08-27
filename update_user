@@ -5,7 +5,7 @@ printUsage()
 {
 cat << %%USAGE%%
 Usage: $(basename ${0}) [-h|--help]
-       $(basename ${0}) [--nopull]
+       $(basename ${0}) [-P|--nopull] [-A|-B|--noask|--batch]
 
     Description:
         Updates the user environment.
@@ -15,9 +15,12 @@ Usage: $(basename ${0}) [-h|--help]
        --help
              Print this help message and exit.
 
+       -P
        --nopull
              Update the environment without doing a 'git pull'.
 
+       -A
+       -B
        --noask
        --batch
              Update the environment without asking for confirmation.

@@ -61,7 +61,7 @@ ProcessDir()
     echo "Processing directory ${lDir}"
 
     rename 's/ /_/g' *
-    
+
 
     for myFile in $(ls $lDir)
     do
@@ -85,8 +85,8 @@ MoveToTarget()
     local lChecksum=${3}
     local lChecksumsFile=${4}
 
-    echo "${lFile} -> ${lTargetFile}"
-    mv ${lFile} ${lTargetFile}
+    echo "Copying ${lFile} -> ${lTargetFile}"
+    cp ${lFile} ${lTargetFile}
     chmod ugo-w ${lTargetFile}
     echo "${lChecksum} $(basename ${lTargetFile})" >> ${lChecksumsFile}
 }
@@ -144,7 +144,7 @@ ProcessFile()
     local lMonth="$(echo ${lTimeStamp} | cut -c5-6)"
 
     if [[ $(echo ${lYear}) < 2000 ]]; then
-	echo "Timestamp ${lTimeStamp} too old for file ${lFile}. Skipping it." 
+	echo "Timestamp ${lTimeStamp} too old for file ${lFile}. Skipping it."
 	return
     fi
 
@@ -184,7 +184,7 @@ ProcessFile()
 	# If the file that corresponds to the checksum exists
 	if [[ -f ${lTargetPath}/$grepped ]]; then
             echo "File ${lFile} exists as: ${lTargetPath}/$grepped"
-	    rm -v ${lFile}	    
+	    rm -v ${lFile}
 	else
             sed -i "/${checksum}/d" ${lChecksumsFile}
 	    MoveToTarget ${lFile} ${lTargetFileName} ${checksum} ${lChecksumsFile}
@@ -197,7 +197,12 @@ ProcessFile()
 # Main script
 #-------------------------
 
-myNASmount=/mnt/dsbackup
+if [[ $OSTYPE = 'darwin16' ]]; then
+  myNASmount=/Volumes/backup
+else
+  myNASmount=/mnt/dsbackup
+fi
+
 myBaseDir=${myNASmount}/photos
 
 # Check that the NAS is mounted

@@ -1,6 +1,10 @@
 # -*- mode: sh -*- #
 
-export PATH=${PATH}:~/.local/bin:/usr/local/go/bin
+export PATH=${PATH}:~/.local/bin:/usr/local/go/bin:~/anaconda3/bin/
 
 export PROJECTS_TO_BUILD="katania balerion/strategy balerion/optimizer balerion/live __client__/support __client__/optimizer drogon/src/C" # unit_tests/katania __client__/live"
 
+conda_path=/Users/pirnog/anaconda3
+if [[ -d ${conda_path} ]]; then
+    . ${conda_path}/etc/profile.d/conda.sh
+fi
