@@ -5,7 +5,7 @@ _goScript()
 }
 
 scriptDirs="${GOPATH}/bin"
-supportedScripts=$(find ${scriptDirs} -executable -maxdepth 1 2> /dev/null)
+supportedScripts=$(find ${scriptDirs} -perm +ugo+x -maxdepth 1 2> /dev/null)
 
 for s in ${supportedScripts}; do
   complete -o default -o filenames -F _goScript ${s} $(basename ${s}) ./$(basename ${s}) $(sed "s_${HOME}_~_" <<< ${s})
