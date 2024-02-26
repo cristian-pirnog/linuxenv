@@ -1,0 +1,10 @@
+#
+# Files from '.ssh' directory
+#
+
+#
+# Files from 'CRON' directory
+#
+CRON/cron.tab ${HOME}/CRON/cron.tab
+CRON/refreshPicframeModel.sh ${HOME}/CRON/refreshPicframeModel.sh
+
