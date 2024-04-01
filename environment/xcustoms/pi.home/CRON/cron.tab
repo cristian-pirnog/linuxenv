@@ -1,1 +1,2 @@
-14 1-8/2 * * * ~/CRON/refreshPicframeModel.sh
+14 1-6/2 * * * ~/CRON/refreshPicframeModel.sh
+0/15 8-22 * * * ~/bin/runPicframe.sh
