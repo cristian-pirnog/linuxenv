@@ -13,5 +13,7 @@ fi
 code_dir=/home/pi/code/picframe
 cd ${code_dir}
 source build/bin/activate >> ${log_file} 2>&1
-PYTHONPATH=${PYTHONPATH}:picframe python picframe/start.py ${HOME}/code/picframe/cristian_config/picframe_data/config/configuration.yaml  >> ${log_file} 2>&1
-
+while :
+do
+    PYTHONPATH=${PYTHONPATH}:picframe python picframe/start.py ${HOME}/code/picframe/cristian_config/picframe_data/config/configuration.yaml  >> ${log_file} 2>&1
+done
