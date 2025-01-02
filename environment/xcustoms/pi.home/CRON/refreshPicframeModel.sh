@@ -1,12 +1,14 @@
 #!/bin/bash
 
-user_name=local_subscriber
-password=$(grep ${user_name} /etc/mosquitto/conf.d/passwords | awk '{print $NF}') 
+password_file=$(dirname $0)/mqtt_pwd
 
-if [[ -z ${password} ]]; then
-    echo "Couldn't find password for Mosquitto user ${user_name}"
+user_name=raspberry_pi_cron
+password=$(cat ${password_file}) 
+
+if [[ ! -f ${password_file} ]]; then
+    echo "Couldn't find password file: ${password_file}"
     exit 1
 fi
 
-
-mosquitto_pub -h localhost -u ${user_name} -P ${password} -t homeassistant/switch/picframe_reload_model/set -m '{"set": true}'
+# The actual message is irrelevant, but we publish a JSON anyway
+mosquitto_pub -h crpidiskstation -p 1883 -u ${user_name} -P ${password} -t shellies/livingroom/picframe/reload_model/set -m '{"set": true}'
